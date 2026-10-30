@@ -39,8 +39,8 @@ class AppView extends View
     {
 		parent::initialize();
 		
-		$this->loadHelper('KvAdmin.SystemIcon');
-		$this->loadHelper('KvAdmin.Icon');
-		$this->loadHelper('KvAdmin.KvForm');
+		//$this->loadHelper('KvAdmin.SystemIcon');
+		//$this->loadHelper('KvAdmin.Icon');
+		//$this->loadHelper('KvAdmin.KvForm');
     }
 }

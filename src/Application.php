@@ -55,7 +55,7 @@ class Application extends BaseApplication
             'Table',
             (new TableLocator())->allowFallbackClass(false),
         );
-		$this->addPlugin('KvAdmin', ['routes' => true, 'bootstrap' => true]);
+		$this->addPlugin('JeffAdmin', ['routes' => true, 'bootstrap' => true]);
     }
 
     /**
