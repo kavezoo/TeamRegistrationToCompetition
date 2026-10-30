@@ -1,0 +1,48 @@
+body.app a.au-btn--google,
+body.app.auth-page .social-button a.au-btn--google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    height: 44px;
+    margin: 0;
+    padding: 0 16px;
+    background: #e8f0fe;
+    background-color: #e8f0fe;
+    color: #123a86;
+    border: 1px solid #d2e3fc;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+    text-decoration: none;
+    text-transform: none;
+}
+
+body.app a.au-btn--google:hover,
+body.app a.au-btn--google:focus,
+body.app a.au-btn--google:active,
+body.app.auth-page .social-button a.au-btn--google:hover,
+body.app.auth-page .social-button a.au-btn--google:focus,
+body.app.auth-page .social-button a.au-btn--google:active {
+    background: #a8c7fa;
+    background-color: #a8c7fa;
+    color: #123a86;
+    border-color: #8ab4f8;
+}
+
+body.app .google-mark {
+    width: 22px;
+    height: 22px;
+    padding: 2px;
+    background: #fff;
+    border-radius: 4px;
+    flex: 0 0 auto;
+}
+
+body.app.auth-page .au-btn--google {
+    max-width: none;
+}

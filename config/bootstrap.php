@@ -235,7 +235,7 @@ ServerRequest::addDetector('tablet', function ($request) {
 // and https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax
 // \Cake\I18n\Date::setToStringFormat('dd.MM.yyyy');
 // \Cake\I18n\Time::setToStringFormat('dd.MM.yyyy HH:mm');
-Configure::write('Bake.theme', 'KvAdmin');
+Configure::write('Bake.theme', 'JeffAdmin');
 
 Configure::write('Session', [
     'defaults' => 'php',

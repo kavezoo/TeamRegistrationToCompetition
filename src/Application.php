@@ -17,10 +17,12 @@ declare(strict_types=1);
 namespace App;
 
 use App\Middleware\HostHeaderMiddleware;
+use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
+use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
@@ -56,6 +58,10 @@ class Application extends BaseApplication
             (new TableLocator())->allowFallbackClass(false),
         );
 		$this->addPlugin('JeffAdmin', ['routes' => true, 'bootstrap' => true]);
+
+        // A plugin bootstrapja ezután tölti be a config/users.php felülírásokat.
+        Configure::write('Users.config', ['users']);
+        $this->addPlugin('CakeDC/Users');
     }
 
     /**
@@ -123,7 +129,48 @@ class Application extends BaseApplication
      */
     public function events(EventManagerInterface $eventManager): EventManagerInterface
     {
-        // $eventManager->on(new SomeCustomListenerClass());
+        // A CakeDC Users nyilvános képernyői a JeffAdmin auth kártyát használják, menü nélkül.
+        $eventManager->on('Controller.initialize', function (EventInterface $event): void {
+            $controller = $event->getSubject();
+            if (!$controller instanceof Controller) {
+                return;
+            }
+
+            $request = $controller->getRequest();
+            if ($request->getParam('plugin') !== 'CakeDC/Users' || $request->getParam('controller') !== 'Users') {
+                return;
+            }
+
+            $action = (string)$request->getParam('action');
+            if ($action === 'profile') {
+                $identity = $request->getAttribute('identity');
+                $role = $identity ? (string)($identity['role'] ?? '') : '';
+                $isAdmin = $identity && ($role === 'admin' || !empty($identity['is_superuser']));
+                if ($isAdmin) {
+                    $event->setResult($controller->redirect('/admin/profile'));
+                } else {
+                    $controller->viewBuilder()->setLayout('login');
+                    $controller->viewBuilder()->addHelper('CakeDC/Users.User');
+                }
+
+                return;
+            }
+
+            $authActions = [
+                'login',
+                'register',
+                'requestResetPassword',
+                'changePassword',
+                'resendTokenValidation',
+                'socialEmail',
+            ];
+            if (!in_array($action, $authActions, true)) {
+                return;
+            }
+
+            $controller->viewBuilder()->setLayout('login');
+            $controller->viewBuilder()->addHelper('CakeDC/Users.User');
+        });
 
         return $eventManager;
     }

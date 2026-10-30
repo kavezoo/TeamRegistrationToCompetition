@@ -96,6 +96,7 @@ return function (RouteBuilder $routes): void {
 	$routes->prefix('Admin', function (RouteBuilder $builder) {
 		$builder->setRouteClass(DashedRoute::class);
 		$builder->connect('/', ['controller' => 'Users', 'action' => 'index']);
+		$builder->connect('/profile', ['controller' => 'Users', 'action' => 'profile']);
 		$builder->fallbacks();
 	});
 

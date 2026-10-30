@@ -83,6 +83,11 @@ endif;
             <h1>
                 Welcome to CakePHP <?= h(Configure::version()) ?> Chiffon (🍰)
             </h1>
+            <p>
+                <a href="<?= $this->Url->build('/login') ?>">Bejelentkezés</a>
+                |
+                <a href="<?= $this->Url->build('/register') ?>">Regisztráció</a>
+            </p>
         </div>
     </header>
     <main class="main">

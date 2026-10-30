@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Member;
 
-use KvAdmin\Controller\AppController as KvAdminAppController;
+use JeffAdmin\Controller\AppController as JeffAdminAppController;
 
-class AppController extends KvAdminAppController
+class AppController extends JeffAdminAppController
 {
     public function initialize(): void
     {

@@ -37,10 +37,23 @@ class AppView extends View
      */
     public function initialize(): void
     {
-		parent::initialize();
-		
-		//$this->loadHelper('KvAdmin.SystemIcon');
-		//$this->loadHelper('KvAdmin.Icon');
-		//$this->loadHelper('KvAdmin.KvForm');
+        parent::initialize();
+
+        // A törlés saját űrlapja a lap végére kerül, ne a szerkesztő form belsejébe.
+        // Különben a böngésző a belső </form> címkével lezárja a mentő űrlapot,
+        // a Mentés DELETE-ként megy el, és az edit() szó nélkül újrarajzolja az oldalt.
+        $formHelper = $this->helpers['Form'] ?? [];
+        if (!is_array($formHelper)) {
+            $formHelper = [];
+        }
+        $formHelper['defaultPostLinkBlock'] = true;
+        $this->helpers['Form'] = $formHelper;
+
+        $this->getEventManager()->on('View.beforeLayout', function (): void {
+            $postLinks = $this->fetch('postLink');
+            if ($postLinks !== '') {
+                $this->append('content', $postLinks);
+            }
+        });
     }
 }
