@@ -30,6 +30,7 @@ use Cake\Validation\Validator;
  * @method iterable<\App\Model\Entity\Registration>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\Registration> deleteManyOrFail(iterable $entities, array $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ * @mixin \Cake\ORM\Behavior\CounterCacheBehavior
  */
 class RegistrationsTable extends Table
 {
@@ -49,7 +50,9 @@ class RegistrationsTable extends Table
 
         $this->addBehavior('Timestamp');
 
+        // A CakeDC Users a Users aliast a plugin táblájára köti, ezért itt is az kell.
         $this->belongsTo('Users', [
+            'className' => 'CakeDC/Users.Users',
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
@@ -60,6 +63,10 @@ class RegistrationsTable extends Table
         $this->belongsTo('Competitions', [
             'foreignKey' => 'competition_id',
             'joinType' => 'INNER',
+        ]);
+
+        $this->addBehavior('CounterCache', [
+            'Competitions' => ['registration_count'],
         ]);
     }
 

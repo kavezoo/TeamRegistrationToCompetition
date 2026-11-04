@@ -106,4 +106,16 @@ return function (RouteBuilder $routes): void {
 		$builder->fallbacks();
 	});
 
+    $routes->prefix('ApiV1', function (RouteBuilder $builder): void {
+        $builder->setRouteClass(DashedRoute::class);
+        $builder->setExtensions(['json']);
+        $builder->resources('Competitions');
+        $builder->resources('Registrations');
+        $builder->resources('Teams');
+        $builder->connect('/users/profile', [
+            'controller' => 'Users',
+            'action' => 'profile',
+        ])->setMethods(['GET', 'PATCH', 'PUT', 'POST']);
+    });
+
 };

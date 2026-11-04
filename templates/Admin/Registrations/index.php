@@ -107,33 +107,16 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <th class="integer id-col"><?= $this->Paginator->sort('id') ?></th>
 <?php endif; ?>
-<?php /*
-                              <th class="string"><?= $this->Paginator->sort('user_id', __('User')) ?></th>
-*/ ?>
-<?php /*
-                              <th class="string"><?= $this->Paginator->sort('team_id', __('Team')) ?></th>
-*/ ?>
-<?php /*
                               <th class="string"><?= $this->Paginator->sort('competition_id', __('Competition')) ?></th>
-*/ ?>
-<?php /*
+                              <th class="string"><?= $this->Paginator->sort('user_id', __('User')) ?></th>
+                              <th class="string"><?= $this->Paginator->sort('team_id', __('Team')) ?></th>
+
                               <th class="integer"><?= $this->Paginator->sort('competition_pipe_1') ?></th>
-*/ ?>
-<?php /*
                               <th class="integer"><?= $this->Paginator->sort('competition_pipe_2') ?></th>
-*/ ?>
-<?php /*
                               <th class="integer"><?= $this->Paginator->sort('competition_pipe_3') ?></th>
-*/ ?>
-<?php /*
                               <th class="integer"><?= $this->Paginator->sort('extra_count_1') ?></th>
-*/ ?>
-<?php /*
                               <th class="integer"><?= $this->Paginator->sort('extra_count_2') ?></th>
-*/ ?>
-<?php /*
                               <th class="integer"><?= $this->Paginator->sort('extra_count_3') ?></th>
-*/ ?>
 <?php if (!empty($show['counts'])) : ?>
 <?php     foreach ($countColumns as $countKey => $countLabel) : ?>
                               <th class="count"><?= $this->Paginator->sort($countKey, $countLabel) ?></th>
@@ -196,41 +179,6 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <td class="integer id-col"><?= h((string)$registration->id) ?></td>
 <?php endif; ?>
-<?php /*
-                              <td class="string">
-                                <?= $registration->hasValue('user')
-                                    ? $this->Html->link(
-                                        h((string)$registration->user->username)
-                                            . $this->Icon->outline('link-chain', 'record-link__icon'),
-                                        ['controller' => 'Users', 'action' => 'view', $registration->user->id],
-                                        [
-                                            'class' => 'text-decoration-none text-dark fw-bold record-link',
-                                            'escape' => false,
-                                            'data-bs-toggle' => 'tooltip',
-                                            'data-bs-title' => __('View {0}: {1}', __('User'), (string)$registration->user->username),
-                                        ]
-                                    )
-                                    : '' ?>
-                              </td>
-*/ ?>
-<?php /*
-                              <td class="string">
-                                <?= $registration->hasValue('team')
-                                    ? $this->Html->link(
-                                        h((string)$registration->team->name)
-                                            . $this->Icon->outline('link-chain', 'record-link__icon'),
-                                        ['controller' => 'Teams', 'action' => 'view', $registration->team->id],
-                                        [
-                                            'class' => 'text-decoration-none text-dark fw-bold record-link',
-                                            'escape' => false,
-                                            'data-bs-toggle' => 'tooltip',
-                                            'data-bs-title' => __('View {0}: {1}', __('Team'), (string)$registration->team->name),
-                                        ]
-                                    )
-                                    : '' ?>
-                              </td>
-*/ ?>
-<?php /*
                               <td class="string">
                                 <?= $registration->hasValue('competition')
                                     ? $this->Html->link(
@@ -246,25 +194,45 @@ if ($rowDblClick !== 'none') {
                                     )
                                     : '' ?>
                               </td>
-*/ ?>
-<?php /*
+
+                              <td class="string">
+                                <?= $registration->hasValue('user')
+                                    ? $this->Html->link(
+                                        h((string)$registration->user->username)
+                                            . $this->Icon->outline('link-chain', 'record-link__icon'),
+                                        ['controller' => 'Users', 'action' => 'view', $registration->user->id],
+                                        [
+                                            'class' => 'text-decoration-none text-dark fw-bold record-link',
+                                            'escape' => false,
+                                            'data-bs-toggle' => 'tooltip',
+                                            'data-bs-title' => __('View {0}: {1}', __('User'), (string)$registration->user->username),
+                                        ]
+                                    )
+                                    : '' ?>
+                              </td>
+
+                              <td class="string">
+                                <?= $registration->hasValue('team')
+                                    ? $this->Html->link(
+                                        h((string)$registration->team->name)
+                                            . $this->Icon->outline('link-chain', 'record-link__icon'),
+                                        ['controller' => 'Teams', 'action' => 'view', $registration->team->id],
+                                        [
+                                            'class' => 'text-decoration-none text-dark fw-bold record-link',
+                                            'escape' => false,
+                                            'data-bs-toggle' => 'tooltip',
+                                            'data-bs-title' => __('View {0}: {1}', __('Team'), (string)$registration->team->name),
+                                        ]
+                                    )
+                                    : '' ?>
+                              </td>
+
                               <td class="integer"><?= $registration->competition_pipe_1 === null ? '' : $this->Number->format($registration->competition_pipe_1) ?></td>
-*/ ?>
-<?php /*
                               <td class="integer"><?= $registration->competition_pipe_2 === null ? '' : $this->Number->format($registration->competition_pipe_2) ?></td>
-*/ ?>
-<?php /*
                               <td class="integer"><?= $registration->competition_pipe_3 === null ? '' : $this->Number->format($registration->competition_pipe_3) ?></td>
-*/ ?>
-<?php /*
                               <td class="integer"><?= $registration->extra_count_1 === null ? '' : $this->Number->format($registration->extra_count_1) ?></td>
-*/ ?>
-<?php /*
                               <td class="integer"><?= $registration->extra_count_2 === null ? '' : $this->Number->format($registration->extra_count_2) ?></td>
-*/ ?>
-<?php /*
                               <td class="integer"><?= $registration->extra_count_3 === null ? '' : $this->Number->format($registration->extra_count_3) ?></td>
-*/ ?>
 <?php if (!empty($show['counts'])) : ?>
 <?php     foreach ($countColumns as $countKey => $countLabel) :
         $countVal = $registration->get($countKey) ?? 0;

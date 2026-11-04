@@ -31,6 +31,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -100,9 +101,12 @@ class Application extends BaseApplication
 
             // Cross Site Request Forgery (CSRF) Protection Middleware
             // https://book.cakephp.org/5/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
-            ->add(new CsrfProtectionMiddleware([
+            // Az /api-v1 prefix távoli hívásokhoz készül, ott nincs CSRF-ellenőrzés.
+            ->add((new CsrfProtectionMiddleware([
                 'httponly' => true,
-            ]));
+            ]))->skipCheckCallback(function (ServerRequestInterface $request): bool {
+                return $request->getParam('prefix') === 'ApiV1';
+            }));
 
         return $middlewareQueue;
     }

@@ -51,5 +51,11 @@ return [
         'FormLoginFailure' => [
             'defaultMessage' => 'Az e-mail-cím vagy a jelszó hibás',
         ],
+        // Az /api-v1 hívás JSON-t kap, a többi oldal továbbra is a bejelentkezésre megy.
+        'AuthorizationMiddleware' => [
+            'unauthorizedHandler' => [
+                'className' => 'ApiJson',
+            ],
+        ],
     ],
 ];

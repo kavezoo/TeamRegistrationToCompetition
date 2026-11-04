@@ -141,6 +141,22 @@ return [
             'controller' => '*',
             'action' => '*',
         ],
+        // API v1: versenyek, nevezések, csapatok. Bejelentkezés kell, CSRF nincs.
+        [
+            'role' => '*',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => ['Competitions', 'Registrations', 'Teams'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete'],
+        ],
+        // Saját profil: jelenleg a keresztnév és a vezetéknév szerkeszthető.
+        [
+            'role' => '*',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Users',
+            'action' => 'profile',
+        ],
         [
             'role' => '*',
             'plugin' => 'DebugKit',

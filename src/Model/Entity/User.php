@@ -81,5 +81,11 @@ class User extends Entity
     protected array $_hidden = [
         'password',
         'token',
+        'token_expires',
+        'api_token',
+        'secret',
+        'secret_verified',
+        'login_token',
+        'login_token_date',
     ];
 }
