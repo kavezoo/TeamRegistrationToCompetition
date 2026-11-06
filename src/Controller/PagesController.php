@@ -18,8 +18,10 @@ namespace App\Controller;
 
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
+use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Response;
+use Cake\ORM\Table;
 
 /**
  * Static content controller
@@ -54,12 +56,13 @@ class PagesController extends AppController
      */
     public function profile(): ?Response
     {
-        $user = $this->newUser();
-        if (!$user instanceof User) {
+        $users = $this->fetchTable('Users');
+        $user = $this->newUser($users);
+        if ($user === null) {
             return $this->redirect('/');
         }
         $this->viewBuilder()->setLayout('JeffAdmin.default');
-        if ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($user)) {
+        if ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($users, $user)) {
             return $this->redirect('/');
         }
         $this->set('profileSaved', $this->profileSaved($user));
@@ -136,13 +139,13 @@ class PagesController extends AppController
         return $this->redirect('/login');
     }
 
-    private function newUser(): ?User
+    private function newUser(Table $users): ?EntityInterface
     {
         $identity = $this->request->getAttribute('identity');
         if ($identity === null) {
             return null;
         }
-        $user = $this->fetchTable('Users')->get($identity['id']);
+        $user = $users->get($identity['id']);
         if ((string)$user->get('role') !== User::ROLE_NEW) {
             return null;
         }
@@ -153,9 +156,8 @@ class PagesController extends AppController
     /**
      * A név mentése egyben a klubfelvételi kérelem is, ha még nincs a klubelnöknél.
      */
-    private function storeProfile(User $user): bool
+    private function storeProfile(Table $users, EntityInterface $user): bool
     {
-        $users = $this->fetchTable('Users');
         $user = $users->patchEntity($user, $this->request->getData(), [
             'fields' => ['first_name', 'last_name'],
         ]);
