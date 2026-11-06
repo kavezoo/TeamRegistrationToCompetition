@@ -1,12 +1,14 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var iterable<\App\Model\Entity\Registration> $mine
+ * @var iterable<\App\Model\Entity\Competition> $competitions
+ * @var array<int, \App\Model\Entity\Registration> $mineByCompetition
  * @var iterable<\App\Model\Entity\Registration> $rows
  */
+use App\Model\Entity\Registration;
 use App\Model\Entity\User;
 
-$this->assign('title', 'Jelentkezők');
+$this->assign('title', 'Versenyek');
 
 $grouped = [];
 foreach ($rows as $row) {
@@ -18,29 +20,51 @@ foreach ($rows as $row) {
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">
-            <div class="card-header"><strong>Saját besorolás</strong></div>
+            <div class="card-header"><strong>Versenyek</strong></div>
             <div class="card-body">
-                <?php if ($mine->count() === 0) : ?>
-                    <p>Még nincs versenynevezésed, vagy a klubelnök még nem sorolt alcsapatba.</p>
+                <?php if (count($competitions) === 0) : ?>
+                    <p>Jelenleg nincs verseny, amire jelentkezni lehet.</p>
                 <?php else : ?>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Verseny</th>
-                                    <th>Alcsapat</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($mine as $registration) : ?>
-                                    <tr>
-                                        <td><?= h($registration->competition->name) ?></td>
-                                        <td><?= h($registration->team->name ?? 'Nincs besorolva') ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                    <?php foreach ($competitions as $competition) : ?>
+                        <?php
+                        $registration = $mineByCompetition[(int)$competition->id] ?? null;
+                        $closed = $competition->date_deadline !== null && $competition->date_deadline->isPast();
+                        ?>
+                        <div class="border rounded p-3 mb-3">
+                            <h2 class="h5 mb-1"><?= h($competition->name) ?></h2>
+                            <p class="text-muted mb-2">
+                                <?= h($competition->date_from) ?> – jelentkezési határidő: <?= h($competition->date_deadline) ?>
+                            </p>
+                            <?php if ($registration !== null) : ?>
+                                <ul class="list-unstyled mb-2">
+                                    <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
+                                        <?php $title = trim((string)$competition->get($titleField)); ?>
+                                        <?php if ($title === '') {
+                                            continue;
+                                        } ?>
+                                        <li><?= h($title) ?>: <strong><?= (int)$registration->get($countField) ?></strong></li>
+                                    <?php endforeach; ?>
+                                    <?php if (trim((string)$registration->comment) !== '') : ?>
+                                        <li>Megjegyzés: <?= h($registration->comment) ?></li>
+                                    <?php endif; ?>
+                                    <li>Alcsapat: <?= h($registration->team?->name ?? 'Nincs besorolva') ?></li>
+                                </ul>
+                                <?= $this->Html->link(
+                                    'Módosítás',
+                                    ['action' => 'edit', $registration->id],
+                                    ['class' => 'btn btn-outline-primary btn-sm']
+                                ) ?>
+                            <?php elseif ($closed || !(bool)$competition->visible) : ?>
+                                <p class="mb-0">A jelentkezés lezárult.</p>
+                            <?php else : ?>
+                                <?= $this->Form->postLink(
+                                    'Jelentkezés',
+                                    ['action' => 'add', $competition->id],
+                                    ['class' => 'btn btn-primary', 'block' => false]
+                                ) ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -69,7 +93,7 @@ foreach ($rows as $row) {
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
                                             <td><?= h(User::displayName($registration->user)) ?></td>
-                                            <td><?= h($registration->team->name ?? 'Nincs besorolva') ?></td>
+                                            <td><?= h($registration->team?->name ?? 'Nincs besorolva') ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

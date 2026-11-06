@@ -10,7 +10,7 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $user_id
- * @property int $team_id
+ * @property int|null $team_id
  * @property int $competition_id
  * @property int $lunch_count
  * @property int $extra_lunch_count
@@ -20,6 +20,7 @@ use Cake\ORM\Entity;
  * @property int $extra_count_1
  * @property int $extra_count_2
  * @property int $extra_count_3
+ * @property string|null $comment
  * @property bool $visible
  * @property int $pos
  * @property \Cake\I18n\DateTime $created
@@ -31,6 +32,22 @@ use Cake\ORM\Entity;
  */
 class Registration extends Entity
 {
+    /**
+     * A verseny címmezője és a nevezés hozzá tartozó darabszáma.
+     *
+     * @var array<string, string>
+     */
+    public const TITLED_COUNTS = [
+        'lunch_title' => 'lunch_count',
+        'special_lunch_title' => 'extra_lunch_count',
+        'competition_pipe_title_1' => 'competition_pipe_1',
+        'competition_pipe_title_2' => 'competition_pipe_2',
+        'competition_pipe_title_3' => 'competition_pipe_3',
+        'extra_title_1' => 'extra_count_1',
+        'extra_title_2' => 'extra_count_2',
+        'extra_title_3' => 'extra_count_3',
+    ];
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -52,6 +69,7 @@ class Registration extends Entity
         'extra_count_1' => true,
         'extra_count_2' => true,
         'extra_count_3' => true,
+        'comment' => true,
         'visible' => true,
         'pos' => true,
         'created' => true,

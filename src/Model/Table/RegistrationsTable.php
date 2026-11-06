@@ -58,7 +58,7 @@ class RegistrationsTable extends Table
         ]);
         $this->belongsTo('Teams', [
             'foreignKey' => 'team_id',
-            'joinType' => 'INNER',
+            'joinType' => 'LEFT',
         ]);
         $this->belongsTo('Competitions', [
             'foreignKey' => 'competition_id',
@@ -85,7 +85,7 @@ class RegistrationsTable extends Table
 
         $validator
             ->nonNegativeInteger('team_id')
-            ->notEmptyString('team_id');
+            ->allowEmptyString('team_id');
 
         $validator
             ->nonNegativeInteger('competition_id')
@@ -122,6 +122,29 @@ class RegistrationsTable extends Table
         $validator
             ->nonNegativeInteger('extra_count_3')
             ->notEmptyString('extra_count_3');
+
+        foreach ([
+            'lunch_count',
+            'extra_lunch_count',
+            'competition_pipe_1',
+            'competition_pipe_2',
+            'competition_pipe_3',
+            'extra_count_1',
+            'extra_count_2',
+            'extra_count_3',
+        ] as $countField) {
+            $validator->add($countField, 'maxCount', [
+                'rule' => function ($value): bool {
+                    return (int)$value <= 1000;
+                },
+                'message' => 'Legfeljebb 1000 lehet.',
+            ]);
+        }
+
+        $validator
+            ->scalar('comment')
+            ->maxLength('comment', 1000)
+            ->allowEmptyString('comment');
 
         $validator
             ->boolean('visible')
@@ -165,7 +188,10 @@ class RegistrationsTable extends Table
     public function buildRules(RulesChecker $rules): RulesChecker
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'), ['errorField' => 'user_id']);
-        $rules->add($rules->existsIn(['team_id'], 'Teams'), ['errorField' => 'team_id']);
+        $rules->add($rules->existsIn(['team_id'], 'Teams'), [
+            'errorField' => 'team_id',
+            'allowNullableNulls' => true,
+        ]);
         $rules->add($rules->existsIn(['competition_id'], 'Competitions'), ['errorField' => 'competition_id']);
 
         return $rules;

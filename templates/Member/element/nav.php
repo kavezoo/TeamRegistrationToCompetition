@@ -24,7 +24,7 @@ $prefixName = (string)($prefix ?? $this->request->getParam('prefix') ?? 'Member'
             <ul class="list-unstyled navbar__list">
                 <li<?= $current === 'Registrations' ? ' class="active"' : '' ?>>
                     <?= $this->Html->link(
-                        '<i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>' . h('Jelentkezők'),
+                        '<i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>' . h('Versenyek'),
                         ['prefix' => $prefixName, 'controller' => 'Registrations', 'action' => 'index'],
                         ['escape' => false]
                     ) ?>

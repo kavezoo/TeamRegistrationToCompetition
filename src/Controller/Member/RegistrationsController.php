@@ -3,17 +3,185 @@ declare(strict_types=1);
 
 namespace App\Controller\Member;
 
+use App\Model\Entity\Competition;
+use App\Model\Entity\Registration;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\Response;
+
 class RegistrationsController extends AppController
 {
     public function index(): void
     {
-        $identity = $this->request->getAttribute('identity');
-        $userId = $identity !== null ? ($identity['id'] ?? null) : null;
+        $userId = $this->userId();
         $registrations = $this->fetchTable('Registrations');
         $mine = $registrations->find('roster')
             ->where(['Registrations.user_id' => $userId])
             ->all();
         $rows = $registrations->find('roster')->all();
-        $this->set(compact('mine', 'rows'));
+
+        $mineIds = [];
+        $mineByCompetition = [];
+        foreach ($mine as $registration) {
+            $competitionId = (int)$registration->competition_id;
+            $mineIds[] = $competitionId;
+            $mineByCompetition[$competitionId] = $registration;
+        }
+
+        $competitions = $this->fetchTable('Competitions')->find();
+        if ($mineIds === []) {
+            $competitions->where(['Competitions.visible' => true]);
+        } else {
+            $competitions->where([
+                'OR' => [
+                    'Competitions.visible' => true,
+                    'Competitions.id IN' => $mineIds,
+                ],
+            ]);
+        }
+        $competitions = $competitions
+            ->orderBy(['Competitions.date_from' => 'ASC', 'Competitions.name' => 'ASC'])
+            ->all();
+
+        $this->set(compact('rows', 'competitions', 'mineByCompetition'));
+    }
+
+    /**
+     * Üres nevezés létrehozása. A darabszámokat a szerkesztő lapon adja meg a tag.
+     */
+    public function add(?string $competitionId = null): ?Response
+    {
+        $this->request->allowMethod(['post']);
+        $competition = $this->openCompetition($competitionId);
+        if ($competition === null) {
+            $this->Flash->error('Erre a versenyre nem lehet jelentkezni.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $registrations = $this->fetchTable('Registrations');
+        $existing = $registrations->find()
+            ->where([
+                'Registrations.user_id' => $this->userId(),
+                'Registrations.competition_id' => $competition->id,
+            ])
+            ->first();
+        if ($existing !== null) {
+            return $this->redirect(['action' => 'edit', $existing->id]);
+        }
+
+        $data = [
+            'user_id' => $this->userId(),
+            'competition_id' => $competition->id,
+            'team_id' => null,
+            'comment' => null,
+            'visible' => true,
+            'pos' => 0,
+        ];
+        foreach (Registration::TITLED_COUNTS as $countField) {
+            $data[$countField] = 0;
+        }
+        $registration = $registrations->newEntity($data);
+        if ($registrations->save($registration)) {
+            $this->Flash->success('Jelentkeztél a versenyre. Add meg, miből mennyit kérsz.');
+
+            return $this->redirect(['action' => 'edit', $registration->id]);
+        }
+
+        $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
+
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function edit(?string $id = null): ?Response
+    {
+        $registrations = $this->fetchTable('Registrations');
+        try {
+            $registration = $registrations->get($id, contain: ['Competitions']);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A jelentkezés nem található.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        if ((string)$registration->user_id !== $this->userId()) {
+            $this->Flash->error('Ehhez a jelentkezéshez nincs hozzáférésed.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $competition = $registration->competition;
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $registration = $registrations->patchEntity(
+                $registration,
+                $this->countData($competition, $this->request->getData()),
+                ['fields' => array_merge(array_values(Registration::TITLED_COUNTS), ['comment'])],
+            );
+            if ($registrations->save($registration)) {
+                $this->Flash->success('A jelentkezésedet elmentettük.');
+
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error('A jelentkezést nem sikerült menteni.');
+        }
+
+        $this->set(compact('registration', 'competition'));
+
+        return null;
+    }
+
+    private function userId(): string
+    {
+        $identity = $this->request->getAttribute('identity');
+
+        return (string)($identity['id'] ?? '');
+    }
+
+    private function openCompetition(?string $id): ?Competition
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+        try {
+            $competition = $this->fetchTable('Competitions')->get($id);
+        } catch (RecordNotFoundException) {
+            return null;
+        }
+        if (!(bool)$competition->visible) {
+            return null;
+        }
+        if ($competition->date_deadline !== null && $competition->date_deadline->isPast()) {
+            return null;
+        }
+
+        return $competition;
+    }
+
+    /**
+     * Csak a kitöltött című darabszámok menthetők. A többi 0 marad.
+     *
+     * @param array<string, mixed> $posted
+     * @return array<string, int|string|null>
+     */
+    private function countData(Competition $competition, array $posted): array
+    {
+        $data = [];
+        foreach (Registration::TITLED_COUNTS as $titleField => $countField) {
+            $title = trim((string)$competition->get($titleField));
+            if ($title === '') {
+                $data[$countField] = 0;
+                continue;
+            }
+            $value = (int)($posted[$countField] ?? 0);
+            if ($value < 0) {
+                $value = 0;
+            }
+            if ($value > 1000) {
+                $value = 1000;
+            }
+            $data[$countField] = $value;
+        }
+        $comment = trim((string)($posted['comment'] ?? ''));
+        $data['comment'] = $comment === '' ? null : mb_substr($comment, 0, 1000);
+
+        return $data;
     }
 }
