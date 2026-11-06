@@ -18,11 +18,8 @@ namespace App\Controller;
 
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
-use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
-use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
-use Cake\View\Exception\MissingTemplateException;
 
 /**
  * Static content controller
@@ -39,41 +36,17 @@ class PagesController extends AppController
      * @param string ...$path Path segments.
      * @return \Cake\Http\Response|null
      * @throws \Cake\Http\Exception\ForbiddenException When a directory traversal attempt.
-     * @throws \Cake\View\Exception\MissingTemplateException When the view file could not
-     *   be found and in debug mode.
-     * @throws \Cake\Http\Exception\NotFoundException When the view file could not
-     *   be found and not in debug mode.
-     * @throws \Cake\View\Exception\MissingTemplateException In debug mode.
      */
     public function display(string ...$path): ?Response
     {
-        if (!$path) {
-            return $this->redirect('/');
-        }
-        if (in_array('..', $path, true) || in_array('.', $path, true)) {
+        if (!$path || in_array('..', $path, true) || in_array('.', $path, true)) {
             throw new ForbiddenException();
         }
-        $page = $subpage = null;
-
-        if (!empty($path[0])) {
-            $page = $path[0];
-        }
-        if (!empty($path[1])) {
-            $subpage = $path[1];
-        }
-        if ($page === 'home' && $subpage === null) {
+        if (($path[0] ?? null) === 'home' && !isset($path[1])) {
             return $this->home();
         }
-        $this->set(compact('page', 'subpage'));
 
-        try {
-            return $this->render(implode('/', $path));
-        } catch (MissingTemplateException $exception) {
-            if (Configure::read('debug')) {
-                throw $exception;
-            }
-            throw new NotFoundException();
-        }
+        return $this->redirect('/');
     }
 
     public function saveProfile(): Response
@@ -129,11 +102,7 @@ class PagesController extends AppController
     {
         $identity = $this->request->getAttribute('identity');
         if ($identity === null) {
-            $page = 'home';
-            $subpage = null;
-            $this->set(compact('page', 'subpage'));
-
-            return $this->render('home');
+            return $this->redirect('/login');
         }
 
         $user = $this->fetchTable('Users')->get($identity['id']);
@@ -148,13 +117,7 @@ class PagesController extends AppController
             default => null,
         };
         if ($role === User::ROLE_NEW) {
-            $this->viewBuilder()->setLayout('login');
-            $this->set('authWide', true);
-            $this->set('authHeading', User::displayName($user));
-            $this->set(
-                'authSubtitle',
-                'A jelentkezésed még nincs elfogadva. Addig a főoldalon a saját adataid szerkeszthetők.'
-            );
+            $this->viewBuilder()->setLayout('JeffAdmin.default');
             $this->set('profileSaved', $this->profileSaved($user));
             $this->set(compact('user'));
 
@@ -164,11 +127,7 @@ class PagesController extends AppController
             return $this->redirect($target);
         }
 
-        $page = 'home';
-        $subpage = null;
-        $this->set(compact('page', 'subpage'));
-
-        return $this->render('home');
+        return $this->redirect('/login');
     }
 
     private function profileSaved(object $user): bool

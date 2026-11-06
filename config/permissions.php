@@ -126,6 +126,28 @@ return [
             'controller' => '*',
             'action' => '*',
         ],
+        // Új jelentkező: csak a saját profilja, és a kijelentkezés.
+        [
+            'role' => 'new',
+            'prefix' => false,
+            'plugin' => false,
+            'controller' => 'Pages',
+            'action' => ['display', 'saveProfile', 'requestMembership'],
+        ],
+        [
+            'role' => 'new',
+            'prefix' => false,
+            'plugin' => 'CakeDC/Users',
+            'controller' => 'Users',
+            'action' => ['logout'],
+        ],
+        [
+            'role' => 'new',
+            'plugin' => '*',
+            'controller' => '*',
+            'action' => '*',
+            'allowed' => false,
+        ],
         //specific actions allowed for the all roles in Users plugin
         [
             'role' => '*',
@@ -147,21 +169,12 @@ return [
                 return false;
             }
         ],
-        // A kezdőlap bejelentkezés nélkül is elérhető.
+        // A kezdőlap csak belépés után nyílik. A szerep a saját felületére visz.
         [
             'role' => '*',
             'plugin' => false,
             'controller' => 'Pages',
             'action' => 'display',
-            'bypassAuth' => true,
-        ],
-        // Új jelentkező: a főoldali profil mentése és a klubfelvételi kérelem.
-        [
-            'role' => 'new',
-            'prefix' => false,
-            'plugin' => false,
-            'controller' => 'Pages',
-            'action' => ['saveProfile', 'requestMembership'],
         ],
         // A tag csak a névsort és a saját besorolását kérdezheti le.
         [
