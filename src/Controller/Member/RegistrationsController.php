@@ -5,8 +5,11 @@ namespace App\Controller\Member;
 
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
+use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
+use Cake\Log\Log;
+use PDOException;
 
 class RegistrationsController extends AppController
 {
@@ -81,13 +84,13 @@ class RegistrationsController extends AppController
             $data[$countField] = 0;
         }
         $registration = $registrations->newEntity($data);
-        if ($registrations->save($registration)) {
+        if ($this->saveRegistration($registrations, $registration)) {
             $this->Flash->success('Jelentkeztél a versenyre. Add meg, miből mennyit kérsz.');
 
             return $this->redirect(['action' => 'edit', $registration->id]);
         }
 
-        $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
+        $this->Flash->error($this->saveFailureMessage($registration));
 
         return $this->redirect(['action' => 'index']);
     }
@@ -115,17 +118,38 @@ class RegistrationsController extends AppController
                 $this->countData($competition, $this->request->getData()),
                 ['fields' => array_merge(array_values(Registration::TITLED_COUNTS), ['comment'])],
             );
-            if ($registrations->save($registration)) {
+            if ($this->saveRegistration($registrations, $registration)) {
                 $this->Flash->success('A jelentkezésedet elmentettük.');
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error('A jelentkezést nem sikerült menteni.');
+            $this->Flash->error($this->saveFailureMessage($registration));
         }
 
         $this->set(compact('registration', 'competition'));
 
         return null;
+    }
+
+    /**
+     * @param \Cake\ORM\Table $registrations
+     */
+    private function saveRegistration($registrations, Registration $registration): bool
+    {
+        try {
+            return (bool)$registrations->save($registration);
+        } catch (QueryException | PDOException $exception) {
+            Log::error('A nevezés mentése adatbázis-hibával állt meg: ' . $exception->getMessage());
+
+            return false;
+        }
+    }
+
+    private function saveFailureMessage(Registration $registration): string
+    {
+        Log::error('A nevezés mentése sikertelen: ' . json_encode($registration->getErrors(), JSON_UNESCAPED_UNICODE));
+
+        return 'A jelentkezést nem sikerült rögzíteni.';
     }
 
     private function userId(): string

@@ -188,10 +188,23 @@ class RegistrationsTable extends Table
     public function buildRules(RulesChecker $rules): RulesChecker
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'), ['errorField' => 'user_id']);
-        $rules->add($rules->existsIn(['team_id'], 'Teams'), [
-            'errorField' => 'team_id',
-            'allowNullableNulls' => true,
-        ]);
+        $rules->add(
+            function ($entity, $options): bool {
+                $teamId = $entity->get('team_id');
+                if ($teamId === null || $teamId === '') {
+                    return true;
+                }
+
+                return $options['repository']->getAssociation('Teams')->getTarget()->exists([
+                    'Teams.id' => $teamId,
+                ]);
+            },
+            'teamExists',
+            [
+                'errorField' => 'team_id',
+                'message' => 'Az alcsapat nem található.',
+            ],
+        );
         $rules->add($rules->existsIn(['competition_id'], 'Competitions'), ['errorField' => 'competition_id']);
 
         return $rules;
