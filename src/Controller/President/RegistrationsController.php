@@ -5,12 +5,10 @@ namespace App\Controller\President;
 
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
-use App\Model\Entity\User;
 use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
 use Cake\Log\Log;
-use Cake\ORM\Query\SelectQuery;
 use PDOException;
 
 class RegistrationsController extends AppController
@@ -27,7 +25,6 @@ class RegistrationsController extends AppController
         $mine = $registrations->find('roster')
             ->where(['Registrations.user_id' => $userId])
             ->all();
-        $rows = $registrations->find('roster')->all();
 
         $mineIds = [];
         $mineByCompetition = [];
@@ -52,7 +49,7 @@ class RegistrationsController extends AppController
             ->orderBy(['Competitions.date_from' => 'ASC', 'Competitions.name' => 'ASC'])
             ->all();
 
-        $this->set(compact('rows', 'competitions', 'mineByCompetition'));
+        $this->set(compact('competitions', 'mineByCompetition'));
     }
 
     /**
@@ -168,54 +165,6 @@ class RegistrationsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
-    }
-
-    /**
-     * Melyik jelentkező melyik alcsapatba kerül.
-     */
-    public function team(string|int|null $id = null): ?Response
-    {
-        $registrations = $this->fetchTable('Registrations');
-        try {
-            $registration = $registrations->get($id, contain: [
-                'Competitions',
-                'Teams',
-                'Users' => function (SelectQuery $users): SelectQuery {
-                    return $users
-                        ->select(['id', 'username', 'email', 'first_name', 'last_name'])
-                        ->contain(User::socialAvatarContain());
-                },
-            ]);
-        } catch (RecordNotFoundException) {
-            $this->Flash->error('A jelentkezés nem található.');
-
-            return $this->redirect(['action' => 'index']);
-        }
-
-        if ($this->request->is(['post', 'put', 'patch'])) {
-            $data = $this->request->getData();
-            if (($data['team_id'] ?? '') === '') {
-                $data['team_id'] = null;
-            }
-            $registration = $registrations->patchEntity($registration, $data, [
-                'fields' => ['team_id'],
-            ]);
-            if ($registrations->save($registration)) {
-                $this->Flash->success('Az alcsapat beállítva.');
-
-                return $this->redirectAfterSave();
-            }
-            $this->Flash->error('Az alcsapatot nem sikerült beállítani.');
-        }
-
-        $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();
-        $returnUrl = $this->request->getSession()->read($this->formCallerKey());
-        if (!is_string($returnUrl) || !$this->isSafeReturnPath($returnUrl)) {
-            $returnUrl = ['action' => 'index'];
-        }
-        $this->set(compact('registration', 'teams', 'returnUrl'));
-
-        return null;
     }
 
     public function assign(string|int|null $id = null): Response
