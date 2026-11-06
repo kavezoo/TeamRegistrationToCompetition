@@ -13,11 +13,11 @@ $onProfile = $current === 'Users' && $actionName === 'profile';
 
 $items = [
     'Competitions' => ['Versenyek', 'fa-trophy'],
-    'Teams' => ['Csapatok', 'fa-people-group'],
     'Registrations' => ['Nevezések', 'fa-clipboard-list'],
     'Users' => ['Felhasználók', 'fa-users'],
     'SocialAccounts' => ['Közösségi fiókok', 'fa-share-nodes'],
     'FailedPasswordAttempts' => ['Sikertelen belépések', 'fa-lock'],
+    'Teams' => ['Csapatok', 'fa-people-group'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">
@@ -33,13 +33,6 @@ $items = [
     <div class="menu-sidebar__content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar__list">
-                <li<?= $onProfile ? ' class="active"' : '' ?>>
-                    <?= $this->Html->link(
-                        '<i class="fa-solid fa-user" aria-hidden="true"></i>' . h('Profil'),
-                        ['prefix' => $prefixName, 'controller' => 'Users', 'action' => 'profile'],
-                        ['escape' => false]
-                    ) ?>
-                </li>
                 <?php foreach ($items as $name => [$label, $icon]) : ?>
                     <li<?= $current === $name && !($name === 'Users' && $onProfile) ? ' class="active"' : '' ?>>
                         <?= $this->Html->link(

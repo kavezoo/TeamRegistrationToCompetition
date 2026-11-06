@@ -108,7 +108,6 @@ if ($rowDblClick !== 'none') {
                               <th class="integer id-col"><?= $this->Paginator->sort('id') ?></th>
 <?php endif; ?>
                               <th class="string"><?= $this->Paginator->sort('first_name', 'Név') ?></th>
-                              <th class="string"><?= $this->Paginator->sort('role', 'Szerep') ?></th>
 <?php /*
                               <th class="string"><?= $this->Paginator->sort('username') ?></th>
 */ ?>
@@ -219,8 +218,7 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <td class="integer id-col"><?= h((string)$user->id) ?></td>
 <?php endif; ?>
-                              <td class="string"><?= h(\App\Model\Entity\User::displayName($user)) ?></td>
-                              <td class="string"><?= h(\App\Model\Entity\User::roleLabel($user->role)) ?></td>
+                              <td class="string"><?= h(\App\Model\Entity\User::displayName($user)) ?> (<?= h(\App\Model\Entity\User::roleLabel($user->role)) ?>)</td>
 <?php /*
                               <td class="string"><?= h($user->username) ?></td>
 */ ?>

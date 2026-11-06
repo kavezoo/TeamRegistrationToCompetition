@@ -105,6 +105,7 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <th class="integer id-col"><?= $this->Paginator->sort('id') ?></th>
 <?php endif; ?>
+                              <th class="string"><?= $this->Paginator->sort('Users.first_name', 'Név') ?></th>
 <?php /*
                               <th class="string"><?= $this->Paginator->sort('user_id', __('User')) ?></th>
 */ ?>
@@ -185,6 +186,12 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <td class="integer id-col"><?= h((string)$socialAccount->id) ?></td>
 <?php endif; ?>
+                              <td class="string">
+<?php if ($socialAccount->hasValue('user')) : ?>
+                                <span class="fw-semibold d-block"><?= h(\App\Model\Entity\User::displayName($socialAccount->user)) ?></span>
+                                <small class="text-muted"><?= h((string)$socialAccount->user->email) ?></small>
+<?php endif; ?>
+                              </td>
 <?php /*
                               <td class="string">
                                 <?= $socialAccount->hasValue('user')
