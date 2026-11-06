@@ -22,7 +22,7 @@ trait OwnProfileTrait
             if ($users->save($user)) {
                 $this->Flash->success('A profil mentve.');
 
-                return $this->redirect(['action' => 'profile']);
+                return $this->redirectAfterSave($this->homeAfterForm());
             }
             $this->Flash->error('A profilt nem sikerült menteni.');
         }

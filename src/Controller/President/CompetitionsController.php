@@ -47,7 +47,7 @@ class CompetitionsController extends AppController
             if ($competitions->save($competition)) {
                 $this->Flash->success('A verseny kiírva.');
 
-                return $this->redirect(['action' => 'view', $competition->id]);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error('A versenyt nem sikerült menteni.');
         }
@@ -67,7 +67,7 @@ class CompetitionsController extends AppController
             if ($competitions->save($competition)) {
                 $this->Flash->success('A verseny mentve.');
 
-                return $this->redirect(['action' => 'view', $competition->id]);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error('A versenyt nem sikerült menteni.');
         }

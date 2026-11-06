@@ -31,7 +31,7 @@ class TeamsController extends AppController
             if ($table->save($team)) {
                 $this->Flash->success('Az alcsapat mentve.');
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error('Az alcsapatot nem sikerült menteni.');
         }
@@ -51,7 +51,7 @@ class TeamsController extends AppController
             if ($table->save($team)) {
                 $this->Flash->success('Az alcsapat mentve.');
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error('Az alcsapatot nem sikerült menteni.');
         }

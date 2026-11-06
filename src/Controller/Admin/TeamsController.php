@@ -86,7 +86,7 @@ class TeamsController extends AppController
                 $this->Flash->success(__('The team has been saved.'));
                 $this->rememberLastRecord($team->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The team could not be saved. Please, try again.'));
         }
@@ -114,7 +114,7 @@ class TeamsController extends AppController
             if ($this->Teams->save($team)) {
                 $this->Flash->success(__('The team has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The team could not be saved. Please, try again.'));
         }

@@ -97,7 +97,7 @@ class UsersController extends AppController
                 $this->Flash->success(__('The user has been saved.'));
                 $this->rememberLastRecord($user->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
@@ -137,7 +137,7 @@ class UsersController extends AppController
                 if ($this->Users->save($user)) {
                     $this->Flash->success(__('The user has been saved.'));
 
-                    return $this->redirect(['action' => 'index']);
+                    return $this->redirectAfterSave();
                 }
                 $this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
@@ -197,7 +197,7 @@ class UsersController extends AppController
             if ($this->Users->save($user)) {
                 $this->Flash->success('A profil mentve.');
 
-                return $this->redirect(['action' => 'profile']);
+                return $this->redirectAfterSave($this->homeAfterForm());
             }
             $this->Flash->error('A profilt nem sikerült menteni.');
         }

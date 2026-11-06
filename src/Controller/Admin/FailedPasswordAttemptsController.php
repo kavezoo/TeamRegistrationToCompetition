@@ -73,7 +73,7 @@ class FailedPasswordAttemptsController extends AppController
                 $this->Flash->success(__('The failed password attempt has been saved.'));
                 $this->rememberLastRecord($failedPasswordAttempt->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The failed password attempt could not be saved. Please, try again.'));
         }
@@ -102,7 +102,7 @@ class FailedPasswordAttemptsController extends AppController
             if ($this->FailedPasswordAttempts->save($failedPasswordAttempt)) {
                 $this->Flash->success(__('The failed password attempt has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The failed password attempt could not be saved. Please, try again.'));
         }

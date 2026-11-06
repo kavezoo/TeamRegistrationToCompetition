@@ -95,7 +95,7 @@ class CompetitionsController extends AppController
                 $this->Flash->success(__('The competition has been saved.'));
                 $this->rememberLastRecord($competition->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The competition could not be saved. Please, try again.'));
         }
@@ -123,7 +123,7 @@ class CompetitionsController extends AppController
             if ($this->Competitions->save($competition)) {
                 $this->Flash->success(__('The competition has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The competition could not be saved. Please, try again.'));
         }

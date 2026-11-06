@@ -98,7 +98,7 @@ class SocialAccountsController extends AppController
                 $this->Flash->success(__('The social account has been saved.'));
                 $this->rememberLastRecord($socialAccount->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The social account could not be saved. Please, try again.'));
         }
@@ -127,7 +127,7 @@ class SocialAccountsController extends AppController
             if ($this->SocialAccounts->save($socialAccount)) {
                 $this->Flash->success(__('The social account has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The social account could not be saved. Please, try again.'));
         }

@@ -96,7 +96,7 @@ class RegistrationsController extends AppController
                 $this->Flash->success(__('The registration has been saved.'));
                 $this->rememberLastRecord($registration->id);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The registration could not be saved. Please, try again.'));
         }
@@ -127,7 +127,7 @@ class RegistrationsController extends AppController
             if ($this->Registrations->save($registration)) {
                 $this->Flash->success(__('The registration has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error(__('The registration could not be saved. Please, try again.'));
         }

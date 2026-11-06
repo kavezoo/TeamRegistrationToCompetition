@@ -123,7 +123,7 @@ class RegistrationsController extends AppController
             if ($this->saveRegistration($registrations, $registration)) {
                 $this->Flash->success('A jelentkezésedet elmentettük.');
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error($this->saveFailureMessage($registration));
         }
