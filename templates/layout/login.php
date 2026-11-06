@@ -6,8 +6,10 @@
  * @var string|null $authHeading
  * @var string|null $authSubtitle
  * @var bool|null $authWide
+ * @var bool|null $authGoogleOnly
  */
 $wide = !empty($authWide);
+$googleOnly = !empty($authGoogleOnly);
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -50,10 +52,22 @@ $wide = !empty($authWide);
             font-size: 12.5px;
             margin-top: 4px;
         }
+        <?php if ($googleOnly) : ?>
+        body.app.auth-page .social-login-content {
+            margin-top: 0;
+            border: 0;
+            padding: 0;
+        }
+        body.app.auth-page .social-login-content::before {
+            content: none;
+            display: none;
+        }
+        <?php else : ?>
         body.app.auth-page .social-login-content::before {
             content: "vagy";
             background: none;
         }
+        <?php endif; ?>
         body.app.auth-page .auth-dl {
             margin: 0;
         }
