@@ -56,11 +56,20 @@ $this->assign('title', 'Jelentkezés');
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
+            <div class="card-footer d-flex flex-wrap gap-2">
                 <?= $this->Form->button('Mentés', ['class' => 'btn btn-primary']) ?>
                 <?= $this->Html->link('Mégse', ['action' => 'index'], ['class' => 'btn btn-secondary']) ?>
             </div>
         </div>
+        <?= $this->Form->end() ?>
+        <?= $this->Form->create(null, [
+            'url' => ['action' => 'delete', $registration->id],
+            'class' => 'mt-3',
+        ]) ?>
+            <?= $this->Form->button('Jelentkezés törlése', [
+                'class' => 'btn btn-outline-danger',
+                'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
+            ]) ?>
         <?= $this->Form->end() ?>
     </div>
 </div>

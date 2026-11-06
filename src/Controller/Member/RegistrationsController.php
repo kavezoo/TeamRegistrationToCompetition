@@ -133,6 +133,31 @@ class RegistrationsController extends AppController
         return null;
     }
 
+    public function delete(?string $id = null): Response
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $registrations = $this->fetchTable('Registrations');
+        try {
+            $registration = $registrations->get($id);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A jelentkezés nem található.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        if ((string)$registration->user_id !== $this->userId()) {
+            $this->Flash->error('Ehhez a jelentkezéshez nincs hozzáférésed.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        if ($registrations->delete($registration)) {
+            $this->Flash->success('A jelentkezésedet töröltük.');
+        } else {
+            $this->Flash->error('A jelentkezést nem sikerült törölni.');
+        }
+
+        return $this->redirect(['action' => 'index']);
+    }
+
     /**
      * @param \Cake\ORM\Table $registrations
      */

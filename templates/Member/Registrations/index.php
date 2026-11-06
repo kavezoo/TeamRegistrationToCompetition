@@ -49,11 +49,19 @@ foreach ($rows as $row) {
                                     <?php endif; ?>
                                     <li>Alcsapat: <?= h($registration->team?->name ?? 'Nincs besorolva') ?></li>
                                 </ul>
-                                <?= $this->Html->link(
-                                    'Módosítás',
-                                    ['action' => 'edit', $registration->id],
-                                    ['class' => 'btn btn-outline-primary btn-sm']
-                                ) ?>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <?= $this->Html->link(
+                                        'Módosítás',
+                                        ['action' => 'edit', $registration->id],
+                                        ['class' => 'btn btn-outline-primary btn-sm']
+                                    ) ?>
+                                    <?= $this->Form->create(null, ['url' => ['action' => 'delete', $registration->id]]) ?>
+                                        <?= $this->Form->button('Törlés', [
+                                            'class' => 'btn btn-outline-danger btn-sm',
+                                            'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
+                                        ]) ?>
+                                    <?= $this->Form->end() ?>
+                                </div>
                             <?php elseif ($closed || !(bool)$competition->visible) : ?>
                                 <p class="mb-0">A jelentkezés lezárult.</p>
                             <?php else : ?>

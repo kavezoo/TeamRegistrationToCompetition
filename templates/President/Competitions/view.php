@@ -91,6 +91,15 @@ $this->assign('title', $competition->name);
                         </div>
                         <?= $this->Form->button('Mentés', ['class' => 'btn btn-primary']) ?>
                     <?= $this->Form->end() ?>
+                    <?= $this->Form->create(null, [
+                        'url' => ['controller' => 'Registrations', 'action' => 'deleteOwn', $mine->id],
+                        'class' => 'mb-4',
+                    ]) ?>
+                        <?= $this->Form->button('Jelentkezés törlése', [
+                            'class' => 'btn btn-outline-danger',
+                            'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
+                        ]) ?>
+                    <?= $this->Form->end() ?>
                 <?php endif; ?>
                 <?php if ($teams === []) : ?>
                     <p>Előbb hozz létre alcsapatot, utána lehet besorolni a nevezőket.</p>

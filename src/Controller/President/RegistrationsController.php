@@ -102,6 +102,32 @@ class RegistrationsController extends AppController
         ]);
     }
 
+    public function deleteOwn(string|int|null $id = null): Response
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $registrations = $this->fetchTable('Registrations');
+        try {
+            $registration = $registrations->get($id);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A jelentkezés nem található.');
+
+            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+        }
+        $competitionId = $registration->competition_id;
+        if ((string)$registration->user_id !== $this->userId()) {
+            $this->Flash->error('Csak a saját jelentkezésedet törölheted itt.');
+
+            return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competitionId]);
+        }
+        if ($registrations->delete($registration)) {
+            $this->Flash->success('A jelentkezésedet töröltük.');
+        } else {
+            $this->Flash->error('A jelentkezést nem sikerült törölni.');
+        }
+
+        return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competitionId]);
+    }
+
     public function assign(string|int|null $id = null): Response
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
