@@ -35,6 +35,9 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                         <li class="nav-item" role="presentation">
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                          <a class="nav-link" id="tab-megjegyzes-btn" data-bs-toggle="tab" href="#tab-megjegyzes" role="tab" aria-controls="tab-megjegyzes" aria-selected="false"><?= __('Description') ?></a>
+                        </li>
 <?php if (!empty($show['relatedTables'])) : ?>
                         <li class="nav-item dropdown ms-auto" role="presentation">
                           <a class="nav-link dropdown-toggle" href="#" id="tab-related-btn" role="button" data-bs-toggle="dropdown" aria-expanded="false"><?= __('Related tables') ?></a>
@@ -151,13 +154,14 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                               <?= $this->Input->date('date_deadline') ?>
                             </div>
                           </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('description', __('Description') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('description', ['type' => 'textarea', 'rows' => 6, 'class' => 'form-control']) ?>
-                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-megjegyzes" role="tabpanel" aria-labelledby="tab-megjegyzes-btn" tabindex="0">
+                          <div class="form-wysiwyg">
+                            <?= $this->Form->textarea('description', [
+                                'id' => 'megjegyzes',
+                                'class' => 'form-wysiwyg__editor',
+                            ]) ?>
                           </div>
                         </div>
 

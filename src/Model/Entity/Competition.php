@@ -62,4 +62,30 @@ class Competition extends Entity
         'modified' => true,
         'registrations' => true,
     ];
+
+    /**
+     * A leírás megjelenítésre. A sima szöveg marad szöveg, a szerkesztő HTML-jét
+     * csak a megengedett formázás hagyja meg.
+     */
+    public function descriptionHtml(): ?string
+    {
+        $description = trim((string)$this->description);
+        if ($description === '') {
+            return null;
+        }
+        if (!str_contains($description, '<')) {
+            return '<p>' . nl2br(h($description), false) . '</p>';
+        }
+
+        $allowed = '<p><br><strong><b><em><i><u><s><ul><ol><li><a><table><thead><tbody><tfoot><tr><th><td><h1><h2><h3><h4><h5><h6><blockquote><span><div><pre><code><hr>';
+        $html = strip_tags($description, $allowed);
+        $html = preg_replace('/\s+on\w+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/iu', '', $html) ?? $html;
+        $html = preg_replace('/\s+(href|src)\s*=\s*(["\'])\s*(javascript|data):[^"\']*\2/iu', '', $html) ?? $html;
+        $plain = trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($plain === '' && !preg_match('/<(table|hr)\b/i', $html)) {
+            return null;
+        }
+
+        return $html;
+    }
 }

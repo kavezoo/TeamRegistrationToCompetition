@@ -48,6 +48,9 @@ $relatedLocal = [
                         <li class="nav-item" role="presentation">
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                          <a class="nav-link" id="tab-description-btn" data-bs-toggle="tab" href="#tab-description" role="tab" aria-controls="tab-description" aria-selected="false"><?= __('Description') ?></a>
+                        </li>
 <?php if (!empty($show['relatedTables'])) : ?>
                         <li class="nav-item dropdown ms-auto" role="presentation">
                           <a class="nav-link dropdown-toggle" href="#" id="tab-related-btn" role="button" data-bs-toggle="dropdown" aria-expanded="false"><?= __('Related tables') ?></a>
@@ -165,13 +168,15 @@ $relatedLocal = [
                               <?= $this->Input->date('date_deadline', ['disabled' => true]) ?>
                             </div>
                           </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('description', __('Description') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('description', ['type' => 'textarea', 'rows' => 6, 'class' => 'form-control', 'disabled' => true]) ?>
-                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-description" role="tabpanel" aria-labelledby="tab-description-btn" tabindex="0">
+                          <div class="p-3">
+                            <?php if ($competition->descriptionHtml() === null) : ?>
+                              <p class="mb-0">Nincs leírás.</p>
+                            <?php else : ?>
+                              <?= $this->element('competition_description', ['competition' => $competition]) ?>
+                            <?php endif; ?>
                           </div>
                         </div>
 

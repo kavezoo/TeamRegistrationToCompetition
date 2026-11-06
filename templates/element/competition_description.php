@@ -4,9 +4,9 @@
  *
  * @var \App\Model\Entity\Competition $competition
  */
-$description = trim((string)($competition->description ?? ''));
-if ($description === '') {
+$html = $competition->descriptionHtml();
+if ($html === null) {
     return;
 }
 ?>
-<p class="mb-3"><?= nl2br(h($description)) ?></p>
+<div class="mb-3 competition-description"><?= $html ?></div>
