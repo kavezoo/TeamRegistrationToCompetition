@@ -13,6 +13,8 @@ use PDOException;
 
 class RegistrationsController extends AppController
 {
+    private ?string $lastSaveError = null;
+
     public function index(): void
     {
         $userId = $this->userId();
@@ -136,9 +138,16 @@ class RegistrationsController extends AppController
      */
     private function saveRegistration($registrations, Registration $registration): bool
     {
+        $this->lastSaveError = null;
         try {
-            return (bool)$registrations->save($registration);
+            $saved = (bool)$registrations->save($registration);
+            if (!$saved) {
+                $this->lastSaveError = (string)json_encode($registration->getErrors(), JSON_UNESCAPED_UNICODE);
+            }
+
+            return $saved;
         } catch (QueryException | PDOException $exception) {
+            $this->lastSaveError = $exception->getMessage();
             Log::error('A nevezés mentése adatbázis-hibával állt meg: ' . $exception->getMessage());
 
             return false;
@@ -147,7 +156,11 @@ class RegistrationsController extends AppController
 
     private function saveFailureMessage(Registration $registration): string
     {
-        Log::error('A nevezés mentése sikertelen: ' . json_encode($registration->getErrors(), JSON_UNESCAPED_UNICODE));
+        $detail = (string)$this->lastSaveError;
+        Log::error('A nevezés mentése sikertelen: ' . $detail);
+        if (stripos($detail, 'team_id') !== false) {
+            return 'A jelentkezést nem sikerült rögzíteni, mert az alcsapat mezője az adatbázisban még kötelező.';
+        }
 
         return 'A jelentkezést nem sikerült rögzíteni.';
     }

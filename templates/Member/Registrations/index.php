@@ -57,11 +57,11 @@ foreach ($rows as $row) {
                             <?php elseif ($closed || !(bool)$competition->visible) : ?>
                                 <p class="mb-0">A jelentkezés lezárult.</p>
                             <?php else : ?>
-                                <?= $this->Form->postLink(
-                                    'Jelentkezés',
-                                    ['action' => 'add', $competition->id],
-                                    ['class' => 'btn btn-primary', 'block' => false]
-                                ) ?>
+                                <?= $this->Form->create(null, [
+                                    'url' => ['action' => 'add', $competition->id],
+                                ]) ?>
+                                    <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-primary']) ?>
+                                <?= $this->Form->end() ?>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
