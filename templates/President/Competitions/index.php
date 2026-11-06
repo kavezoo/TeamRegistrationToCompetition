@@ -2,7 +2,6 @@
 /**
  * @var \App\View\AppView $this
  * @var iterable<\App\Model\Entity\Competition> $competitions
- * @var array<int, string|int> $mineByCompetition
  */
 $this->assign('title', 'Versenyek');
 ?>
@@ -36,22 +35,7 @@ $this->assign('title', 'Versenyek');
                                         <td><?= h((string)$competition->date_deadline) ?></td>
                                         <td><?= (int)$competition->registration_count ?></td>
                                         <td class="text-end">
-                                            <?php $ownId = $mineByCompetition[(int)$competition->id] ?? null; ?>
-                                            <?php if ($ownId === null) : ?>
-                                                <?= $this->Form->create(null, [
-                                                    'url' => ['controller' => 'Registrations', 'action' => 'join', $competition->id],
-                                                    'class' => 'd-inline',
-                                                ]) ?>
-                                                    <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-sm btn-primary']) ?>
-                                                <?= $this->Form->end() ?>
-                                            <?php else : ?>
-                                                <?= $this->Html->link(
-                                                    'Saját jelentkezés',
-                                                    ['controller' => 'Registrations', 'action' => 'edit', $ownId],
-                                                    ['class' => 'btn btn-sm btn-primary']
-                                                ) ?>
-                                            <?php endif; ?>
-                                            <?= $this->Html->link('Nevezők', ['action' => 'view', $competition->id], ['class' => 'btn btn-sm btn-outline-primary']) ?>
+                                            <?= $this->Html->link('Nevezők', ['action' => 'view', $competition->id], ['class' => 'btn btn-sm btn-primary']) ?>
                                             <?= $this->Html->link('Szerkesztés', ['action' => 'edit', $competition->id], ['class' => 'btn btn-sm btn-secondary']) ?>
                                         </td>
                                     </tr>

@@ -5,31 +5,71 @@ namespace App\Controller\President;
 
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
+use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
+use Cake\Log\Log;
+use PDOException;
 
 class RegistrationsController extends AppController
 {
+    private ?string $lastSaveError = null;
+
     /**
-     * A klubelnök saját nevezése a kiírt versenyre.
+     * A kiírt versenyek, ugyanúgy, ahogy a tag látja őket.
      */
-    public function join(string|int|null $competitionId = null): Response
+    public function index(): void
+    {
+        $userId = $this->userId();
+        $registrations = $this->fetchTable('Registrations');
+        $mine = $registrations->find('roster')
+            ->where(['Registrations.user_id' => $userId])
+            ->all();
+        $rows = $registrations->find('roster')->all();
+
+        $mineIds = [];
+        $mineByCompetition = [];
+        foreach ($mine as $registration) {
+            $competitionId = (int)$registration->competition_id;
+            $mineIds[] = $competitionId;
+            $mineByCompetition[$competitionId] = $registration;
+        }
+
+        $competitions = $this->fetchTable('Competitions')->find();
+        if ($mineIds === []) {
+            $competitions->where(['Competitions.visible' => true]);
+        } else {
+            $competitions->where([
+                'OR' => [
+                    'Competitions.visible' => true,
+                    'Competitions.id IN' => $mineIds,
+                ],
+            ]);
+        }
+        $competitions = $competitions
+            ->orderBy(['Competitions.date_from' => 'ASC', 'Competitions.name' => 'ASC'])
+            ->all();
+
+        $this->set(compact('rows', 'competitions', 'mineByCompetition'));
+    }
+
+    /**
+     * Üres nevezés létrehozása. A darabszámokat a szerkesztő lapon adja meg.
+     */
+    public function add(string|int|null $competitionId = null): Response
     {
         $this->request->allowMethod(['post']);
-        $competitions = $this->fetchTable('Competitions');
-        try {
-            $competition = $competitions->get($competitionId);
-        } catch (RecordNotFoundException) {
-            $this->Flash->error('A verseny nem található.');
+        $competition = $this->openCompetition($competitionId);
+        if ($competition === null) {
+            $this->Flash->error('Erre a versenyre nem lehet jelentkezni.');
 
-            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+            return $this->redirect(['action' => 'index']);
         }
 
         $registrations = $this->fetchTable('Registrations');
-        $userId = $this->userId();
         $existing = $registrations->find()
             ->where([
-                'Registrations.user_id' => $userId,
+                'Registrations.user_id' => $this->userId(),
                 'Registrations.competition_id' => $competition->id,
             ])
             ->first();
@@ -38,7 +78,7 @@ class RegistrationsController extends AppController
         }
 
         $data = [
-            'user_id' => $userId,
+            'user_id' => $this->userId(),
             'competition_id' => $competition->id,
             'team_id' => null,
             'comment' => null,
@@ -49,15 +89,15 @@ class RegistrationsController extends AppController
             $data[$countField] = 0;
         }
         $registration = $registrations->newEntity($data);
-        if ($registrations->save($registration)) {
+        if ($this->saveRegistration($registrations, $registration)) {
             $this->Flash->success('Jelentkeztél a versenyre. Add meg, miből mennyit kérsz.');
 
             return $this->redirect(['action' => 'edit', $registration->id]);
         }
 
-        $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
+        $this->Flash->error($this->saveFailureMessage($registration));
 
-        return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competition->id]);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -71,16 +111,12 @@ class RegistrationsController extends AppController
         } catch (RecordNotFoundException) {
             $this->Flash->error('A jelentkezés nem található.');
 
-            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+            return $this->redirect(['action' => 'index']);
         }
         if ((string)$registration->user_id !== $this->userId()) {
             $this->Flash->error('Csak a saját jelentkezésedet módosíthatod itt.');
 
-            return $this->redirect([
-                'controller' => 'Competitions',
-                'action' => 'view',
-                $registration->competition_id,
-            ]);
+            return $this->redirect(['action' => 'index']);
         }
 
         $competition = $registration->competition;
@@ -93,18 +129,14 @@ class RegistrationsController extends AppController
             if ($registrations->save($registration)) {
                 $this->Flash->success('A jelentkezésed mentve.');
 
-                return $this->redirectAfterSave([
-                    'controller' => 'Competitions',
-                    'action' => 'view',
-                    $competition->id,
-                ]);
+                return $this->redirectAfterSave();
             }
             $this->Flash->error('A jelentkezést nem sikerült menteni.');
         }
 
         $returnUrl = $this->request->getSession()->read($this->formCallerKey());
         if (!is_string($returnUrl) || !$this->isSafeReturnPath($returnUrl)) {
-            $returnUrl = ['controller' => 'Competitions', 'action' => 'view', $competition->id];
+            $returnUrl = ['action' => 'index'];
         }
         $this->set(compact('registration', 'competition', 'returnUrl'));
 
@@ -120,13 +152,12 @@ class RegistrationsController extends AppController
         } catch (RecordNotFoundException) {
             $this->Flash->error('A jelentkezés nem található.');
 
-            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+            return $this->redirect(['action' => 'index']);
         }
-        $competitionId = $registration->competition_id;
         if ((string)$registration->user_id !== $this->userId()) {
             $this->Flash->error('Csak a saját jelentkezésedet törölheted itt.');
 
-            return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competitionId]);
+            return $this->redirect(['action' => 'index']);
         }
         if ($registrations->delete($registration)) {
             $this->Flash->success('A jelentkezésedet töröltük.');
@@ -134,11 +165,7 @@ class RegistrationsController extends AppController
             $this->Flash->error('A jelentkezést nem sikerült törölni.');
         }
 
-        return $this->redirectAfterSave([
-            'controller' => 'Competitions',
-            'action' => 'view',
-            $competitionId,
-        ]);
+        return $this->redirect(['action' => 'index']);
     }
 
     public function assign(string|int|null $id = null): Response
@@ -160,6 +187,58 @@ class RegistrationsController extends AppController
             'action' => 'view',
             $registration->competition_id,
         ]);
+    }
+
+    /**
+     * @param \Cake\ORM\Table $registrations
+     */
+    private function saveRegistration($registrations, Registration $registration): bool
+    {
+        $this->lastSaveError = null;
+        try {
+            $saved = (bool)$registrations->save($registration);
+            if (!$saved) {
+                $this->lastSaveError = (string)json_encode($registration->getErrors(), JSON_UNESCAPED_UNICODE);
+            }
+
+            return $saved;
+        } catch (QueryException | PDOException $exception) {
+            $this->lastSaveError = $exception->getMessage();
+            Log::error('A nevezés mentése adatbázis-hibával állt meg: ' . $exception->getMessage());
+
+            return false;
+        }
+    }
+
+    private function saveFailureMessage(Registration $registration): string
+    {
+        $detail = (string)$this->lastSaveError;
+        Log::error('A nevezés mentése sikertelen: ' . $detail);
+        if (stripos($detail, 'team_id') !== false) {
+            return 'A jelentkezést nem sikerült rögzíteni, mert az alcsapat mezője az adatbázisban még kötelező.';
+        }
+
+        return 'A jelentkezést nem sikerült rögzíteni.';
+    }
+
+    private function openCompetition(string|int|null $id): ?Competition
+    {
+        if ($id === null || $id === '') {
+            return null;
+        }
+        try {
+            $competition = $this->fetchTable('Competitions')->get($id);
+        } catch (RecordNotFoundException) {
+            return null;
+        }
+        if (!(bool)$competition->visible) {
+            return null;
+        }
+        if ($competition->date_deadline !== null && $competition->date_deadline->isPast()) {
+            return null;
+        }
+
+        return $competition;
     }
 
     private function userId(): string

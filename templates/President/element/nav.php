@@ -13,6 +13,7 @@ $pending = (int)($pendingCount ?? 0);
 
 $items = [
     'Applicants' => ['Jelentkezők', 'fa-user-check'],
+    'Registrations' => ['Nevezés', 'fa-clipboard-list'],
     'Competitions' => ['Versenyek', 'fa-trophy'],
     'Teams' => ['Alcsapatok', 'fa-people-group'],
 ];

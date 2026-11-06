@@ -33,19 +33,7 @@ class CompetitionsController extends AppController
         $competitions = $this->fetchTable('Competitions')->find()
             ->orderBy(['date_from' => 'DESC', 'name' => 'ASC'])
             ->all();
-        $identity = $this->request->getAttribute('identity');
-        $userId = (string)($identity['id'] ?? '');
-        $mineByCompetition = [];
-        if ($userId !== '') {
-            $rows = $this->fetchTable('Registrations')->find()
-                ->select(['id', 'competition_id'])
-                ->where(['Registrations.user_id' => $userId])
-                ->all();
-            foreach ($rows as $row) {
-                $mineByCompetition[(int)$row->competition_id] = $row->id;
-            }
-        }
-        $this->set(compact('competitions', 'mineByCompetition'));
+        $this->set(compact('competitions'));
     }
 
     public function add(): ?Response
@@ -103,16 +91,7 @@ class CompetitionsController extends AppController
             },
         ]);
         $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();
-        $identity = $this->request->getAttribute('identity');
-        $userId = (string)($identity['id'] ?? '');
-        $mine = null;
-        foreach ($competition->registrations as $registration) {
-            if ((string)$registration->user_id === $userId) {
-                $mine = $registration;
-                break;
-            }
-        }
-        $this->set(compact('competition', 'teams', 'mine'));
+        $this->set(compact('competition', 'teams'));
     }
 
     /**

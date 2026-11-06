@@ -3,7 +3,6 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Competition $competition
  * @var array<int|string, string> $teams
- * @var \App\Model\Entity\Registration|null $mine
  */
 use App\Model\Entity\User;
 
@@ -14,21 +13,7 @@ $this->assign('title', $competition->name);
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong><?= h($competition->name) ?></strong>
-                <span class="d-flex flex-wrap gap-2">
-                    <?php if ($mine === null) : ?>
-                        <?= $this->Form->create(null, [
-                            'url' => ['controller' => 'Registrations', 'action' => 'join', $competition->id],
-                            'class' => 'd-inline',
-                        ]) ?>
-                            <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-sm btn-primary']) ?>
-                        <?= $this->Form->end() ?>
-                    <?php else : ?>
-                        <?= $this->Html->link(
-                            'Saját jelentkezés',
-                            ['controller' => 'Registrations', 'action' => 'edit', $mine->id],
-                            ['class' => 'btn btn-sm btn-primary']
-                        ) ?>
-                    <?php endif; ?>
+                <span>
                     <?= $this->Html->link('Szerkesztés', ['action' => 'edit', $competition->id], ['class' => 'btn btn-sm btn-secondary']) ?>
                     <?= $this->Html->link('Vissza', ['action' => 'index'], ['class' => 'btn btn-sm btn-link']) ?>
                 </span>
