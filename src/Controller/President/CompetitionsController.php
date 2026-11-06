@@ -13,9 +13,17 @@ class CompetitionsController extends AppController
      */
     private const FIELDS = [
         'name',
+        'lunch_title',
+        'special_lunch_title',
+        'competition_pipe_title_1',
+        'competition_pipe_title_2',
+        'competition_pipe_title_3',
+        'extra_title_1',
+        'extra_title_2',
+        'extra_title_3',
+        'comment',
         'date_from',
         'date_deadline',
-        'comment',
         'visible',
         'pos',
     ];
@@ -45,7 +53,7 @@ class CompetitionsController extends AppController
         }
         $this->set(compact('competition'));
 
-        return $this->render('form');
+        return null;
     }
 
     public function edit(string|int|null $id = null): ?Response
@@ -65,7 +73,7 @@ class CompetitionsController extends AppController
         }
         $this->set(compact('competition'));
 
-        return $this->render('form');
+        return null;
     }
 
     public function view(string|int|null $id = null): void

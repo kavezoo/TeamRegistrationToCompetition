@@ -14,7 +14,7 @@ trait OwnProfileTrait
     {
         $users = $this->fetchTable('Users');
         $identity = $this->request->getAttribute('identity');
-        $user = $users->get($identity['id']);
+        $user = $users->get($identity['id'], contain: ['SocialAccounts']);
         if ($this->request->is(['post', 'put', 'patch'])) {
             $user = $users->patchEntity($user, $this->request->getData(), [
                 'fields' => ['first_name', 'last_name'],

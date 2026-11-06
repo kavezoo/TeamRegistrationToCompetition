@@ -37,7 +37,7 @@ class TeamsController extends AppController
         }
         $this->set(compact('team'));
 
-        return $this->render('form');
+        return null;
     }
 
     public function edit(string|int|null $id = null): ?Response
@@ -57,7 +57,7 @@ class TeamsController extends AppController
         }
         $this->set(compact('team'));
 
-        return $this->render('form');
+        return null;
     }
 
     /**
