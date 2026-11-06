@@ -84,6 +84,9 @@ $this->assign('title', 'Saját adatok');
               <div class="row row-tight" style="margin-top: 16px;">
                 <div class="col-12 col-xxl-11">
                   <div class="card shadow">
+                    <div class="card-header">
+                      <strong>Klubfelvétel</strong>
+                    </div>
                     <div class="card-body">
                       <?php if ($requestState === 'pending') : ?>
                         <p class="mb-0">A felvételi kérelem elküldve. A klubelnök döntésére vár.</p>
