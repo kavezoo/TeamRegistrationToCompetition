@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
+ * @var array<string, string> $roles
  */
 
 use Cake\Core\Configure;
@@ -41,7 +42,7 @@ $relatedLocal = [
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="user-form-title"><?= __('View User') ?></strong>
-                        <small class="d-block"><?= h($user->username) ?></small>
+                        <small class="d-block"><?= h($user->full_name) ?></small>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
@@ -86,18 +87,18 @@ $relatedLocal = [
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('first_name', __('First Name') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('last_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control', 'disabled' => true]) ?>
+                              <?= $this->Input->control('last_name', ['class' => 'form-control', 'disabled' => true]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('last_name', __('Last Name') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('last_name', ['class' => 'form-control', 'disabled' => true]) ?>
+                              <?= $this->Input->control('first_name', ['class' => 'form-control', 'disabled' => true]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -178,7 +179,13 @@ $relatedLocal = [
                               <?= $this->Form->label('role', __('Role') . ':', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('role', ['class' => 'form-control', 'disabled' => true]) ?>
+                              <?= $this->Form->control('role', [
+                                  'type' => 'select',
+                                  'options' => $roles,
+                                  'label' => false,
+                                  'class' => 'form-select',
+                                  'disabled' => true,
+                              ]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -260,7 +267,7 @@ $relatedLocal = [
                   <div class="card shadow related-card" style="margin-top: 16px;" aria-labelledby="user-related-title">
                     <div class="card-header related-card-header">
                       <div class="related-card-header__title">
-                        <span id="user-related-title"><?= __('Related records') ?>: <?= h($user->username) ?></span>
+                        <span id="user-related-title"><?= __('Related records') ?>: <?= h($user->full_name) ?></span>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs related-card-header__tabs" id="relatedTabs" role="tablist">

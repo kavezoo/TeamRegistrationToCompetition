@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Controller\Admin\AppController;
+use App\Model\Entity\User;
 
 /**
  * Users Controller
@@ -39,9 +40,9 @@ class UsersController extends AppController
                 $query->where([
                     'OR' => [
                         'Users.username LIKE' => $like,
-                        // 'Users.email LIKE' => $like,
-                        // 'Users.first_name LIKE' => $like,
-                        // 'Users.last_name LIKE' => $like,
+                        'Users.email LIKE' => $like,
+                        'Users.first_name LIKE' => $like,
+                        'Users.last_name LIKE' => $like,
                         // 'Users.token LIKE' => $like,
                         // 'Users.api_token LIKE' => $like,
                         // 'Users.secret LIKE' => $like,
@@ -72,9 +73,8 @@ class UsersController extends AppController
         $this->rememberLastRecord($id);
 
         $user = $this->Users->get($id, contain: ['FailedPasswordAttempts', 'Registrations' => ['Teams'], 'SocialAccounts']);
-        //dd($id);
-        //dd($user->toArray());
-        $this->set(compact('user'));
+        $roles = $this->roleOptions($user);
+        $this->set(compact('user', 'roles'));
     }
 
     /**
@@ -85,13 +85,11 @@ class UsersController extends AppController
     public function add()
     {
         $user = $this->Users->newEmptyEntity();
+        $user->role = User::ROLE_NEW;
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            //dd($data);
             $user = $this->Users->patchEntity($user, $data);
-            //dd($user->toArray());
-            //dd($user->getErrors());
-            if ($this->Users->save($user)) {
+            if ($this->roleIsAllowed($user, $data) && $this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
                 $this->rememberLastRecord($user->id);
 
@@ -99,7 +97,8 @@ class UsersController extends AppController
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
-        $this->set(compact('user'));
+        $roles = $this->roleOptions($user);
+        $this->set(compact('user', 'roles'));
     }
 
     /**
@@ -116,18 +115,16 @@ class UsersController extends AppController
         $user = $this->Users->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            //dd($data);
             $user = $this->Users->patchEntity($user, $data);
-            //dd($user->toArray());
-            //dd($user->getErrors());
-            if ($this->Users->save($user)) {
+            if ($this->roleIsAllowed($user, $data) && $this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
-        $this->set(compact('user'));
+        $roles = $this->roleOptions($user);
+        $this->set(compact('user', 'roles'));
     }
 
     /**
@@ -184,5 +181,39 @@ class UsersController extends AppController
         }
 
         $this->set(compact('user'));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function roleOptions(User $user): array
+    {
+        $roles = User::ROLES;
+        $current = (string)$user->role;
+        if ($current !== '' && !isset($roles[$current])) {
+            $roles[$current] = $current;
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function roleIsAllowed(User $user, array $data): bool
+    {
+        $role = (string)($data['role'] ?? '');
+        $allowed = User::ROLES;
+        $current = $user->getOriginal('role');
+        if (is_string($current) && $current !== '' && !isset($allowed[$current])) {
+            $allowed[$current] = $current;
+        }
+        if (isset($allowed[$role])) {
+            return true;
+        }
+
+        $user->setError('role', 'Válassz érvényes szerepet.');
+
+        return false;
     }
 }

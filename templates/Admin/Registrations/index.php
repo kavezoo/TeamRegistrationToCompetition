@@ -198,14 +198,14 @@ if ($rowDblClick !== 'none') {
                               <td class="string">
                                 <?= $registration->hasValue('user')
                                     ? $this->Html->link(
-                                        h((string)$registration->user->username)
+                                        h(\App\Model\Entity\User::displayName($registration->user))
                                             . $this->Icon->outline('link-chain', 'record-link__icon'),
                                         ['controller' => 'Users', 'action' => 'view', $registration->user->id],
                                         [
                                             'class' => 'text-decoration-none text-dark fw-bold record-link',
                                             'escape' => false,
                                             'data-bs-toggle' => 'tooltip',
-                                            'data-bs-title' => __('View {0}: {1}', __('User'), (string)$registration->user->username),
+                                            'data-bs-title' => __('View {0}: {1}', __('User'), \App\Model\Entity\User::displayName($registration->user)),
                                         ]
                                     )
                                     : '' ?>

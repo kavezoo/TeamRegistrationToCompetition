@@ -72,7 +72,7 @@ class RegistrationsController extends AppController
         $registration = $this->Registrations->get($id, contain: ['Users', 'Teams', 'Competitions']);
         //dd($id);
         //dd($registration->toArray());
-        $users = $this->Registrations->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->Registrations->Users);
         $teams = $this->Registrations->Teams->find('list', limit: 200)->all();
         $competitions = $this->Registrations->Competitions->find('list', limit: 200)->all();
         $this->set(compact('registration', 'users', 'teams', 'competitions'));
@@ -100,7 +100,7 @@ class RegistrationsController extends AppController
             }
             $this->Flash->error(__('The registration could not be saved. Please, try again.'));
         }
-        $users = $this->Registrations->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->Registrations->Users);
         $teams = $this->Registrations->Teams->find('list', limit: 200)->all();
         $competitions = $this->Registrations->Competitions->find('list', limit: 200)->all();
         $this->set(compact('registration', 'users', 'teams', 'competitions'));
@@ -131,7 +131,7 @@ class RegistrationsController extends AppController
             }
             $this->Flash->error(__('The registration could not be saved. Please, try again.'));
         }
-        $users = $this->Registrations->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->Registrations->Users);
         $teams = $this->Registrations->Teams->find('list', limit: 200)->all();
         $competitions = $this->Registrations->Competitions->find('list', limit: 200)->all();
         $this->set(compact('registration', 'users', 'teams', 'competitions'));

@@ -76,7 +76,7 @@ class SocialAccountsController extends AppController
         $socialAccount = $this->SocialAccounts->get($id, contain: ['Users']);
         //dd($id);
         //dd($socialAccount->toArray());
-        $users = $this->SocialAccounts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->SocialAccounts->Users);
         $this->set(compact('socialAccount', 'users'));
     }
 
@@ -102,7 +102,7 @@ class SocialAccountsController extends AppController
             }
             $this->Flash->error(__('The social account could not be saved. Please, try again.'));
         }
-        $users = $this->SocialAccounts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->SocialAccounts->Users);
         $this->set(compact('socialAccount', 'users'));
     }
 
@@ -131,7 +131,7 @@ class SocialAccountsController extends AppController
             }
             $this->Flash->error(__('The social account could not be saved. Please, try again.'));
         }
-        $users = $this->SocialAccounts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->SocialAccounts->Users);
         $this->set(compact('socialAccount', 'users'));
     }
 

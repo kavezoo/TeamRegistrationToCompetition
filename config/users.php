@@ -17,6 +17,10 @@ return [
         'Social' => [
             'login' => true,
         ],
+        'Registration' => [
+            // Google-belépés és űrlapos regisztráció is ezzel a szereppel jön létre.
+            'defaultRole' => 'new',
+        ],
     ],
     'OAuth' => [
         'providers' => [

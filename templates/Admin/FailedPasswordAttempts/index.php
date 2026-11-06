@@ -168,14 +168,14 @@ if ($rowDblClick !== 'none') {
                               <td class="string">
                                 <?= $failedPasswordAttempt->hasValue('user')
                                     ? $this->Html->link(
-                                        h((string)$failedPasswordAttempt->user->username)
+                                        h(\App\Model\Entity\User::displayName($failedPasswordAttempt->user))
                                             . $this->Icon->outline('link-chain', 'record-link__icon'),
                                         ['controller' => 'Users', 'action' => 'view', $failedPasswordAttempt->user->id],
                                         [
                                             'class' => 'text-decoration-none text-dark fw-bold record-link',
                                             'escape' => false,
                                             'data-bs-toggle' => 'tooltip',
-                                            'data-bs-title' => __('View {0}: {1}', __('User'), (string)$failedPasswordAttempt->user->username),
+                                            'data-bs-title' => __('View {0}: {1}', __('User'), \App\Model\Entity\User::displayName($failedPasswordAttempt->user)),
                                         ]
                                     )
                                     : '' ?>

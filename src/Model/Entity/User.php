@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\ORM\Table;
 
 /**
  * User Entity
@@ -37,6 +38,101 @@ use Cake\ORM\Entity;
  */
 class User extends Entity
 {
+    public const ROLE_NEW = 'new';
+
+    public const ROLE_MEMBER = 'member';
+
+    public const ROLE_PRESIDENT = 'president';
+
+    public const ROLE_ADMIN = 'admin';
+
+    /**
+     * Szerepkörök az admin űrlaphoz.
+     *
+     * @var array<string, string>
+     */
+    public const ROLES = [
+        self::ROLE_NEW => 'Új jelentkező',
+        self::ROLE_MEMBER => 'Tag',
+        self::ROLE_PRESIDENT => 'Klubelnök',
+        self::ROLE_ADMIN => 'Admin',
+    ];
+
+    /**
+     * Vezetéknév, majd keresztnév. Üres névnél e-mail, majd felhasználónév.
+     *
+     * @param object|array<string, mixed>|null $user
+     */
+    public static function displayName(object|array|null $user): string
+    {
+        if ($user === null) {
+            return '';
+        }
+
+        $name = trim(self::readField($user, 'last_name') . ' ' . self::readField($user, 'first_name'));
+        if ($name !== '') {
+            return $name;
+        }
+
+        $email = self::readField($user, 'email');
+        if ($email !== '') {
+            return $email;
+        }
+
+        return self::readField($user, 'username');
+    }
+
+    public static function roleLabel(?string $role): string
+    {
+        if ($role !== null && isset(self::ROLES[$role])) {
+            return self::ROLES[$role];
+        }
+
+        return (string)$role;
+    }
+
+    /**
+     * Legördülő: vezetéknév, keresztnév szerint rendezve.
+     *
+     * @return array<string, string>
+     */
+    public static function nameList(Table $table): array
+    {
+        $alias = $table->getAlias();
+        $rows = $table->find()
+            ->select(['id', 'last_name', 'first_name', 'email', 'username'])
+            ->orderBy([
+                $alias . '.last_name' => 'ASC',
+                $alias . '.first_name' => 'ASC',
+            ])
+            ->limit(200)
+            ->all();
+
+        $list = [];
+        foreach ($rows as $row) {
+            $list[(string)$row->id] = self::displayName($row);
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param object|array<string, mixed> $user
+     */
+    private static function readField(object|array $user, string $field): string
+    {
+        if (is_array($user)) {
+            return trim((string)($user[$field] ?? ''));
+        }
+
+        return trim((string)($user->{$field} ?? ''));
+    }
+
+    protected function _getFullName(): string
+    {
+        return self::displayName($this);
+    }
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *

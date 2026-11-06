@@ -51,7 +51,7 @@ class FailedPasswordAttemptsController extends AppController
         $failedPasswordAttempt = $this->FailedPasswordAttempts->get($id, contain: ['Users']);
         //dd($id);
         //dd($failedPasswordAttempt->toArray());
-        $users = $this->FailedPasswordAttempts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->FailedPasswordAttempts->Users);
         $this->set(compact('failedPasswordAttempt', 'users'));
     }
 
@@ -77,7 +77,7 @@ class FailedPasswordAttemptsController extends AppController
             }
             $this->Flash->error(__('The failed password attempt could not be saved. Please, try again.'));
         }
-        $users = $this->FailedPasswordAttempts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->FailedPasswordAttempts->Users);
         $this->set(compact('failedPasswordAttempt', 'users'));
     }
 
@@ -106,7 +106,7 @@ class FailedPasswordAttemptsController extends AppController
             }
             $this->Flash->error(__('The failed password attempt could not be saved. Please, try again.'));
         }
-        $users = $this->FailedPasswordAttempts->Users->find('list', limit: 200)->all();
+        $users = \App\Model\Entity\User::nameList($this->FailedPasswordAttempts->Users);
         $this->set(compact('failedPasswordAttempt', 'users'));
     }
 

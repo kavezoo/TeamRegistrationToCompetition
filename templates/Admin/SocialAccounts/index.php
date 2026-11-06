@@ -189,14 +189,14 @@ if ($rowDblClick !== 'none') {
                               <td class="string">
                                 <?= $socialAccount->hasValue('user')
                                     ? $this->Html->link(
-                                        h((string)$socialAccount->user->username)
+                                        h(\App\Model\Entity\User::displayName($socialAccount->user))
                                             . $this->Icon->outline('link-chain', 'record-link__icon'),
                                         ['controller' => 'Users', 'action' => 'view', $socialAccount->user->id],
                                         [
                                             'class' => 'text-decoration-none text-dark fw-bold record-link',
                                             'escape' => false,
                                             'data-bs-toggle' => 'tooltip',
-                                            'data-bs-title' => __('View {0}: {1}', __('User'), (string)$socialAccount->user->username),
+                                            'data-bs-title' => __('View {0}: {1}', __('User'), \App\Model\Entity\User::displayName($socialAccount->user)),
                                         ]
                                     )
                                     : '' ?>

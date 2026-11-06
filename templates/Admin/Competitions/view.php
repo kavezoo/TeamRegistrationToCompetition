@@ -287,7 +287,7 @@ $relatedLocal = [
                                   <td class="integer id-col"><?= h((string)$registration->id) ?></td>
 <?php endif; ?>
 <?php if (!empty($relShow['name'])) : ?>
-                                  <td class="string"><?= h($registration->user_id) ?></td>
+                                  <td class="string"><?= h(\App\Model\Entity\User::displayName($registration->user ?? null) ?: (string)$registration->user_id) ?></td>
 <?php endif; ?>
 <?php /*
                                   <td class="string"><?= h($registration->team_id) ?></td>

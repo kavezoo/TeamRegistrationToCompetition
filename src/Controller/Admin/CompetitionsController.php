@@ -71,7 +71,7 @@ class CompetitionsController extends AppController
     {
         $this->rememberLastRecord($id);
 
-        $competition = $this->Competitions->get($id, contain: ['Registrations']);
+        $competition = $this->Competitions->get($id, contain: ['Registrations' => ['Users']]);
         //dd($id);
         //dd($competition->toArray());
         $this->set(compact('competition'));

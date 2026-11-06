@@ -62,7 +62,7 @@ class TeamsController extends AppController
     {
         $this->rememberLastRecord($id);
 
-        $team = $this->Teams->get($id, contain: ['Registrations']);
+        $team = $this->Teams->get($id, contain: ['Registrations' => ['Users']]);
         //dd($id);
         //dd($team->toArray());
         $this->set(compact('team'));

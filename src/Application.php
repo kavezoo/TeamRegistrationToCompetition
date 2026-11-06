@@ -17,10 +17,13 @@ declare(strict_types=1);
 namespace App;
 
 use App\Middleware\HostHeaderMiddleware;
+use App\Model\Entity\User;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Datasource\EntityInterface;
 use Cake\Datasource\FactoryLocator;
+use Cake\ORM\TableRegistry;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
@@ -31,6 +34,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use CakeDC\Users\UsersPlugin;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -149,8 +153,12 @@ class Application extends BaseApplication
             if ($action === 'profile') {
                 $identity = $request->getAttribute('identity');
                 $role = $identity ? (string)($identity['role'] ?? '') : '';
-                $isAdmin = $identity && ($role === 'admin' || !empty($identity['is_superuser']));
-                if ($isAdmin) {
+                $isStaff = $identity && (
+                    $role === User::ROLE_ADMIN
+                    || $role === User::ROLE_PRESIDENT
+                    || !empty($identity['is_superuser'])
+                );
+                if ($isStaff) {
                     $event->setResult($controller->redirect('/admin/profile'));
                 } else {
                     $controller->viewBuilder()->setLayout('login');
@@ -174,6 +182,57 @@ class Application extends BaseApplication
 
             $controller->viewBuilder()->setLayout('login');
             $controller->viewBuilder()->addHelper('CakeDC/Users.User');
+        });
+
+        // Új Google-felhasználó new szerepet kap. Meglévő fiók szerepe nem íródik felül.
+        $eventManager->on(UsersPlugin::EVENT_BEFORE_SOCIAL_LOGIN_USER_CREATE, function (EventInterface $event): void {
+            $user = $event->getData('userEntity');
+            if (!$user instanceof EntityInterface) {
+                return;
+            }
+            if ($user->isNew()) {
+                $user->set('role', User::ROLE_NEW);
+
+                return;
+            }
+            $original = $user->getOriginal('role');
+            if ($original !== null) {
+                $user->set('role', $original);
+            }
+        });
+
+        // A new és a tag szerep a nyilvános profilon csak a saját nevét menti.
+        $eventManager->on('Controller.startup', function (EventInterface $event): void {
+            $controller = $event->getSubject();
+            if (!$controller instanceof Controller) {
+                return;
+            }
+            $request = $controller->getRequest();
+            if (
+                $request->getParam('plugin') !== 'CakeDC/Users'
+                || $request->getParam('controller') !== 'Users'
+                || $request->getParam('action') !== 'profile'
+                || !$request->is(['post', 'put', 'patch'])
+            ) {
+                return;
+            }
+
+            $identity = $request->getAttribute('identity');
+            $id = $identity !== null ? ($identity['id'] ?? null) : null;
+            if ($id === null || $id === '') {
+                return;
+            }
+
+            $users = TableRegistry::getTableLocator()->get('Users');
+            $user = $users->get($id);
+            $user = $users->patchEntity($user, $request->getData(), [
+                'fields' => ['first_name', 'last_name'],
+            ]);
+            if ($users->save($user)) {
+                $controller->Flash->success('A profil mentve.');
+            } else {
+                $controller->Flash->error('A profilt nem sikerült menteni.');
+            }
         });
 
         return $eventManager;

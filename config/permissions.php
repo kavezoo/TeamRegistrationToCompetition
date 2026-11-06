@@ -95,12 +95,20 @@ return [
             ],
             'bypassAuth' => true,
         ],
-        //admin role allowed to all the things
+        // Az admin mindenhez hozzáfér.
         [
-            'role' => \CakeDC\Users\Model\Table\UsersTable::ROLE_ADMIN,
+            'role' => 'admin',
             'prefix' => '*',
             'extension' => '*',
             'plugin' => '*',
+            'controller' => '*',
+            'action' => '*',
+        ],
+        // A klubelnök az admin felületen fogadja el a jelentkezőket és állítja a szerepeket.
+        [
+            'role' => 'president',
+            'prefix' => 'Admin',
+            'plugin' => false,
             'controller' => '*',
             'action' => '*',
         ],
@@ -133,17 +141,18 @@ return [
             'action' => 'display',
             'bypassAuth' => true,
         ],
-        // Bejelentkezett felhasználók az alkalmazás saját (nem admin) oldalain.
+        // Elfogadott tag és klubelnök: az alkalmazás saját (nem admin) oldalai.
+        // A new szerep kimarad: neki csak a főoldal és a saját profilja jár.
         [
-            'role' => '*',
+            'role' => ['member', 'president'],
             'prefix' => [false, 'Member'],
             'plugin' => false,
             'controller' => '*',
             'action' => '*',
         ],
-        // API v1: versenyek, nevezések, csapatok. Bejelentkezés kell, CSRF nincs.
+        // API v1: versenyek, nevezések, csapatok. Elfogadott tag vagy klubelnök.
         [
-            'role' => '*',
+            'role' => ['member', 'president'],
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => ['Competitions', 'Registrations', 'Teams'],

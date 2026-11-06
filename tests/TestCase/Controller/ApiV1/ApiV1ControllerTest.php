@@ -111,6 +111,26 @@ class ApiV1ControllerTest extends TestCase
         $this->assertResponseCode(409);
     }
 
+    public function testNewUserCanEditOwnNameButNotTheApi(): void
+    {
+        $this->login(['role' => 'new']);
+
+        $this->get('/api-v1/competitions');
+        $this->assertResponseCode(403);
+
+        $this->patch('/api-v1/users/profile', [
+            'last_name' => 'Kovács',
+            'first_name' => 'Anna',
+            'role' => 'admin',
+        ]);
+        $this->assertResponseOk();
+
+        $fresh = $this->getTableLocator()->get('Users')->get('63b5e6d6-a061-42fa-9860-377bb16ff19b');
+        $this->assertSame('Kovács', $fresh->last_name);
+        $this->assertSame('Anna', $fresh->first_name);
+        $this->assertSame('Lorem ipsum dolor sit amet', $fresh->role);
+    }
+
     public function testProfileUpdatesNameOnly(): void
     {
         $users = $this->getTableLocator()->get('Users');
@@ -152,7 +172,7 @@ class ApiV1ControllerTest extends TestCase
                 'id' => '63b5e6d6-a061-42fa-9860-377bb16ff19b',
                 'username' => 'anna',
                 'email' => 'anna@example.com',
-                'role' => 'user',
+                'role' => 'member',
                 'active' => true,
                 'is_superuser' => false,
             ],

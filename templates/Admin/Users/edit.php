@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\User $user
+ * @var array<string, string> $roles
  */
 
 use Cake\Core\Configure;
@@ -28,7 +29,7 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="user-form-title"><?= __('Edit User') ?></strong>
-                        <small class="d-block"><?= h($user->username) ?></small>
+                        <small class="d-block"><?= h($user->full_name) ?></small>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
@@ -72,18 +73,18 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('first_name', __('First Name') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('last_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
+                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('last_name', __('Last Name') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
+                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -164,7 +165,12 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                               <?= $this->Form->label('role', __('Role') . ':', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('role', ['class' => 'form-control']) ?>
+                              <?= $this->Form->control('role', [
+                                  'type' => 'select',
+                                  'options' => $roles,
+                                  'label' => false,
+                                  'class' => 'form-select',
+                              ]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">

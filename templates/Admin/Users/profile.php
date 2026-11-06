@@ -22,7 +22,7 @@ foreach ($user->social_accounts ?? [] as $account) {
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="profile-form-title">Profil</strong>
-                        <small class="d-block"><?= h($user->email ?: $user->username) ?></small>
+                        <small class="d-block"><?= h($user->full_name) ?></small>
                       </div>
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -52,18 +52,18 @@ foreach ($user->social_accounts ?? [] as $account) {
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
                               <?= $this->Form->label('last_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
                               <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
+                            </div>
+                          </div>
+                          <div class="row mb-3">
+                            <div class="col-12 col-md-2 text-start text-md-end">
+                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
+                            </div>
+                            <div class="col-12 col-md-9">
+                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
