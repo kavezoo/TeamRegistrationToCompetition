@@ -23,9 +23,8 @@ $profileUrl = $this->Url->build(['controller' => 'Pages', 'action' => 'profile']
                 <button class="sidebar-toggle js-sidebar-toggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="main-sidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
                 <div class="header-button ms-auto">
                   <div class="account-wrap">
-                    <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="Fiók menü">
+                    <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
                       <div class="image"><?= $this->element('account_avatar', ['alt' => $accountName]) ?></div>
-                      <div class="content"><a class="js-acc-btn" href="<?= h($profileUrl) ?>"><?= h($accountName) ?></a></div>
                       <div class="account-dropdown js-dropdown border border-2 shadow">
                         <div class="info clearfix">
                           <div class="image"><a href="<?= h($profileUrl) ?>">
