@@ -1,13 +1,14 @@
 <?php
 /**
- * Új jelentkező menüje: csak a saját adatlap.
+ * Új jelentkező menüje: főoldal és a saját adatlap.
  *
  * @var \Cake\View\View $this
  */
+$action = (string)$this->request->getParam('action');
 ?>
 <aside class="menu-sidebar" id="main-sidebar">
     <div class="logo">
-        <a class="logo-link" href="<?= $this->Url->build('/') ?>" aria-label="Saját adatok">
+        <a class="logo-link" href="<?= $this->Url->build('/') ?>" aria-label="Főoldal">
             <span class="logo-mark" aria-hidden="true">T</span>
             <span class="logo-text">TeamReg</span>
         </a>
@@ -18,10 +19,17 @@
     <div class="menu-sidebar__content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar__list">
-                <li class="active">
+                <li<?= $action === 'display' ? ' class="active"' : '' ?>>
                     <?= $this->Html->link(
-                        '<i class="fa-solid fa-user" aria-hidden="true"></i>' . h('Saját adatok'),
+                        '<i class="fa-solid fa-house" aria-hidden="true"></i>' . h('Főoldal'),
                         '/',
+                        ['escape' => false]
+                    ) ?>
+                </li>
+                <li<?= $action === 'profile' ? ' class="active"' : '' ?>>
+                    <?= $this->Html->link(
+                        '<i class="fa-solid fa-user" aria-hidden="true"></i>' . h('Profil'),
+                        ['controller' => 'Pages', 'action' => 'profile'],
                         ['escape' => false]
                     ) ?>
                 </li>

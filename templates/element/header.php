@@ -1,6 +1,6 @@
 <?php
 /**
- * Új jelentkező fejléce. A profil a főoldal.
+ * Új jelentkező fejléce. A profil külön oldal, a főoldal a várakozás.
  *
  * @var \Cake\View\View $this
  */
@@ -14,7 +14,7 @@ if ($identity) {
     }
     $accountEmail = (string)($identity['email'] ?? '');
 }
-$profileUrl = $this->Url->build('/');
+$profileUrl = $this->Url->build(['controller' => 'Pages', 'action' => 'profile']);
 ?>
 		<header class="header-desktop">
           <div class="section__content section__content--p30">

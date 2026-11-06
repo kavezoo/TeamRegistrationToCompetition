@@ -132,7 +132,7 @@ return [
             'prefix' => false,
             'plugin' => false,
             'controller' => 'Pages',
-            'action' => ['display', 'saveProfile', 'requestMembership'],
+            'action' => ['display', 'profile', 'saveProfile', 'requestMembership'],
         ],
         [
             'role' => 'new',

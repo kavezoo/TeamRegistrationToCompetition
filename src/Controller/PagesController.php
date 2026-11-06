@@ -49,26 +49,30 @@ class PagesController extends AppController
         return $this->redirect('/');
     }
 
+    /**
+     * Az új jelentkező saját adata. Mentés után a főoldalra lép.
+     */
+    public function profile(): ?Response
+    {
+        $user = $this->newUser();
+        if (!$user instanceof User) {
+            return $this->redirect('/');
+        }
+        $this->viewBuilder()->setLayout('JeffAdmin.default');
+        if ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($user)) {
+            return $this->redirect('/');
+        }
+        $this->set('profileSaved', $this->profileSaved($user));
+        $this->set(compact('user'));
+
+        return $this->render('new_profile');
+    }
+
     public function saveProfile(): Response
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
-        $users = $this->fetchTable('Users');
-        $user = $users->get($this->request->getAttribute('identity')['id']);
-        if ((string)$user->get('role') !== User::ROLE_NEW) {
-            return $this->redirect('/');
-        }
-        $user = $users->patchEntity($user, $this->request->getData(), [
-            'fields' => ['first_name', 'last_name'],
-        ]);
-        $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
-        $user->set('profile_saved', $hasName, ['guard' => false]);
-        if ($users->save($user)) {
-            $this->Flash->success('A profil mentve.');
-        } else {
-            $this->Flash->error('A profilt nem sikerült menteni.');
-        }
 
-        return $this->redirect('/');
+        return $this->profile() ?? $this->redirect('/');
     }
 
     public function requestMembership(): Response
@@ -117,17 +121,66 @@ class PagesController extends AppController
             default => null,
         };
         if ($role === User::ROLE_NEW) {
+            if (!$this->profileSaved($user)) {
+                return $this->redirect(['controller' => 'Pages', 'action' => 'profile']);
+            }
             $this->viewBuilder()->setLayout('JeffAdmin.default');
-            $this->set('profileSaved', $this->profileSaved($user));
             $this->set(compact('user'));
 
-            return $this->render('new_profile');
+            return $this->render('new_home');
         }
         if ($target !== null) {
             return $this->redirect($target);
         }
 
         return $this->redirect('/login');
+    }
+
+    private function newUser(): ?User
+    {
+        $identity = $this->request->getAttribute('identity');
+        if ($identity === null) {
+            return null;
+        }
+        $user = $this->fetchTable('Users')->get($identity['id']);
+        if ((string)$user->get('role') !== User::ROLE_NEW) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    /**
+     * A név mentése egyben a klubfelvételi kérelem is, ha még nincs a klubelnöknél.
+     */
+    private function storeProfile(User $user): bool
+    {
+        $users = $this->fetchTable('Users');
+        $user = $users->patchEntity($user, $this->request->getData(), [
+            'fields' => ['first_name', 'last_name'],
+        ]);
+        $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
+        if (!$hasName) {
+            $this->Flash->error('A vezetéknév és a keresztnév is kell.');
+
+            return false;
+        }
+        $user->set('profile_saved', true, ['guard' => false]);
+        $notify = (string)$user->get('membership_request') !== 'pending';
+        if ($notify) {
+            $user->set('membership_request', 'pending', ['guard' => false]);
+        }
+        if (!$users->save($user)) {
+            $this->Flash->error('A profilt nem sikerült menteni.');
+
+            return false;
+        }
+        if ($notify) {
+            (new MembershipNotifier())->notifyPresidents($user);
+        }
+        $this->Flash->success('A profil mentve. A klubelnök jóváhagyására kell várnod.');
+
+        return true;
     }
 
     private function profileSaved(object $user): bool

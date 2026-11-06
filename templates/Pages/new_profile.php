@@ -8,13 +8,12 @@
  */
 use App\Model\Entity\User;
 
-$requestState = (string)($user->get('membership_request') ?? '');
 $this->assign('title', 'Saját adatok');
 ?>
               <div class="row row-tight" style="margin-top: 16px;">
                 <div class="col-12 col-xxl-11">
                   <?= $this->Form->create($user, [
-                      'url' => ['controller' => 'Pages', 'action' => 'saveProfile'],
+                      'url' => ['controller' => 'Pages', 'action' => 'profile'],
                       'class' => 'form-horizontal',
                   ]) ?>
                   <div class="card shadow" aria-labelledby="profile-form-title">
@@ -73,35 +72,12 @@ $this->assign('title', 'Saját adatok');
                             $this->Icon->outline('device-floppy') . ' ' . __('Save'),
                             ['type' => 'submit', 'class' => 'btn btn-success', 'escapeTitle' => false]
                         ) ?>
+                        <?php if ($profileSaved) : ?>
+                          <?= $this->Html->link('Mégse', '/', ['class' => 'btn btn-outline-secondary']) ?>
+                        <?php endif; ?>
                       </div>
                     </div>
                   </div>
                   <?= $this->Form->end() ?>
                 </div>
               </div>
-
-<?php if ($profileSaved) : ?>
-              <div class="row row-tight" style="margin-top: 16px;">
-                <div class="col-12 col-xxl-11">
-                  <div class="card shadow">
-                    <div class="card-header">
-                      <strong>Klubfelvétel</strong>
-                    </div>
-                    <div class="card-body">
-                      <?php if ($requestState === 'pending') : ?>
-                        <p class="mb-0">A felvételi kérelem elküldve. A klubelnök döntésére vár.</p>
-                      <?php else : ?>
-                        <?php if ($requestState === 'denied') : ?>
-                          <p>A klubelnök elutasította a felvételt. Újra kérheted.</p>
-                        <?php else : ?>
-                          <p>A neved elmentve. A klubelnök ezt követően tud taggá fogadni vagy elutasítani.</p>
-                        <?php endif; ?>
-                        <?= $this->Form->create(null, ['url' => ['controller' => 'Pages', 'action' => 'requestMembership']]) ?>
-                          <?= $this->Form->button('Kérem a klubba való felvételemet', ['class' => 'btn btn-primary']) ?>
-                        <?= $this->Form->end() ?>
-                      <?php endif; ?>
-                    </div>
-                  </div>
-                </div>
-              </div>
-<?php endif; ?>
