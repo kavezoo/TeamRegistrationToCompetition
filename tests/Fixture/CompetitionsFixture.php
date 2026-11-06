@@ -32,6 +32,7 @@ class CompetitionsFixture extends TestFixture
                 'comment' => 'Lorem ipsum dolor sit amet',
                 'date_from' => '2026-10-30',
                 'date_deadline' => '2026-10-30',
+                'description' => null,
                 'registration_count' => 1,
                 'visible' => 1,
                 'pos' => 1,

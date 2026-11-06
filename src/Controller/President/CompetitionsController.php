@@ -24,6 +24,7 @@ class CompetitionsController extends AppController
         'comment',
         'date_from',
         'date_deadline',
+        'description',
         'visible',
         'pos',
     ];

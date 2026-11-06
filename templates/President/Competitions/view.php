@@ -23,6 +23,7 @@ $this->assign('title', $competition->name);
                     Időpont: <?= h((string)$competition->date_from) ?><br>
                     Nevezési határidő: <?= h((string)$competition->date_deadline) ?>
                 </p>
+                <?= $this->element('competition_description', ['competition' => $competition]) ?>
                 <?php if ($teams === []) : ?>
                     <p>Előbb hozz létre alcsapatot, utána lehet besorolni a nevezőket.</p>
                     <p><?= $this->Html->link('Alcsapatok', ['controller' => 'Teams', 'action' => 'index'], ['class' => 'btn btn-sm btn-primary']) ?></p>

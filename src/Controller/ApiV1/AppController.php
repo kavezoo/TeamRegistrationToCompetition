@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\ApiV1;
 
 use App\Controller\AppController as BaseController;
+use App\Model\Entity\User;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Paging\PaginatedInterface;
 use Cake\Event\EventInterface;
@@ -67,6 +68,56 @@ class AppController extends BaseController
             'success' => false,
             'message' => $message,
         ]);
+    }
+
+    protected function respondForbidden(string $message): void
+    {
+        $this->response = $this->response->withStatus(403);
+        $this->set([
+            'success' => false,
+            'message' => $message,
+        ]);
+    }
+
+    protected function respondNotFound(string $message): void
+    {
+        $this->response = $this->response->withStatus(404);
+        $this->set([
+            'success' => false,
+            'message' => $message,
+        ]);
+    }
+
+    protected function role(): string
+    {
+        $identity = $this->request->getAttribute('identity');
+        if ($identity === null) {
+            return '';
+        }
+        if (!empty($identity['is_superuser'])) {
+            return User::ROLE_ADMIN;
+        }
+
+        return (string)($identity['role'] ?? '');
+    }
+
+    protected function identityId(): ?string
+    {
+        $identity = $this->request->getAttribute('identity');
+        if ($identity === null) {
+            return null;
+        }
+        $id = $identity['id'] ?? null;
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        return (string)$id;
+    }
+
+    protected function isManager(): bool
+    {
+        return in_array($this->role(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT], true);
     }
 
     /**

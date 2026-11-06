@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller\ApiV1;
 
+use App\Model\Entity\User;
+
 /**
  * @property \App\Model\Table\TeamsTable $Teams
  */
@@ -20,6 +22,11 @@ class TeamsController extends AppController
     public function index(): void
     {
         $this->request->allowMethod(['get']);
+        if (!$this->isManager()) {
+            $this->respondForbidden('Ehhez nincs jogosultságod.');
+
+            return;
+        }
         $teams = $this->paginate($this->Teams->find());
         $paging = $this->pagingFor($teams);
         $this->set('success', true);
@@ -30,6 +37,11 @@ class TeamsController extends AppController
     public function view(string|int|null $id = null): void
     {
         $this->request->allowMethod(['get']);
+        if (!$this->isManager()) {
+            $this->respondForbidden('Ehhez nincs jogosultságod.');
+
+            return;
+        }
         $team = $this->Teams->get($id, contain: ['Registrations']);
         $this->set([
             'success' => true,
@@ -40,6 +52,11 @@ class TeamsController extends AppController
     public function add(): void
     {
         $this->request->allowMethod(['post']);
+        if (!$this->isManager()) {
+            $this->respondForbidden('Alcsapatot csak a klubelnök vagy az admin hozhat létre.');
+
+            return;
+        }
         $team = $this->Teams->newEmptyEntity();
         $this->saveTeam($team, true);
     }
@@ -47,6 +64,11 @@ class TeamsController extends AppController
     public function edit(string|int|null $id = null): void
     {
         $this->request->allowMethod(['put', 'patch']);
+        if (!$this->isManager()) {
+            $this->respondForbidden('Alcsapatot csak a klubelnök vagy az admin módosíthat.');
+
+            return;
+        }
         $team = $this->Teams->get($id);
         $this->saveTeam($team, false);
     }
@@ -54,6 +76,11 @@ class TeamsController extends AppController
     public function delete(string|int|null $id = null): void
     {
         $this->request->allowMethod(['delete']);
+        if ($this->role() !== User::ROLE_ADMIN) {
+            $this->respondForbidden('Alcsapatot csak admin törölhet.');
+
+            return;
+        }
         $team = $this->Teams->get($id);
         if ($this->Teams->Registrations->exists(['team_id' => $team->id])) {
             $this->respondConflict('A csapat nem törölhető, mert tartozik hozzá nevezés.');

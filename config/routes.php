@@ -125,6 +125,18 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Registrations',
             'action' => 'mine',
         ])->setMethods(['GET']);
+        $builder->connect('/applicants', [
+            'controller' => 'Applicants',
+            'action' => 'index',
+        ])->setMethods(['GET']);
+        $builder->connect('/applicants/{id}/approve', [
+            'controller' => 'Applicants',
+            'action' => 'approve',
+        ])->setPass(['id'])->setMethods(['POST']);
+        $builder->connect('/applicants/{id}/deny', [
+            'controller' => 'Applicants',
+            'action' => 'deny',
+        ])->setPass(['id'])->setMethods(['POST']);
         $builder->resources('Competitions');
         $builder->resources('Registrations');
         $builder->resources('Teams');

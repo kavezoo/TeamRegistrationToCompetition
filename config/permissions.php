@@ -176,21 +176,49 @@ return [
             'controller' => 'Pages',
             'action' => 'display',
         ],
-        // A tag csak a névsort és a saját besorolását kérdezheti le.
+        // A tag a kiírt versenyeket és a saját nevezését kezeli, a névsort olvassa.
+        [
+            'role' => 'member',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Competitions',
+            'action' => ['index', 'view'],
+        ],
         [
             'role' => 'member',
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Registrations',
-            'action' => ['roster', 'mine'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
         ],
-        // A klubelnök ugyanezt az API-t használhatja, a kezelés a saját felületén van.
+        // A klubelnök a webes felületével megegyezően kezeli a versenyeket, alcsapatokat és a nevezéseket.
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Competitions',
+            'action' => ['index', 'view', 'add', 'edit'],
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Teams',
+            'action' => ['index', 'view', 'add', 'edit'],
+        ],
         [
             'role' => 'president',
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Registrations',
-            'action' => ['roster', 'mine'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Applicants',
+            'action' => ['index', 'approve', 'deny'],
         ],
         // Kitiltás: az enabled mező. Az admin a teljes API-t látja, a klubelnök csak ezt.
         [

@@ -104,19 +104,4 @@ class UsersController extends AppController
 
         return null;
     }
-
-    private function identityId(): ?string
-    {
-        $identity = $this->request->getAttribute('identity');
-        if ($identity === null) {
-            return null;
-        }
-
-        $id = $identity['id'] ?? null;
-        if ($id === null || $id === '') {
-            return null;
-        }
-
-        return (string)$id;
-    }
 }

@@ -21,6 +21,7 @@ use Cake\ORM\Entity;
  * @property string $comment
  * @property \Cake\I18n\Date $date_from
  * @property \Cake\I18n\Date $date_deadline
+ * @property string|null $description
  * @property int|null $registration_count
  * @property bool $visible
  * @property int $pos
@@ -53,6 +54,7 @@ class Competition extends Entity
         'comment' => true,
         'date_from' => true,
         'date_deadline' => true,
+        'description' => true,
         'registration_count' => true,
         'visible' => true,
         'pos' => true,

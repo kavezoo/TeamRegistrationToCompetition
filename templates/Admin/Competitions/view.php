@@ -165,6 +165,14 @@ $relatedLocal = [
                               <?= $this->Input->date('date_deadline', ['disabled' => true]) ?>
                             </div>
                           </div>
+                          <div class="row mb-3">
+                            <div class="col-12 col-md-2 text-start text-md-end">
+                              <?= $this->Form->label('description', __('Description') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                            </div>
+                            <div class="col-12 col-md-9">
+                              <?= $this->Input->control('description', ['type' => 'textarea', 'rows' => 6, 'class' => 'form-control', 'disabled' => true]) ?>
+                            </div>
+                          </div>
                         </div>
 
                         <div class="tab-pane fade" id="tab-settings" role="tabpanel" aria-labelledby="tab-settings-btn" tabindex="0">

@@ -124,6 +124,10 @@ class CompetitionsTable extends Table
             ->notEmptyDate('date_deadline');
 
         $validator
+            ->scalar('description')
+            ->allowEmptyString('description');
+
+        $validator
             ->nonNegativeInteger('registration_count')
             ->allowEmptyString('registration_count');
 

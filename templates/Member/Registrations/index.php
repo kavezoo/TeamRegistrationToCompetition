@@ -35,6 +35,7 @@ foreach ($rows as $row) {
                             <p class="text-muted mb-2">
                                 <?= h($competition->date_from) ?> – jelentkezési határidő: <?= h($competition->date_deadline) ?>
                             </p>
+                            <?= $this->element('competition_description', ['competition' => $competition]) ?>
                             <?php if ($registration !== null) : ?>
                                 <ul class="list-unstyled mb-2">
                                     <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
