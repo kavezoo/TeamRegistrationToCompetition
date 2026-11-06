@@ -12,11 +12,9 @@ $this->assign('title', 'Jelentkezés');
     <div class="col-12 col-xxl-11">
         <?= $this->Form->create($registration, ['class' => 'form-horizontal']) ?>
         <div class="card shadow">
-            <div class="card-header form-card-header">
-                <div class="form-card-header__title">
-                    <strong><?= h($competition->name) ?></strong>
-                    <small class="d-block">Jelentkezés</small>
-                </div>
+            <div class="card-header">
+                <strong><?= h($competition->name) ?></strong>
+                <small class="d-block text-muted">Jelentkezés</small>
             </div>
             <div class="card-body">
                 <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
