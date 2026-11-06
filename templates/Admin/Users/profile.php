@@ -22,7 +22,7 @@ foreach ($user->social_accounts ?? [] as $account) {
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="profile-form-title">Profil</strong>
-                        <small class="d-block"><?= h($user->full_name) ?></small>
+                        <small class="d-block"><?= h(\App\Model\Entity\User::displayName($user)) ?></small>
                       </div>
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
                         <li class="nav-item" role="presentation">

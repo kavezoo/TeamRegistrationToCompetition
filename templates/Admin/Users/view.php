@@ -42,7 +42,7 @@ $relatedLocal = [
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="user-form-title"><?= __('View User') ?></strong>
-                        <small class="d-block"><?= h($user->full_name) ?></small>
+                        <small class="d-block"><?= h(\App\Model\Entity\User::displayName($user)) ?></small>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
@@ -267,7 +267,7 @@ $relatedLocal = [
                   <div class="card shadow related-card" style="margin-top: 16px;" aria-labelledby="user-related-title">
                     <div class="card-header related-card-header">
                       <div class="related-card-header__title">
-                        <span id="user-related-title"><?= __('Related records') ?>: <?= h($user->full_name) ?></span>
+                        <span id="user-related-title"><?= __('Related records') ?>: <?= h(\App\Model\Entity\User::displayName($user)) ?></span>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs related-card-header__tabs" id="relatedTabs" role="tablist">

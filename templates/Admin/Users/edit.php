@@ -29,7 +29,7 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="user-form-title"><?= __('Edit User') ?></strong>
-                        <small class="d-block"><?= h($user->full_name) ?></small>
+                        <small class="d-block"><?= h(\App\Model\Entity\User::displayName($user)) ?></small>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">

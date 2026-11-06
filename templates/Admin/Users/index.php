@@ -219,7 +219,7 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <td class="integer id-col"><?= h((string)$user->id) ?></td>
 <?php endif; ?>
-                              <td class="string"><?= h($user->full_name) ?></td>
+                              <td class="string"><?= h(\App\Model\Entity\User::displayName($user)) ?></td>
                               <td class="string"><?= h(\App\Model\Entity\User::roleLabel($user->role)) ?></td>
 <?php /*
                               <td class="string"><?= h($user->username) ?></td>

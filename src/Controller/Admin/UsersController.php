@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\Admin\AppController;
 use App\Model\Entity\User;
+use Cake\Datasource\EntityInterface;
 
 /**
  * Users Controller
@@ -186,7 +187,7 @@ class UsersController extends AppController
     /**
      * @return array<string, string>
      */
-    private function roleOptions(User $user): array
+    private function roleOptions(EntityInterface $user): array
     {
         $roles = User::ROLES;
         $current = (string)$user->role;
@@ -200,7 +201,7 @@ class UsersController extends AppController
     /**
      * @param array<string, mixed> $data
      */
-    private function roleIsAllowed(User $user, array $data): bool
+    private function roleIsAllowed(EntityInterface $user, array $data): bool
     {
         $role = (string)($data['role'] ?? '');
         $allowed = User::ROLES;
