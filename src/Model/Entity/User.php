@@ -86,6 +86,102 @@ class User extends Entity
         return self::readField($user, 'username');
     }
 
+    /**
+     * A Google-profilkép címe. Csak https, a Google saját kiszolgálójáról.
+     *
+     * @param object|array<string, mixed>|null $user
+     */
+    public static function avatarUrl(object|array|null $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        $accounts = is_array($user) ? ($user['social_accounts'] ?? []) : ($user->social_accounts ?? []);
+        if (!is_iterable($accounts)) {
+            return null;
+        }
+
+        foreach ($accounts as $account) {
+            $provider = is_array($account) ? ($account['provider'] ?? '') : ($account->provider ?? '');
+            if ($provider !== '' && $provider !== 'google') {
+                continue;
+            }
+            $raw = is_array($account) ? ($account['avatar'] ?? '') : ($account->avatar ?? '');
+            $url = self::googlePictureUrl(trim((string)$raw));
+            if ($url !== null) {
+                return $url;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * A közösségi fiókból csak a kép kell, a token és a nyers Google-adat nem.
+     *
+     * @return array<string, mixed>
+     */
+    public static function socialAvatarContain(): array
+    {
+        return [
+            'SocialAccounts' => function (\Cake\ORM\Query\SelectQuery $accounts): \Cake\ORM\Query\SelectQuery {
+                return $accounts->select(['id', 'user_id', 'provider', 'avatar']);
+            },
+        ];
+    }
+
+    /**
+     * JSON-válaszhoz: a kép címe marad, a közösségi fiók rekordja nem.
+     */
+    public static function publishAvatar(object $user): void
+    {
+        $url = self::avatarUrl($user);
+        $accounts = $user->social_accounts ?? null;
+        $first = null;
+        if (is_array($accounts) || $accounts instanceof \ArrayAccess) {
+            $first = $accounts[0] ?? null;
+        }
+        if (is_object($first) && method_exists($first, 'set')) {
+            $first->set('avatar', $url);
+        }
+        if (method_exists($user, 'set')) {
+            $user->set('avatar', $url);
+        }
+        if (method_exists($user, 'setHidden') && method_exists($user, 'getHidden')) {
+            $hidden = $user->getHidden();
+            if (!in_array('social_accounts', $hidden, true)) {
+                $hidden[] = 'social_accounts';
+                $user->setHidden($hidden);
+            }
+        }
+    }
+
+    private static function googlePictureUrl(string $url): ?string
+    {
+        if (!preg_match('#\Ahttps://#i', $url)) {
+            return null;
+        }
+        $host = strtolower((string)parse_url($url, PHP_URL_HOST));
+        $googleHost = $host === 'googleusercontent.com'
+            || str_ends_with($host, '.googleusercontent.com')
+            || $host === 'google.com'
+            || str_ends_with($host, '.google.com');
+        if (!$googleHost) {
+            return null;
+        }
+        if (preg_match('#=s\d+#', $url) === 1) {
+            $sized = preg_replace('~=s\d+(-[a-z])?(?=$|[?&#])~', '=s128-c', $url);
+
+            return is_string($sized) && $sized !== '' ? $sized : $url;
+        }
+        if (!str_contains($url, '?')) {
+            return $url . '=s128-c';
+        }
+
+        return $url;
+    }
+
     public static function roleLabel(?string $role): string
     {
         if ($role !== null && isset(self::ROLES[$role])) {

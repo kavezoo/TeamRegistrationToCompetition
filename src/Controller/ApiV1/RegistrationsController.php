@@ -79,7 +79,10 @@ class RegistrationsController extends AppController
     public function roster(): void
     {
         $this->request->allowMethod(['get']);
-        $registrations = $this->publicRows($this->Registrations->find('roster')->all());
+        $registrations = $this->publicRows(
+            $this->Registrations->find('roster')->all(),
+            $this->isManager()
+        );
         $this->set([
             'success' => true,
             'registrations' => $registrations,
@@ -333,17 +336,21 @@ class RegistrationsController extends AppController
 
     /**
      * @param iterable<\App\Model\Entity\Registration> $rows
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, mixed>>
      */
-    private function publicRows(iterable $rows): array
+    private function publicRows(iterable $rows, bool $withAvatar = false): array
     {
         $list = [];
         foreach ($rows as $row) {
-            $list[] = [
+            $item = [
                 'name' => User::displayName($row->user),
                 'team' => (string)($row->team->name ?? ''),
                 'competition' => (string)($row->competition->name ?? ''),
             ];
+            if ($withAvatar) {
+                $item['avatar'] = User::avatarUrl($row->user);
+            }
+            $list[] = $item;
         }
 
         return $list;

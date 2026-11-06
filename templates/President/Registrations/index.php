@@ -6,7 +6,6 @@
  * @var iterable<\App\Model\Entity\Registration> $rows
  */
 use App\Model\Entity\Registration;
-use App\Model\Entity\User;
 
 $this->assign('title', 'Nevezés');
 
@@ -91,7 +90,7 @@ foreach ($rows as $row) {
                     <?php foreach ($grouped as $group) : ?>
                         <h2 class="h5"><?= h($group['name']) ?></h2>
                         <div class="table-responsive mb-4">
-                            <table class="table table-striped">
+                            <table class="table table-striped align-middle">
                                 <thead>
                                     <tr>
                                         <th>Név</th>
@@ -101,7 +100,7 @@ foreach ($rows as $row) {
                                 <tbody>
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
-                                            <td><?= h(User::displayName($registration->user)) ?></td>
+                                            <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
                                             <td><?= h($registration->team?->name ?? 'Nincs besorolva') ?></td>
                                         </tr>
                                     <?php endforeach; ?>

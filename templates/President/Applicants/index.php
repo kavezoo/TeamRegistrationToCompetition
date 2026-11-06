@@ -4,7 +4,6 @@
  * @var iterable<\Cake\Datasource\EntityInterface> $pending
  * @var iterable<\Cake\Datasource\EntityInterface> $denied
  */
-use App\Model\Entity\User;
 
 $this->assign('title', 'Jelentkezők');
 ?>
@@ -28,7 +27,7 @@ $this->assign('title', 'Jelentkezők');
                             <tbody>
                                 <?php foreach ($pending as $applicant) : ?>
                                     <tr>
-                                        <td><?= h(User::displayName($applicant)) ?></td>
+                                        <td><?= $this->element('user_name', ['user' => $applicant]) ?></td>
                                         <td><?= h((string)$applicant->get('email')) ?></td>
                                         <td class="text-end">
                                             <?= $this->Form->create(null, [
@@ -75,7 +74,7 @@ $this->assign('title', 'Jelentkezők');
                             <tbody>
                                 <?php foreach ($denied as $applicant) : ?>
                                     <tr>
-                                        <td><?= h(User::displayName($applicant)) ?></td>
+                                        <td><?= $this->element('user_name', ['user' => $applicant]) ?></td>
                                         <td><?= h((string)$applicant->get('email')) ?></td>
                                         <td class="text-end">
                                             <?= $this->Form->create(null, [

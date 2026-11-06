@@ -85,7 +85,9 @@ class CompetitionsController extends AppController
                     ->contain([
                         'Teams',
                         'Users' => function (SelectQuery $users): SelectQuery {
-                            return $users->select(['id', 'username', 'email', 'first_name', 'last_name']);
+                            return $users
+                                ->select(['id', 'username', 'email', 'first_name', 'last_name'])
+                                ->contain(\App\Model\Entity\User::socialAvatarContain());
                         },
                     ])
                     ->orderBy(['Users.first_name' => 'ASC', 'Users.last_name' => 'ASC']);

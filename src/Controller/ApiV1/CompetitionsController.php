@@ -62,6 +62,13 @@ class CompetitionsController extends AppController
             return;
         }
         $competition = $this->Competitions->get($id, contain: $this->viewContain());
+        if ($competition->has('registrations')) {
+            foreach ($competition->registrations as $registration) {
+                if (is_object($registration->user)) {
+                    User::publishAvatar($registration->user);
+                }
+            }
+        }
         if ($this->role() === User::ROLE_MEMBER && !$this->memberCanSee((int)$competition->id, (bool)$competition->visible)) {
             $this->respondNotFound('A verseny nem található.');
 
@@ -189,7 +196,9 @@ class CompetitionsController extends AppController
                 return $query->contain([
                     'Teams',
                     'Users' => function (SelectQuery $users): SelectQuery {
-                        return $users->select(['id', 'username', 'email', 'first_name', 'last_name']);
+                        return $users
+                            ->select(['id', 'username', 'email', 'first_name', 'last_name'])
+                            ->contain(User::socialAvatarContain());
                     },
                 ]);
             },

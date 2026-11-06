@@ -4,7 +4,6 @@
  * @var \App\Model\Entity\Competition $competition
  * @var array<int|string, string> $teams
  */
-use App\Model\Entity\User;
 
 $this->assign('title', $competition->name);
 ?>
@@ -42,7 +41,7 @@ $this->assign('title', $competition->name);
                             <tbody>
                                 <?php foreach ($competition->registrations as $registration) : ?>
                                     <tr>
-                                        <td><?= h(User::displayName($registration->user)) ?></td>
+                                        <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
                                         <td>
                                             <?= $this->Form->create($registration, [
                                                 'url' => ['controller' => 'Registrations', 'action' => 'assign', $registration->id],

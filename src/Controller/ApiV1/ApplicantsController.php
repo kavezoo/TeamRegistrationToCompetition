@@ -83,6 +83,7 @@ class ApplicantsController extends AppController
     {
         $list = [];
         $found = $users->find()
+            ->contain(User::socialAvatarContain())
             ->where([
                 'role' => User::ROLE_NEW,
                 'membership_request' => $state,
@@ -94,6 +95,7 @@ class ApplicantsController extends AppController
                 'id' => $user->id,
                 'name' => User::displayName($user),
                 'email' => $user->email,
+                'avatar' => User::avatarUrl($user),
                 'membership_request' => $state,
             ];
         }
