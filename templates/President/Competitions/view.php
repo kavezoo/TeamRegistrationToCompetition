@@ -148,20 +148,6 @@ $this->assign('title', $competition->name);
                                     ]) ?>
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-12 col-md-2 text-start text-md-end">
-                                    <?= $this->Form->label('own-team', 'Alcsapat:', ['class' => 'form-control-label fw-bold']) ?>
-                                </div>
-                                <div class="col-12 col-md-9">
-                                    <?= $this->Form->control('team_id', [
-                                        'label' => false,
-                                        'id' => 'own-team',
-                                        'options' => $teams,
-                                        'empty' => 'Nincs besorolva',
-                                        'class' => 'form-select',
-                                    ]) ?>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,7 +158,7 @@ $this->assign('title', $competition->name);
                             ['type' => 'submit', 'class' => 'btn btn-success', 'escapeTitle' => false]
                         ) ?>
                         <div class="ms-auto">
-                            <button type="submit" class="btn btn-outline-danger" form="own-registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);">Jelentkezés törlése</button>
+                            <button type="submit" class="btn btn-danger" form="own-registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
                         </div>
                     </div>
                 </div>

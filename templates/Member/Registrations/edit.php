@@ -80,7 +80,7 @@ $this->assign('title', 'Jelentkezés');
                         ) ?>
                         <?= $this->Html->link('Mégse', ['action' => 'index'], ['class' => 'btn btn-outline-secondary']) ?>
                         <div class="ms-auto">
-                          <button type="submit" class="btn btn-outline-danger" form="registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);">Jelentkezés törlése</button>
+                          <button type="submit" class="btn btn-danger" form="registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
                         </div>
                       </div>
                     </div>

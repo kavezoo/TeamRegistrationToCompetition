@@ -84,10 +84,14 @@ class RegistrationsController extends AppController
 
         $posted = $this->request->getData();
         $data = $this->countData($registration->competition, $posted);
-        $teamId = $posted['team_id'] ?? null;
-        $data['team_id'] = ($teamId === null || $teamId === '') ? null : (int)$teamId;
+        $fields = array_merge(array_values(Registration::TITLED_COUNTS), ['comment']);
+        if (array_key_exists('team_id', $posted)) {
+            $teamId = $posted['team_id'];
+            $data['team_id'] = ($teamId === null || $teamId === '') ? null : (int)$teamId;
+            $fields[] = 'team_id';
+        }
         $registration = $registrations->patchEntity($registration, $data, [
-            'fields' => array_merge(array_values(Registration::TITLED_COUNTS), ['comment', 'team_id']),
+            'fields' => $fields,
         ]);
         if ($registrations->save($registration)) {
             $this->Flash->success('A jelentkezésed mentve.');
