@@ -13,10 +13,7 @@ class ApplicantsController extends AppController
         $users = $this->fetchTable('Users');
         $pending = $users->find()
             ->contain(User::socialAvatarContain())
-            ->where([
-                'role' => User::ROLE_NEW,
-                'membership_request' => 'pending',
-            ])
+            ->where(User::openApplicantConditions($users))
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
             ->all();
         $denied = $users->find()

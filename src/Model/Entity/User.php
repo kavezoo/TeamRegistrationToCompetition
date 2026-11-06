@@ -182,6 +182,26 @@ class User extends Entity
         return $url;
     }
 
+    /**
+     * Új szerep, amíg a klubelnök el nem utasította.
+     * A Google-belépés után a kérelem mező még üres is lehet.
+     *
+     * @return array<string, mixed>
+     */
+    public static function openApplicantConditions(Table $users): array
+    {
+        $request = $users->aliasField('membership_request');
+
+        return [
+            $users->aliasField('role') => self::ROLE_NEW,
+            'OR' => [
+                [$request . ' IS' => null],
+                [$request => ''],
+                [$request => 'pending'],
+            ],
+        ];
+    }
+
     public static function roleLabel(?string $role): string
     {
         if ($role !== null && isset(self::ROLES[$role])) {

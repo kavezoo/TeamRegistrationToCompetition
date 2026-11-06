@@ -168,9 +168,11 @@ class PagesController extends AppController
             return false;
         }
         $user->set('profile_saved', true, ['guard' => false]);
+        $user->setDirty('profile_saved', true);
         $notify = (string)$user->get('membership_request') !== 'pending';
         if ($notify) {
             $user->set('membership_request', 'pending', ['guard' => false]);
+            $user->setDirty('membership_request', true);
         }
         if (!$users->save($user)) {
             $this->Flash->error('A profilt nem sikerült menteni.');

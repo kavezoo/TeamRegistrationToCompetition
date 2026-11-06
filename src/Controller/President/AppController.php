@@ -14,11 +14,9 @@ class AppController extends JeffAdminAppController
         parent::beforeRender($event);
 
         try {
-            $pendingCount = $this->fetchTable('Users')->find()
-                ->where([
-                    'role' => User::ROLE_NEW,
-                    'membership_request' => 'pending',
-                ])
+            $users = $this->fetchTable('Users');
+            $pendingCount = $users->find()
+                ->where(User::openApplicantConditions($users))
                 ->count();
         } catch (\Throwable) {
             $pendingCount = 0;

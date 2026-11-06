@@ -82,12 +82,17 @@ class ApplicantsController extends AppController
     private function rows(\Cake\ORM\Table $users, string $state): array
     {
         $list = [];
-        $found = $users->find()
-            ->contain(User::socialAvatarContain())
-            ->where([
+        $query = $users->find()
+            ->contain(User::socialAvatarContain());
+        if ($state === 'pending') {
+            $query->where(User::openApplicantConditions($users));
+        } else {
+            $query->where([
                 'role' => User::ROLE_NEW,
                 'membership_request' => $state,
-            ])
+            ]);
+        }
+        $found = $query
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
             ->all();
         foreach ($found as $user) {
