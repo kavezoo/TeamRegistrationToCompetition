@@ -8,9 +8,7 @@
  * @var int|null $pendingCount
  */
 $current = (string)($controller ?? $this->request->getParam('controller') ?? '');
-$actionName = (string)($action ?? $this->request->getParam('action') ?? '');
 $prefixName = (string)($prefix ?? $this->request->getParam('prefix') ?? 'President');
-$onProfile = $current === 'Dashboard' && $actionName === 'profile';
 $pending = (int)($pendingCount ?? 0);
 
 $items = [
@@ -32,13 +30,6 @@ $items = [
     <div class="menu-sidebar__content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar__list">
-                <li<?= $onProfile ? ' class="active"' : '' ?>>
-                    <?= $this->Html->link(
-                        '<i class="fa-solid fa-user" aria-hidden="true"></i>' . h('Profil'),
-                        ['prefix' => $prefixName, 'controller' => 'Dashboard', 'action' => 'profile'],
-                        ['escape' => false]
-                    ) ?>
-                </li>
                 <?php foreach ($items as $name => [$label, $icon]) : ?>
                     <li<?= $current === $name ? ' class="active"' : '' ?>>
                         <?= $this->Html->link(

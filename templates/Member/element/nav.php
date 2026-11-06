@@ -7,9 +7,7 @@
  * @var string $prefix
  */
 $current = (string)($controller ?? $this->request->getParam('controller') ?? '');
-$actionName = (string)($action ?? $this->request->getParam('action') ?? '');
 $prefixName = (string)($prefix ?? $this->request->getParam('prefix') ?? 'Member');
-$onProfile = $current === 'Dashboard' && $actionName === 'profile';
 ?>
 <aside class="menu-sidebar" id="main-sidebar">
     <div class="logo">
@@ -24,13 +22,6 @@ $onProfile = $current === 'Dashboard' && $actionName === 'profile';
     <div class="menu-sidebar__content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar__list">
-                <li<?= $onProfile ? ' class="active"' : '' ?>>
-                    <?= $this->Html->link(
-                        '<i class="fa-solid fa-user" aria-hidden="true"></i>' . h('Profil'),
-                        ['prefix' => $prefixName, 'controller' => 'Dashboard', 'action' => 'profile'],
-                        ['escape' => false]
-                    ) ?>
-                </li>
                 <li<?= $current === 'Registrations' ? ' class="active"' : '' ?>>
                     <?= $this->Html->link(
                         '<i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>' . h('Jelentkezők'),
