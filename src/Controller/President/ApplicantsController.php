@@ -16,15 +16,7 @@ class ApplicantsController extends AppController
             ->where(User::openApplicantConditions($users))
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
             ->all();
-        $denied = $users->find()
-            ->contain(User::socialAvatarContain())
-            ->where([
-                'role' => User::ROLE_NEW,
-                'membership_request' => 'denied',
-            ])
-            ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
-            ->all();
-        $this->set(compact('pending', 'denied'));
+        $this->set(compact('pending'));
     }
 
     public function approve(string $id): Response

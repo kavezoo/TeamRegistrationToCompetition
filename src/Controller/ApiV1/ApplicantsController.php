@@ -21,10 +21,9 @@ class ApplicantsController extends AppController
         $users = $this->fetchTable('Users');
         $this->set([
             'success' => true,
-            'pending' => $this->rows($users, 'pending'),
-            'denied' => $this->rows($users, 'denied'),
+            'pending' => $this->rows($users),
         ]);
-        $this->viewBuilder()->setOption('serialize', ['success', 'pending', 'denied']);
+        $this->viewBuilder()->setOption('serialize', ['success', 'pending']);
     }
 
     public function approve(string $id): void
@@ -79,20 +78,12 @@ class ApplicantsController extends AppController
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function rows(\Cake\ORM\Table $users, string $state): array
+    private function rows(\Cake\ORM\Table $users): array
     {
         $list = [];
-        $query = $users->find()
-            ->contain(User::socialAvatarContain());
-        if ($state === 'pending') {
-            $query->where(User::openApplicantConditions($users));
-        } else {
-            $query->where([
-                'role' => User::ROLE_NEW,
-                'membership_request' => $state,
-            ]);
-        }
-        $found = $query
+        $found = $users->find()
+            ->contain(User::socialAvatarContain())
+            ->where(User::openApplicantConditions($users))
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
             ->all();
         foreach ($found as $user) {
@@ -101,7 +92,7 @@ class ApplicantsController extends AppController
                 'name' => User::displayName($user),
                 'email' => $user->email,
                 'avatar' => User::avatarUrl($user),
-                'membership_request' => $state,
+                'membership_request' => $user->get('membership_request'),
             ];
         }
 
