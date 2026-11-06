@@ -81,6 +81,7 @@ $profileUrl = $prefixName === 'Admin'
                       </div>
                     </div>
                   </div>
+                  <?= $this->element('header_logout') ?>
                 </div>
               </div>
             </div>

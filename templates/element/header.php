@@ -45,6 +45,7 @@ $profileUrl = $this->Url->build(['controller' => 'Pages', 'action' => 'profile']
                       </div>
                     </div>
                   </div>
+                  <?= $this->element('header_logout') ?>
                 </div>
               </div>
             </div>
