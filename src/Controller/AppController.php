@@ -60,7 +60,7 @@ class AppController extends Controller
         parent::beforeFilter($event);
 
         $action = (string)$this->request->getParam('action');
-        if ($this->request->is('get') && in_array($action, ['add', 'edit', 'profile'], true)) {
+        if ($this->request->is('get') && in_array($action, ['add', 'edit', 'profile', 'team'], true)) {
             $this->rememberFormCaller();
         }
     }

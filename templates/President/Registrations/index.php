@@ -95,6 +95,7 @@ foreach ($rows as $row) {
                                     <tr>
                                         <th>Név</th>
                                         <th>Alcsapat</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -102,6 +103,13 @@ foreach ($rows as $row) {
                                         <tr>
                                             <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
                                             <td><?= h($registration->team?->name ?? 'Nincs besorolva') ?></td>
+                                            <td class="text-end">
+                                                <?= $this->Html->link(
+                                                    'Szerkesztés',
+                                                    ['action' => 'team', $registration->id],
+                                                    ['class' => 'btn btn-sm btn-outline-primary']
+                                                ) ?>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
