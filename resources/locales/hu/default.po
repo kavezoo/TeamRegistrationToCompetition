@@ -1,0 +1,503 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TeamRegistrationToCompetition\n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Actions"
+msgstr "Műveletek"
+
+msgid "Activation Date"
+msgstr "Aktiválás dátuma"
+
+msgid "Active"
+msgstr "Aktív"
+
+msgid "Add Competition"
+msgstr "Verseny hozzáadása"
+
+msgid "Add Failed Password Attempt"
+msgstr "Sikertelen belépés hozzáadása"
+
+msgid "Add new competition"
+msgstr "Új verseny"
+
+msgid "Add new failed password attempt"
+msgstr "Új sikertelen belépés"
+
+msgid "Add new registration"
+msgstr "Új nevezés"
+
+msgid "Add new social account"
+msgstr "Új közösségi fiók"
+
+msgid "Add new team"
+msgstr "Új alcsapat"
+
+msgid "Add new user"
+msgstr "Új felhasználó"
+
+msgid "Add Registration"
+msgstr "Nevezés hozzáadása"
+
+msgid "Add Social Account"
+msgstr "Közösségi fiók hozzáadása"
+
+msgid "Add Team"
+msgstr "Alcsapat hozzáadása"
+
+msgid "Add User"
+msgstr "Felhasználó hozzáadása"
+
+msgid "Additional Data"
+msgstr "További adatok"
+
+msgid "All competitions"
+msgstr "Összes verseny"
+
+msgid "All failed password attempts"
+msgstr "Összes sikertelen belépés"
+
+msgid "All registrations"
+msgstr "Összes nevezés"
+
+msgid "All social accounts"
+msgstr "Összes közösségi fiók"
+
+msgid "All teams"
+msgstr "Összes alcsapat"
+
+msgid "All users"
+msgstr "Összes felhasználó"
+
+msgid "Api Token"
+msgstr "API-token"
+
+msgid "Are you sure you want to delete # {0}?"
+msgstr "Biztosan törlöd ezt: #{0}?"
+
+msgid "Are you sure?"
+msgstr "Biztosan?"
+
+msgid "Avatar"
+msgstr "Avatár"
+
+msgid "Back"
+msgstr "Vissza"
+
+msgid "Basic data"
+msgstr "Alapadatok"
+
+msgid "Cancel"
+msgstr "Mégse"
+
+msgid "Cannot delete: related records exist"
+msgstr "Nem törölhető, mert kapcsolódó rekordok vannak"
+
+msgid "Cannot delete: related records exist ({0})"
+msgstr "Nem törölhető, mert kapcsolódó rekordok vannak ({0})"
+
+msgid "Cities"
+msgstr "Városok"
+
+msgid "Clear the active search filter"
+msgstr "Keresés törlése"
+
+msgid "Close"
+msgstr "Bezárás"
+
+msgid "Comment"
+msgstr "Megjegyzés"
+
+msgid "Competition"
+msgstr "Verseny"
+
+msgid "Competition Id"
+msgstr "Verseny"
+
+msgid "Competition Pipe 1"
+msgstr "Versenyszám 1"
+
+msgid "Competition Pipe 2"
+msgstr "Versenyszám 2"
+
+msgid "Competition Pipe 3"
+msgstr "Versenyszám 3"
+
+msgid "Competition Pipe Title 1"
+msgstr "Versenyszám címe 1"
+
+msgid "Competition Pipe Title 2"
+msgstr "Versenyszám címe 2"
+
+msgid "Competition Pipe Title 3"
+msgstr "Versenyszám címe 3"
+
+msgid "Competitions"
+msgstr "Versenyek"
+
+msgid "Created"
+msgstr "Létrehozva"
+
+msgid "Customers"
+msgstr "Ügyfelek"
+
+msgid "Data"
+msgstr "Adat"
+
+msgid "Date Deadline"
+msgstr "Nevezési határidő"
+
+msgid "Date From"
+msgstr "Időpont"
+
+msgid "Delete"
+msgstr "Törlés"
+
+msgid "Description"
+msgstr "Leírás"
+
+msgid "Edit"
+msgstr "Szerkesztés"
+
+msgid "Edit Competition"
+msgstr "Verseny szerkesztése"
+
+msgid "Edit Failed Password Attempt"
+msgstr "Sikertelen belépés szerkesztése"
+
+msgid "Edit Registration"
+msgstr "Nevezés szerkesztése"
+
+msgid "Edit Social Account"
+msgstr "Közösségi fiók szerkesztése"
+
+msgid "Edit Team"
+msgstr "Alcsapat szerkesztése"
+
+msgid "Edit User"
+msgstr "Felhasználó szerkesztése"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Enter Your One-Time Login Token"
+msgstr "Egyszeri belépési kód"
+
+msgid "Request new token"
+msgstr "Új kód kérése"
+
+msgid "Username not found."
+msgstr "Nincs ilyen felhasználónév."
+
+msgid "Extra Count 1"
+msgstr "Extra darab 1"
+
+msgid "Extra Count 2"
+msgstr "Extra darab 2"
+
+msgid "Extra Count 3"
+msgstr "Extra darab 3"
+
+msgid "Extra Title 1"
+msgstr "Extra címe 1"
+
+msgid "Extra Title 2"
+msgstr "Extra címe 2"
+
+msgid "Extra Title 3"
+msgstr "Extra címe 3"
+
+msgid "Failed Password Attempts"
+msgstr "Sikertelen belépések"
+
+msgid "FailedPasswordAttempts"
+msgstr "Sikertelen belépések"
+
+msgid "Id"
+msgstr "Azonosító"
+
+msgid "Is Superuser"
+msgstr "Szuperfelhasználó"
+
+msgid "Items"
+msgstr "Tételek"
+
+msgid "Last Login"
+msgstr "Utolsó belépés"
+
+msgid "Link"
+msgstr "Hivatkozás"
+
+msgid "List Competitions"
+msgstr "Versenyek"
+
+msgid "List FailedPasswordAttempts"
+msgstr "Sikertelen belépések"
+
+msgid "List Registrations"
+msgstr "Nevezések"
+
+msgid "List SocialAccounts"
+msgstr "Közösségi fiókok"
+
+msgid "List Teams"
+msgstr "Alcsapatok"
+
+msgid "List Users"
+msgstr "Felhasználók"
+
+msgid "Lockout Time"
+msgstr "Zárolás ideje"
+
+msgid "Login Token"
+msgstr "Belépési token"
+
+msgid "Login Token Date"
+msgstr "Belépési token dátuma"
+
+msgid "Lunch Title"
+msgstr "Ebéd címe"
+
+msgid "Modified"
+msgstr "Módosítva"
+
+msgid "More options"
+msgstr "További lehetőségek"
+
+msgid "Name"
+msgstr "Név"
+
+msgid "New competition"
+msgstr "Új verseny"
+
+msgid "New failed password attempt"
+msgstr "Új sikertelen belépés"
+
+msgid "New registration"
+msgstr "Új nevezés"
+
+msgid "New social account"
+msgstr "Új közösségi fiók"
+
+msgid "New team"
+msgstr "Új alcsapat"
+
+msgid "New user"
+msgstr "Új felhasználó"
+
+msgid "No"
+msgstr "Nem"
+
+msgid "Not visible"
+msgstr "Nem látható"
+
+msgid "Orders"
+msgstr "Rendelések"
+
+msgid "OrdersItems"
+msgstr "Rendelési tételek"
+
+msgid "Please select"
+msgstr "Válassz"
+
+msgid "Pos"
+msgstr "Sorrend"
+
+msgid "Provider"
+msgstr "Szolgáltató"
+
+msgid "Record settings"
+msgstr "Rekord beállításai"
+
+msgid "Reference"
+msgstr "Hivatkozás"
+
+msgid "Registrations"
+msgstr "Nevezések"
+
+msgid "Related records"
+msgstr "Kapcsolódó rekordok"
+
+msgid "Related tables"
+msgstr "Kapcsolódó táblák"
+
+msgid "Role"
+msgstr "Szerep"
+
+msgid "Save"
+msgstr "Mentés"
+
+msgid "Search"
+msgstr "Keresés"
+
+msgid "Search anything…"
+msgstr "Keresés…"
+
+msgid "Secret"
+msgstr "Titok"
+
+msgid "Secret Verified"
+msgstr "Titok ellenőrizve"
+
+msgid "Select all"
+msgstr "Összes kijelölése"
+
+msgid "Select row"
+msgstr "Sor kijelölése"
+
+msgid "Settings"
+msgstr "Beállítások"
+
+msgid "Social Accounts"
+msgstr "Közösségi fiókok"
+
+msgid "SocialAccounts"
+msgstr "Közösségi fiókok"
+
+msgid "Special Lunch Title"
+msgstr "Különleges ebéd címe"
+
+msgid "Team"
+msgstr "Alcsapat"
+
+msgid "Team Id"
+msgstr "Alcsapat"
+
+msgid "Teams"
+msgstr "Alcsapatok"
+
+msgid "The competition could not be deleted. Please, try again."
+msgstr "A versenyt nem sikerült törölni. Próbáld újra."
+
+msgid "The competition could not be saved. Please, try again."
+msgstr "A versenyt nem sikerült menteni. Próbáld újra."
+
+msgid "The competition has been deleted."
+msgstr "A verseny törölve."
+
+msgid "The competition has been saved."
+msgstr "A verseny mentve."
+
+msgid "The failed password attempt could not be deleted. Please, try again."
+msgstr "A sikertelen belépést nem sikerült törölni. Próbáld újra."
+
+msgid "The failed password attempt could not be saved. Please, try again."
+msgstr "A sikertelen belépést nem sikerült menteni. Próbáld újra."
+
+msgid "The failed password attempt has been deleted."
+msgstr "A sikertelen belépés törölve."
+
+msgid "The failed password attempt has been saved."
+msgstr "A sikertelen belépés mentve."
+
+msgid "The registration could not be deleted. Please, try again."
+msgstr "A nevezést nem sikerült törölni. Próbáld újra."
+
+msgid "The registration could not be saved. Please, try again."
+msgstr "A nevezést nem sikerült menteni. Próbáld újra."
+
+msgid "The registration has been deleted."
+msgstr "A nevezés törölve."
+
+msgid "The registration has been saved."
+msgstr "A nevezés mentve."
+
+msgid "The social account could not be deleted. Please, try again."
+msgstr "A közösségi fiókot nem sikerült törölni. Próbáld újra."
+
+msgid "The social account could not be saved. Please, try again."
+msgstr "A közösségi fiókot nem sikerült menteni. Próbáld újra."
+
+msgid "The social account has been deleted."
+msgstr "A közösségi fiók törölve."
+
+msgid "The social account has been saved."
+msgstr "A közösségi fiók mentve."
+
+msgid "The team could not be deleted. Please, try again."
+msgstr "Az alcsapatot nem sikerült törölni. Próbáld újra."
+
+msgid "The team could not be saved. Please, try again."
+msgstr "Az alcsapatot nem sikerült menteni. Próbáld újra."
+
+msgid "The team has been deleted."
+msgstr "Az alcsapat törölve."
+
+msgid "The team has been saved."
+msgstr "Az alcsapat mentve."
+
+msgid "The user could not be deleted. Please, try again."
+msgstr "A felhasználót nem sikerült törölni. Próbáld újra."
+
+msgid "The user could not be saved. Please, try again."
+msgstr "A felhasználót nem sikerült menteni. Próbáld újra."
+
+msgid "The user has been deleted."
+msgstr "A felhasználó törölve."
+
+msgid "The user has been saved."
+msgstr "A felhasználó mentve."
+
+msgid "This action cannot be undone."
+msgstr "Ez a művelet nem vonható vissza."
+
+msgid "Token Expires"
+msgstr "Token lejárata"
+
+msgid "Token Secret"
+msgstr "Token titka"
+
+msgid "Token Send Requested"
+msgstr "Token küldése kérve"
+
+msgid "Tos Date"
+msgstr "Feltételek elfogadása"
+
+msgid "User"
+msgstr "Felhasználó"
+
+msgid "User Id"
+msgstr "Felhasználó"
+
+msgid "Username"
+msgstr "Felhasználónév"
+
+msgid "Users"
+msgstr "Felhasználók"
+
+msgid "View"
+msgstr "Megtekintés"
+
+msgid "View {0}: {1}"
+msgstr "{0} megtekintése: {1}"
+
+msgid "View Competition"
+msgstr "Verseny megtekintése"
+
+msgid "View Failed Password Attempt"
+msgstr "Sikertelen belépés megtekintése"
+
+msgid "View Registration"
+msgstr "Nevezés megtekintése"
+
+msgid "View Social Account"
+msgstr "Közösségi fiók megtekintése"
+
+msgid "View Team"
+msgstr "Alcsapat megtekintése"
+
+msgid "View User"
+msgstr "Felhasználó megtekintése"
+
+msgid "Visible"
+msgstr "Látható"
+
+msgid "Yes"
+msgstr "Igen"
+
+msgid "Yes, delete it!"
+msgstr "Igen, törlöm"
