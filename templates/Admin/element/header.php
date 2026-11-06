@@ -60,12 +60,12 @@ $profileUrl = $prefixName === 'Admin'
                   <div class="noti-wrap"></div>
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="Fiók menü">
-                      <div class="image"><?= $this->Icon->filled('user', ['alt' => $accountName]) ?></div>
+                      <div class="image"><?= $this->element('account_avatar', ['alt' => $accountName]) ?></div>
                       <div class="content"><a class="js-acc-btn" href="<?= h($profileUrl) ?>"><?= h($accountName) ?></a></div>
                       <div class="account-dropdown js-dropdown border border-2 shadow">
                         <div class="info clearfix">
                           <div class="image"><a href="<?= h($profileUrl) ?>">
-								<?= $this->Icon->filled('user', ['alt' => $accountName]) ?>
+								<?= $this->element('account_avatar', ['alt' => $accountName]) ?>
 							</a></div>
                           <div class="content">
                             <h5 class="name"><a href="<?= h($profileUrl) ?>"><?= h($accountName) ?></a></h5>
