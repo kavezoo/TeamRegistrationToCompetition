@@ -17,8 +17,11 @@ declare(strict_types=1);
 namespace App;
 
 use App\Middleware\HostHeaderMiddleware;
+use App\Model\Behavior\LoginFinderBehavior;
 use App\Model\Entity\User;
 use Cake\Controller\Controller;
+use Cake\Http\Exception\UnauthorizedException;
+use Cake\ORM\Table;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\EntityInterface;
@@ -137,6 +140,18 @@ class Application extends BaseApplication
      */
     public function events(EventManagerInterface $eventManager): EventManagerInterface
     {
+        // A belépés az aktív fiók mellett az enabled mezőt is nézi.
+        $eventManager->on('Model.initialize', function (EventInterface $event): void {
+            $table = $event->getSubject();
+            if (!$table instanceof Table || $table->getAlias() !== 'Users' || !$table->hasBehavior('AuthFinder')) {
+                return;
+            }
+            $table->removeBehavior('AuthFinder');
+            $table->addBehavior('AuthFinder', [
+                'className' => LoginFinderBehavior::class,
+            ]);
+        });
+
         // A CakeDC Users nyilvános képernyői a JeffAdmin auth kártyát használják, menü nélkül.
         $eventManager->on('Controller.initialize', function (EventInterface $event): void {
             $controller = $event->getSubject();
@@ -197,6 +212,7 @@ class Application extends BaseApplication
             }
             if ($user->isNew()) {
                 $user->set('role', User::ROLE_NEW, ['guard' => false]);
+                $user->set('enabled', true, ['guard' => false]);
 
                 return;
             }
@@ -223,6 +239,22 @@ class Application extends BaseApplication
             } catch (\Throwable) {
                 return;
             }
+            if (!User::isEnabled($user)) {
+                if ($request->getParam('plugin') === 'CakeDC/Users' && $request->getParam('action') === 'logout') {
+                    return;
+                }
+                $request->getSession()->delete('Auth');
+                if ($request->getParam('prefix') === 'ApiV1') {
+                    throw new UnauthorizedException('A fiók nincs engedélyezve.');
+                }
+                $controller->Flash->error(
+                    'A fiókod ki van tiltva. A belépést a klubelnök vagy az admin engedélyezheti újra.',
+                    ['key' => 'auth', 'clear' => true]
+                );
+                $event->setResult($controller->redirect('/login'));
+
+                return;
+            }
             $session = $request->getSession();
             $auth = $session->read('Auth');
             if (!is_array($auth) || (string)($auth['role'] ?? '') === (string)$user->get('role')) {
@@ -230,6 +262,46 @@ class Application extends BaseApplication
             }
             $auth['role'] = $user->get('role');
             $session->write('Auth', $auth);
+        });
+
+        // Sikertelen belépés: ha az e-mail kitiltott fióké, a belépési lapon ez látszik.
+        $eventManager->on('Controller.beforeRedirect', function (EventInterface $event): void {
+            $controller = $event->getSubject();
+            if (!$controller instanceof Controller) {
+                return;
+            }
+            $request = $controller->getRequest();
+            if (
+                $request->getAttribute('identity') !== null
+                || $request->getParam('plugin') !== 'CakeDC/Users'
+                || $request->getParam('action') !== 'login'
+                || !$request->is('post')
+            ) {
+                return;
+            }
+            $email = mb_strtolower(trim((string)$request->getData('email')));
+            if ($email === '') {
+                return;
+            }
+            try {
+                $users = TableRegistry::getTableLocator()->get('Users');
+                if (!$users->getSchema()->hasColumn('enabled')) {
+                    return;
+                }
+                $found = $users->find()
+                    ->select(['id', 'enabled'])
+                    ->where(['LOWER(Users.email) =' => $email])
+                    ->first();
+            } catch (\Throwable) {
+                return;
+            }
+            if (!$found instanceof EntityInterface || User::isEnabled($found)) {
+                return;
+            }
+            $controller->Flash->error(
+                'A fiókod ki van tiltva. A belépést a klubelnök vagy az admin engedélyezheti újra.',
+                ['key' => 'auth', 'clear' => true]
+            );
         });
 
         // A new és a tag szerep a nyilvános profilon csak a saját nevét menti.

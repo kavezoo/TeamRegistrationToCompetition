@@ -23,6 +23,7 @@ use Cake\ORM\Table;
  * @property bool|null $secret_verified
  * @property \Cake\I18n\DateTime|null $tos_date
  * @property bool $active
+ * @property bool $enabled
  * @property bool $is_superuser
  * @property string|null $role
  * @property bool $profile_saved
@@ -95,6 +96,22 @@ class User extends Entity
     }
 
     /**
+     * Hiányzó oszlopnál beléphet. A kitiltás az enabled = hamis érték.
+     */
+    public static function isEnabled(object $user): bool
+    {
+        if (!method_exists($user, 'get')) {
+            return true;
+        }
+        $value = $user->get('enabled');
+        if ($value === null) {
+            return true;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
      * Legördülő: vezetéknév, keresztnév szerint rendezve.
      *
      * @return array<string, string>
@@ -159,6 +176,7 @@ class User extends Entity
         'secret_verified' => true,
         'tos_date' => true,
         'active' => true,
+        'enabled' => true,
         'is_superuser' => true,
         'role' => true,
         'profile_saved' => true,

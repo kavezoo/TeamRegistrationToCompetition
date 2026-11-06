@@ -119,16 +119,31 @@ class UsersController extends AppController
         $user = $this->Users->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $user = $this->Users->patchEntity($user, $data);
-            if ($this->roleIsAllowed($user, $data)) {
-                $user->set('role', (string)$data['role'], ['guard' => false]);
-            }
-            if (!$user->getErrors() && $this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
+            $data['enabled'] = !empty($data['enabled']);
+            if (!$this->roleIsAllowed($user, $data)) {
+                $this->Flash->error('Válassz érvényes szerepet.');
+            } else {
+                $user = $this->Users->patchEntity($user, $data, [
+                    'fields' => ['username', 'email', 'first_name', 'last_name', 'role', 'enabled'],
+                    'accessibleFields' => [
+                        'username' => true,
+                        'email' => true,
+                        'first_name' => true,
+                        'last_name' => true,
+                        'role' => true,
+                        'enabled' => true,
+                    ],
+                ]);
+                if ($this->Users->save($user)) {
+                    $this->Flash->success(__('The user has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        }
+        if ($user->get('enabled') === null) {
+            $user->set('enabled', true, ['guard' => false]);
         }
         $roles = $this->roleOptions($user);
         $this->set(compact('user', 'roles'));

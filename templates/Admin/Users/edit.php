@@ -29,7 +29,7 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                     <div class="card-header form-card-header">
                       <div class="form-card-header__title">
                         <strong id="user-form-title"><?= __('Edit User') ?></strong>
-                        <small class="d-block"><?= h(\App\Model\Entity\User::displayName($user)) ?></small>
+                        <small class="d-block"><?= h(\App\Model\Entity\User::displayName($user)) ?><?php if ((string)$user->email !== '') : ?> · <?= h((string)$user->email) ?><?php endif; ?></small>
                       </div>
 
                       <ul class="nav nav-tabs card-header-tabs form-card-header__tabs" id="formTabs" role="tablist">
@@ -57,18 +57,18 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
 <div class="tab-pane fade show active" id="tab-basic" role="tabpanel" aria-labelledby="tab-basic-btn" tabindex="0">
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('username', __('Username') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('username', 'Belépési név:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('username', ['class' => 'form-control', 'autofocus' => true]) ?>
+                              <?= $this->Form->control('username', ['label' => false, 'class' => 'form-control', 'autofocus' => true]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('email', __('Email') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('email', 'E-mail:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('email', ['type' => 'email', 'class' => 'form-control']) ?>
+                              <?= $this->Form->control('email', ['type' => 'email', 'label' => false, 'class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -76,7 +76,7 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                               <?= $this->Form->label('first_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
+                              <?= $this->Form->control('first_name', ['label' => false, 'class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -84,85 +84,12 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                               <?= $this->Form->label('last_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
+                              <?= $this->Form->control('last_name', ['label' => false, 'class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('token_expires', __('Token Expires') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('token_expires') ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('api_token', __('Api Token') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('api_token', ['class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('activation_date', __('Activation Date') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('activation_date') ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('secret', __('Secret') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('secret', ['class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3 align-items-center">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('secret_verified', __('Secret Verified') . ':', ['class' => 'form-control-label fw-bold mb-0']) ?>
-                            </div>
-                            <div class="col-12 col-md-9 d-flex align-items-center flex-wrap pt-1">
-                              <div class="form-check form-check-inline mb-0">
-                                <?= $this->Form->checkbox('secret_verified', ['class' => 'form-check-input', 'id' => 'secret_verified']) ?>
-                                <?= $this->Form->label('secret_verified', __('Secret Verified'), ['class' => 'form-check-label']) ?>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('tos_date', __('Tos Date') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('tos_date') ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3 align-items-center">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('active', __('Active') . ':', ['class' => 'form-control-label fw-bold mb-0']) ?>
-                            </div>
-                            <div class="col-12 col-md-9 d-flex align-items-center flex-wrap pt-1">
-                              <div class="form-check form-check-inline mb-0">
-                                <?= $this->Form->checkbox('active', ['class' => 'form-check-input', 'id' => 'active']) ?>
-                                <?= $this->Form->label('active', __('Active'), ['class' => 'form-check-label']) ?>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row mb-3 align-items-center">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('is_superuser', __('Is Superuser') . ':', ['class' => 'form-control-label fw-bold mb-0']) ?>
-                            </div>
-                            <div class="col-12 col-md-9 d-flex align-items-center flex-wrap pt-1">
-                              <div class="form-check form-check-inline mb-0">
-                                <?= $this->Form->checkbox('is_superuser', ['class' => 'form-check-input', 'id' => 'is_superuser']) ?>
-                                <?= $this->Form->label('is_superuser', __('Is Superuser'), ['class' => 'form-check-label']) ?>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('role', __('Role') . ':', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('role', 'Szerep:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
                               <?= $this->Form->control('role', [
@@ -173,54 +100,14 @@ $show = array_merge($show['edit'] ?? [], $showLocal['edit']);
                               ]) ?>
                             </div>
                           </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('additional_data', __('Additional Data') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('additional_data', ['type' => 'textarea', 'rows' => 4, 'class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('last_login', __('Last Login') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('last_login') ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('lockout_time', __('Lockout Time') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('lockout_time') ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('login_token', __('Login Token') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('login_token', ['class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('login_token_date', __('Login Token Date') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->datetime('login_token_date') ?>
-                            </div>
-                          </div>
                           <div class="row mb-3 align-items-center">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('token_send_requested', __('Token Send Requested') . ':', ['class' => 'form-control-label fw-bold mb-0']) ?>
+                              <?= $this->Form->label('enabled', 'Engedélyezés:', ['class' => 'form-control-label fw-bold mb-0']) ?>
                             </div>
                             <div class="col-12 col-md-9 d-flex align-items-center flex-wrap pt-1">
                               <div class="form-check form-check-inline mb-0">
-                                <?= $this->Form->checkbox('token_send_requested', ['class' => 'form-check-input', 'id' => 'token_send_requested']) ?>
-                                <?= $this->Form->label('token_send_requested', __('Token Send Requested'), ['class' => 'form-check-label']) ?>
+                                <?= $this->Form->checkbox('enabled', ['class' => 'form-check-input', 'id' => 'enabled']) ?>
+                                <?= $this->Form->label('enabled', 'Engedélyezve', ['class' => 'form-check-label']) ?>
                               </div>
                             </div>
                           </div>

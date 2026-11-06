@@ -179,6 +179,14 @@ return [
             'controller' => 'Registrations',
             'action' => ['roster', 'mine'],
         ],
+        // Kitiltás: az enabled mező. Az admin a teljes API-t látja, a klubelnök csak ezt.
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Users',
+            'action' => 'enabled',
+        ],
         // Saját profil: jelenleg a keresztnév és a vezetéknév szerkeszthető.
         [
             'role' => '*',
