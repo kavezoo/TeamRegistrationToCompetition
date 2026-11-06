@@ -3,10 +3,105 @@ declare(strict_types=1);
 
 namespace App\Controller\President;
 
+use App\Model\Entity\Competition;
+use App\Model\Entity\Registration;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
 
 class RegistrationsController extends AppController
 {
+    /**
+     * A klubelnök saját nevezése a kiírt versenyre.
+     */
+    public function join(string|int|null $competitionId = null): Response
+    {
+        $this->request->allowMethod(['post']);
+        $competitions = $this->fetchTable('Competitions');
+        try {
+            $competition = $competitions->get($competitionId);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A verseny nem található.');
+
+            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+        }
+
+        $registrations = $this->fetchTable('Registrations');
+        $userId = $this->userId();
+        $existing = $registrations->find()
+            ->where([
+                'Registrations.user_id' => $userId,
+                'Registrations.competition_id' => $competition->id,
+            ])
+            ->first();
+        if ($existing !== null) {
+            return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competition->id]);
+        }
+
+        $data = [
+            'user_id' => $userId,
+            'competition_id' => $competition->id,
+            'team_id' => null,
+            'comment' => null,
+            'visible' => true,
+            'pos' => 0,
+        ];
+        foreach (Registration::TITLED_COUNTS as $countField) {
+            $data[$countField] = 0;
+        }
+        $registration = $registrations->newEntity($data);
+        if ($registrations->save($registration)) {
+            $this->Flash->success('Jelentkeztél a versenyre. Add meg a darabszámokat és az alcsapatot.');
+        } else {
+            $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
+        }
+
+        return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competition->id]);
+    }
+
+    /**
+     * A klubelnök a saját nevezésének darabszámait és alcsapatát menti.
+     */
+    public function saveOwn(string|int|null $id = null): Response
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $registrations = $this->fetchTable('Registrations');
+        try {
+            $registration = $registrations->get($id, contain: ['Competitions']);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A jelentkezés nem található.');
+
+            return $this->redirect(['controller' => 'Competitions', 'action' => 'index']);
+        }
+        if ((string)$registration->user_id !== $this->userId()) {
+            $this->Flash->error('Csak a saját jelentkezésedet módosíthatod itt.');
+
+            return $this->redirect([
+                'controller' => 'Competitions',
+                'action' => 'view',
+                $registration->competition_id,
+            ]);
+        }
+
+        $posted = $this->request->getData();
+        $data = $this->countData($registration->competition, $posted);
+        $teamId = $posted['team_id'] ?? null;
+        $data['team_id'] = ($teamId === null || $teamId === '') ? null : (int)$teamId;
+        $registration = $registrations->patchEntity($registration, $data, [
+            'fields' => array_merge(array_values(Registration::TITLED_COUNTS), ['comment', 'team_id']),
+        ]);
+        if ($registrations->save($registration)) {
+            $this->Flash->success('A jelentkezésed mentve.');
+        } else {
+            $this->Flash->error('A jelentkezést nem sikerült menteni.');
+        }
+
+        return $this->redirect([
+            'controller' => 'Competitions',
+            'action' => 'view',
+            $registration->competition_id,
+        ]);
+    }
+
     public function assign(string|int|null $id = null): Response
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
@@ -26,5 +121,40 @@ class RegistrationsController extends AppController
             'action' => 'view',
             $registration->competition_id,
         ]);
+    }
+
+    private function userId(): string
+    {
+        $identity = $this->request->getAttribute('identity');
+
+        return (string)($identity['id'] ?? '');
+    }
+
+    /**
+     * @param array<string, mixed> $posted
+     * @return array<string, int|string|null>
+     */
+    private function countData(Competition $competition, array $posted): array
+    {
+        $data = [];
+        foreach (Registration::TITLED_COUNTS as $titleField => $countField) {
+            $title = trim((string)$competition->get($titleField));
+            if ($title === '') {
+                $data[$countField] = 0;
+                continue;
+            }
+            $value = (int)($posted[$countField] ?? 0);
+            if ($value < 0) {
+                $value = 0;
+            }
+            if ($value > 1000) {
+                $value = 1000;
+            }
+            $data[$countField] = $value;
+        }
+        $comment = trim((string)($posted['comment'] ?? ''));
+        $data['comment'] = $comment === '' ? null : mb_substr($comment, 0, 1000);
+
+        return $data;
     }
 }

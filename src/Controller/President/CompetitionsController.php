@@ -91,7 +91,16 @@ class CompetitionsController extends AppController
             },
         ]);
         $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();
-        $this->set(compact('competition', 'teams'));
+        $identity = $this->request->getAttribute('identity');
+        $userId = (string)($identity['id'] ?? '');
+        $mine = null;
+        foreach ($competition->registrations as $registration) {
+            if ((string)$registration->user_id === $userId) {
+                $mine = $registration;
+                break;
+            }
+        }
+        $this->set(compact('competition', 'teams', 'mine'));
     }
 
     /**
