@@ -1,0 +1,25 @@
+/*
+ * A bake-fejléc címe asbolút, ezért hosszú címnél a mezők a fejlécbe csúsznak.
+ * A cím a fejlécben marad, a törzs alatta kezdődik.
+ */
+body.app .card-header.form-card-header {
+  flex-wrap: wrap;
+  align-items: stretch;
+  padding-top: 12px;
+}
+
+body.app .card-header.form-card-header .form-card-header__title {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: 100%;
+  order: -1;
+  margin-bottom: 8px;
+  pointer-events: none;
+}
+
+body.app .card > .card-body.form-card-body {
+  position: relative;
+  z-index: 1;
+}

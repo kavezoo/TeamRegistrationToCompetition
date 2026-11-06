@@ -51,6 +51,7 @@ class AppView extends View
 
         $this->loadHelper('Flash');
         $this->Html->css('flash', ['block' => true]);
+        $this->Html->css('form-card', ['block' => true]);
 
         $this->getEventManager()->on('View.beforeLayout', function (): void {
             $postLinks = $this->fetch('postLink');

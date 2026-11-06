@@ -25,6 +25,7 @@ $this->assign('title', 'Jelentkezés');
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
                       </ul>
+                      <?= $this->Action->close(null, ['action' => 'index']) ?>
                     </div>
                     <div class="card-body form-card-body">
                       <div class="tab-content">
