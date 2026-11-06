@@ -87,7 +87,8 @@ class PagesController extends AppController
         $user = $users->patchEntity($user, $this->request->getData(), [
             'fields' => ['first_name', 'last_name'],
         ]);
-        $user->set('profile_saved', true, ['guard' => false]);
+        $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
+        $user->set('profile_saved', $hasName, ['guard' => false]);
         if ($users->save($user)) {
             $this->Flash->success('A profil mentve.');
         } else {
@@ -172,6 +173,8 @@ class PagesController extends AppController
 
     private function profileSaved(object $user): bool
     {
-        return filter_var($user->get('profile_saved'), FILTER_VALIDATE_BOOLEAN);
+        $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
+
+        return $hasName && filter_var($user->get('profile_saved'), FILTER_VALIDATE_BOOLEAN);
     }
 }

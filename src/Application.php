@@ -196,13 +196,13 @@ class Application extends BaseApplication
                 return;
             }
             if ($user->isNew()) {
-                $user->set('role', User::ROLE_NEW);
+                $user->set('role', User::ROLE_NEW, ['guard' => false]);
 
                 return;
             }
             $original = $user->getOriginal('role');
             if ($original !== null) {
-                $user->set('role', $original);
+                $user->set('role', $original, ['guard' => false]);
             }
         });
 

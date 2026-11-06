@@ -113,7 +113,7 @@ class ApiV1ControllerTest extends TestCase
 
     public function testMemberRosterAndMineExposeNameAndTeamOnly(): void
     {
-        $this->login();
+        $this->login(['role' => 'member']);
 
         $this->get('/api-v1/registrations/roster');
         $this->assertResponseOk();
@@ -196,7 +196,7 @@ class ApiV1ControllerTest extends TestCase
                 'id' => '63b5e6d6-a061-42fa-9860-377bb16ff19b',
                 'username' => 'anna',
                 'email' => 'anna@example.com',
-                'role' => 'member',
+                'role' => 'admin',
                 'active' => true,
                 'is_superuser' => false,
             ],

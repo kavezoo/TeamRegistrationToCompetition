@@ -86,11 +86,14 @@ class UsersController extends AppController
     public function add()
     {
         $user = $this->Users->newEmptyEntity();
-        $user->role = User::ROLE_NEW;
+        $user->set('role', User::ROLE_NEW, ['guard' => false]);
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             $user = $this->Users->patchEntity($user, $data);
-            if ($this->roleIsAllowed($user, $data) && $this->Users->save($user)) {
+            if ($this->roleIsAllowed($user, $data)) {
+                $user->set('role', (string)$data['role'], ['guard' => false]);
+            }
+            if (!$user->getErrors() && $this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
                 $this->rememberLastRecord($user->id);
 
@@ -117,7 +120,10 @@ class UsersController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $user = $this->Users->patchEntity($user, $data);
-            if ($this->roleIsAllowed($user, $data) && $this->Users->save($user)) {
+            if ($this->roleIsAllowed($user, $data)) {
+                $user->set('role', (string)$data['role'], ['guard' => false]);
+            }
+            if (!$user->getErrors() && $this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

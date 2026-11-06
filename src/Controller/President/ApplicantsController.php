@@ -38,7 +38,7 @@ class ApplicantsController extends AppController
 
             return $this->redirect(['action' => 'index']);
         }
-        $user->set('role', User::ROLE_MEMBER);
+        $user->set('role', User::ROLE_MEMBER, ['guard' => false]);
         $user->set('membership_request', null, ['guard' => false]);
         if ($users->save($user)) {
             $this->Flash->success(User::displayName($user) . ' mostantól tag.');

@@ -36,7 +36,7 @@ foreach ($rows as $row) {
                                 <?php foreach ($mine as $registration) : ?>
                                     <tr>
                                         <td><?= h($registration->competition->name) ?></td>
-                                        <td><?= h($registration->team->name) ?></td>
+                                        <td><?= h($registration->team->name ?? 'Nincs besorolva') ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -70,7 +70,7 @@ foreach ($rows as $row) {
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
                                             <td><?= h(User::displayName($registration->user)) ?></td>
-                                            <td><?= h($registration->team->name) ?></td>
+                                            <td><?= h($registration->team->name ?? 'Nincs besorolva') ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

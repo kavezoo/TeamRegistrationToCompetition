@@ -163,13 +163,21 @@ return [
             'controller' => 'Pages',
             'action' => ['saveProfile', 'requestMembership'],
         ],
-        // API v1: versenyek, nevezések, csapatok. Elfogadott tag vagy klubelnök.
+        // A tag csak a névsort és a saját besorolását kérdezheti le.
         [
-            'role' => ['member', 'president'],
+            'role' => 'member',
             'prefix' => 'ApiV1',
             'plugin' => false,
-            'controller' => ['Competitions', 'Registrations', 'Teams'],
-            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
+            'controller' => 'Registrations',
+            'action' => ['roster', 'mine'],
+        ],
+        // A klubelnök ugyanezt az API-t használhatja, a kezelés a saját felületén van.
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Registrations',
+            'action' => ['roster', 'mine'],
         ],
         // Saját profil: jelenleg a keresztnév és a vezetéknév szerkeszthető.
         [
