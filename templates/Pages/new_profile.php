@@ -9,12 +9,17 @@
 use App\Model\Entity\User;
 
 $this->assign('title', 'Saját adatok');
+$submitsRequest = (string)($user->get('membership_request') ?? '') !== 'pending';
+$confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell. Mented?';
 ?>
               <div class="row row-tight" style="margin-top: 16px;">
                 <div class="col-12 col-xxl-11">
                   <?= $this->Form->create($user, [
                       'url' => ['controller' => 'Pages', 'action' => 'profile'],
                       'class' => 'form-horizontal',
+                      'onsubmit' => $submitsRequest
+                          ? 'return confirm(' . json_encode($confirmSave, JSON_UNESCAPED_UNICODE) . ');'
+                          : null,
                   ]) ?>
                   <div class="card shadow" aria-labelledby="profile-form-title">
                     <div class="card-header form-card-header">
