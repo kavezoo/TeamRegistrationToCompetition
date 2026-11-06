@@ -141,6 +141,9 @@ class AppController extends Controller
         if (preg_match('#^/(login|logout|auth)(/|$)#', $path) === 1) {
             return false;
         }
+        if (preg_match('#/(join|assign|add|delete|delete-own|save-own)(/|$)#', $path) === 1) {
+            return false;
+        }
 
         $here = $this->request->getPath();
         $base = (string)$this->request->getAttribute('base');

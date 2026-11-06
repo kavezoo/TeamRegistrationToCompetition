@@ -34,7 +34,7 @@ class RegistrationsController extends AppController
             ])
             ->first();
         if ($existing !== null) {
-            return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competition->id]);
+            return $this->redirect(['action' => 'edit', $existing->id]);
         }
 
         $data = [
@@ -50,20 +50,21 @@ class RegistrationsController extends AppController
         }
         $registration = $registrations->newEntity($data);
         if ($registrations->save($registration)) {
-            $this->Flash->success('Jelentkeztél a versenyre. Add meg a darabszámokat és az alcsapatot.');
-        } else {
-            $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
+            $this->Flash->success('Jelentkeztél a versenyre. Add meg, miből mennyit kérsz.');
+
+            return $this->redirect(['action' => 'edit', $registration->id]);
         }
+
+        $this->Flash->error('A jelentkezést nem sikerült rögzíteni.');
 
         return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competition->id]);
     }
 
     /**
-     * A klubelnök a saját nevezésének darabszámait és alcsapatát menti.
+     * A klubelnök saját jelentkezése: csak a darabszámok és a megjegyzés.
      */
-    public function saveOwn(string|int|null $id = null): Response
+    public function edit(string|int|null $id = null): ?Response
     {
-        $this->request->allowMethod(['post', 'put', 'patch']);
         $registrations = $this->fetchTable('Registrations');
         try {
             $registration = $registrations->get($id, contain: ['Competitions']);
@@ -82,28 +83,32 @@ class RegistrationsController extends AppController
             ]);
         }
 
-        $posted = $this->request->getData();
-        $data = $this->countData($registration->competition, $posted);
-        $fields = array_merge(array_values(Registration::TITLED_COUNTS), ['comment']);
-        if (array_key_exists('team_id', $posted)) {
-            $teamId = $posted['team_id'];
-            $data['team_id'] = ($teamId === null || $teamId === '') ? null : (int)$teamId;
-            $fields[] = 'team_id';
-        }
-        $registration = $registrations->patchEntity($registration, $data, [
-            'fields' => $fields,
-        ]);
-        if ($registrations->save($registration)) {
-            $this->Flash->success('A jelentkezésed mentve.');
-        } else {
+        $competition = $registration->competition;
+        if ($this->request->is(['post', 'put', 'patch'])) {
+            $registration = $registrations->patchEntity(
+                $registration,
+                $this->countData($competition, $this->request->getData()),
+                ['fields' => array_merge(array_values(Registration::TITLED_COUNTS), ['comment'])],
+            );
+            if ($registrations->save($registration)) {
+                $this->Flash->success('A jelentkezésed mentve.');
+
+                return $this->redirectAfterSave([
+                    'controller' => 'Competitions',
+                    'action' => 'view',
+                    $competition->id,
+                ]);
+            }
             $this->Flash->error('A jelentkezést nem sikerült menteni.');
         }
 
-        return $this->redirect([
-            'controller' => 'Competitions',
-            'action' => 'view',
-            $registration->competition_id,
-        ]);
+        $returnUrl = $this->request->getSession()->read($this->formCallerKey());
+        if (!is_string($returnUrl) || !$this->isSafeReturnPath($returnUrl)) {
+            $returnUrl = ['controller' => 'Competitions', 'action' => 'view', $competition->id];
+        }
+        $this->set(compact('registration', 'competition', 'returnUrl'));
+
+        return null;
     }
 
     public function deleteOwn(string|int|null $id = null): Response
@@ -129,7 +134,11 @@ class RegistrationsController extends AppController
             $this->Flash->error('A jelentkezést nem sikerült törölni.');
         }
 
-        return $this->redirect(['controller' => 'Competitions', 'action' => 'view', $competitionId]);
+        return $this->redirectAfterSave([
+            'controller' => 'Competitions',
+            'action' => 'view',
+            $competitionId,
+        ]);
     }
 
     public function assign(string|int|null $id = null): Response

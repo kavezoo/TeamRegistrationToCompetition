@@ -33,7 +33,19 @@ class CompetitionsController extends AppController
         $competitions = $this->fetchTable('Competitions')->find()
             ->orderBy(['date_from' => 'DESC', 'name' => 'ASC'])
             ->all();
-        $this->set(compact('competitions'));
+        $identity = $this->request->getAttribute('identity');
+        $userId = (string)($identity['id'] ?? '');
+        $mineByCompetition = [];
+        if ($userId !== '') {
+            $rows = $this->fetchTable('Registrations')->find()
+                ->select(['id', 'competition_id'])
+                ->where(['Registrations.user_id' => $userId])
+                ->all();
+            foreach ($rows as $row) {
+                $mineByCompetition[(int)$row->competition_id] = $row->id;
+            }
+        }
+        $this->set(compact('competitions', 'mineByCompetition'));
     }
 
     public function add(): ?Response
