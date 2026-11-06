@@ -72,18 +72,18 @@ $show = array_merge($show['add'] ?? [], $showLocal['add']);
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('last_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('first_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
+                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('last_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
+                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">

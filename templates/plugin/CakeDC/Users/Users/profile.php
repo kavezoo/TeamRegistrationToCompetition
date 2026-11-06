@@ -40,16 +40,27 @@ foreach ($user->social_accounts ?? [] as $account) {
             'submitContainer' => '{{content}}',
         ],
     ]) ?>
-        <?= $this->Form->control('last_name', [
+        <?= $this->Form->control('username', [
+            'label' => 'Felhasználónév',
+            'class' => 'au-input au-input--full',
+            'readonly' => true,
+            'disabled' => true,
+        ]) ?>
+        <?= $this->Form->control('email', [
+            'label' => 'E-mail',
+            'class' => 'au-input au-input--full',
+            'readonly' => true,
+            'disabled' => true,
+        ]) ?>
+        <?= $this->Form->control('first_name', [
             'label' => 'Vezetéknév',
             'class' => 'au-input au-input--full',
             'autofocus' => true,
         ]) ?>
-        <?= $this->Form->control('first_name', [
+        <?= $this->Form->control('last_name', [
             'label' => 'Keresztnév',
             'class' => 'au-input au-input--full',
         ]) ?>
-        <p class="auth-subtitle">E-mail: <?= h($user->email) ?></p>
         <?= $this->Form->button('Mentés', ['class' => 'au-btn au-btn--block au-btn--green']) ?>
     <?= $this->Form->end() ?>
 <?php else : ?>

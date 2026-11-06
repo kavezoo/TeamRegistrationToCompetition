@@ -107,7 +107,7 @@ if ($rowDblClick !== 'none') {
 <?php if (!empty($show['rowId'])) : ?>
                               <th class="integer id-col"><?= $this->Paginator->sort('id') ?></th>
 <?php endif; ?>
-                              <th class="string"><?= $this->Paginator->sort('last_name', 'Név') ?></th>
+                              <th class="string"><?= $this->Paginator->sort('first_name', 'Név') ?></th>
                               <th class="string"><?= $this->Paginator->sort('role', 'Szerep') ?></th>
 <?php /*
                               <th class="string"><?= $this->Paginator->sort('username') ?></th>

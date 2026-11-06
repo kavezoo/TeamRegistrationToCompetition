@@ -39,7 +39,7 @@ foreach ($user->social_accounts ?? [] as $account) {
                               <?= $this->Form->label('username', 'Felhasználónév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('username', ['class' => 'form-control', 'autofocus' => true]) ?>
+                              <?= $this->Input->control('username', ['class' => 'form-control', 'readonly' => true, 'disabled' => true]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -47,23 +47,23 @@ foreach ($user->social_accounts ?? [] as $account) {
                               <?= $this->Form->label('email', 'E-mail:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('email', ['type' => 'email', 'class' => 'form-control']) ?>
+                              <?= $this->Input->control('email', ['type' => 'email', 'class' => 'form-control', 'readonly' => true, 'disabled' => true]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('last_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
+                              <?= $this->Form->label('first_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
+                            </div>
+                            <div class="col-12 col-md-9">
+                              <?= $this->Input->control('first_name', ['class' => 'form-control', 'autofocus' => true]) ?>
+                            </div>
+                          </div>
+                          <div class="row mb-3">
+                            <div class="col-12 col-md-2 text-start text-md-end">
+                              <?= $this->Form->label('last_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
                               <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('first_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
                           <div class="row mb-3">

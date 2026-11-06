@@ -16,7 +16,7 @@ $identity = $this->getRequest()->getAttribute('identity');
 $accountName = 'Fiók';
 $accountEmail = '';
 if ($identity) {
-    $accountName = trim((string)($identity['last_name'] ?? '') . ' ' . (string)($identity['first_name'] ?? ''));
+    $accountName = trim((string)($identity['first_name'] ?? '') . ' ' . (string)($identity['last_name'] ?? ''));
     if ($accountName === '') {
         $accountName = (string)($identity['username'] ?? $identity['email'] ?? 'Fiók');
     }

@@ -59,7 +59,8 @@ class User extends Entity
     ];
 
     /**
-     * Vezetéknév, majd keresztnév. Üres névnél e-mail, majd felhasználónév.
+     * A first_name a vezetéknév, a last_name a keresztnév, mert a Google így adja át.
+     * Üres névnél e-mail, majd felhasználónév.
      *
      * @param object|array<string, mixed>|null $user
      */
@@ -69,7 +70,7 @@ class User extends Entity
             return '';
         }
 
-        $name = trim(self::readField($user, 'last_name') . ' ' . self::readField($user, 'first_name'));
+        $name = trim(self::readField($user, 'first_name') . ' ' . self::readField($user, 'last_name'));
         if ($name !== '') {
             return $name;
         }
@@ -102,8 +103,8 @@ class User extends Entity
         $rows = $table->find()
             ->select(['id', 'last_name', 'first_name', 'email', 'username'])
             ->orderBy([
-                $alias . '.last_name' => 'ASC',
                 $alias . '.first_name' => 'ASC',
+                $alias . '.last_name' => 'ASC',
             ])
             ->limit(200)
             ->all();

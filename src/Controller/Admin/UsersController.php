@@ -171,7 +171,7 @@ class UsersController extends AppController
         $user = $this->Users->get($id, contain: ['SocialAccounts']);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                'fields' => ['username', 'email', 'first_name', 'last_name'],
+                'fields' => ['first_name', 'last_name'],
             ]);
             if ($this->Users->save($user)) {
                 $this->Flash->success('A profil mentve.');

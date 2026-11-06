@@ -38,8 +38,8 @@ $input = ['class' => 'au-input au-input--full'];
         'required' => true,
         'autocomplete' => 'new-password',
     ] + $input) ?>
-    <?= $this->Form->control('first_name', ['label' => 'Keresztnév', 'autocomplete' => 'given-name'] + $input) ?>
-    <?= $this->Form->control('last_name', ['label' => 'Vezetéknév', 'autocomplete' => 'family-name'] + $input) ?>
+    <?= $this->Form->control('first_name', ['label' => 'Vezetéknév', 'autocomplete' => 'family-name'] + $input) ?>
+    <?= $this->Form->control('last_name', ['label' => 'Keresztnév', 'autocomplete' => 'given-name'] + $input) ?>
     <?php if (Configure::read('Users.Tos.required')) : ?>
         <div class="login-checkbox">
             <?= $this->Form->control('tos', [
