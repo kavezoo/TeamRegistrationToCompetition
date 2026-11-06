@@ -22,7 +22,10 @@ if ($identity) {
     }
     $accountEmail = (string)($identity['email'] ?? '');
 }
-$profileUrl = $this->Url->build('/admin/profile');
+$prefixName = (string)($this->request->getParam('prefix') ?: 'Admin');
+$profileUrl = $prefixName === 'Admin'
+    ? $this->Url->build('/admin/profile')
+    : $this->Url->build(['prefix' => $prefixName, 'controller' => 'Dashboard', 'action' => 'profile']);
 ?>
 		<header class="header-desktop">
           <div class="section__content section__content--p30">

@@ -136,6 +136,26 @@ class RegistrationsTable extends Table
     }
 
     /**
+     * Nevezések névvel, alcsapattal és versennyel. A tagi lista és az API ezt használja.
+     */
+    public function findRoster(SelectQuery $query): SelectQuery
+    {
+        return $query
+            ->contain([
+                'Teams',
+                'Competitions',
+                'Users' => function (SelectQuery $users): SelectQuery {
+                    return $users->select(['id', 'username', 'email', 'first_name', 'last_name']);
+                },
+            ])
+            ->orderBy([
+                'Competitions.name' => 'ASC',
+                'Users.first_name' => 'ASC',
+                'Users.last_name' => 'ASC',
+            ]);
+    }
+
+    /**
      * Returns a rules checker object that will be used for validating
      * application integrity.
      *

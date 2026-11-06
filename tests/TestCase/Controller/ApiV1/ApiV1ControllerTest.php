@@ -111,6 +111,30 @@ class ApiV1ControllerTest extends TestCase
         $this->assertResponseCode(409);
     }
 
+    public function testMemberRosterAndMineExposeNameAndTeamOnly(): void
+    {
+        $this->login();
+
+        $this->get('/api-v1/registrations/roster');
+        $this->assertResponseOk();
+        $roster = $this->decode();
+        $this->assertTrue($roster['success']);
+        $this->assertIsArray($roster['registrations']);
+        foreach ($roster['registrations'] as $row) {
+            $this->assertArrayHasKey('name', $row);
+            $this->assertArrayHasKey('team', $row);
+            $this->assertArrayHasKey('competition', $row);
+            $this->assertArrayNotHasKey('email', $row);
+            $this->assertArrayNotHasKey('user', $row);
+        }
+
+        $this->get('/api-v1/registrations/mine');
+        $this->assertResponseOk();
+        $mine = $this->decode();
+        $this->assertTrue($mine['success']);
+        $this->assertIsArray($mine['registrations']);
+    }
+
     public function testNewUserCanEditOwnNameButNotTheApi(): void
     {
         $this->login(['role' => 'new']);

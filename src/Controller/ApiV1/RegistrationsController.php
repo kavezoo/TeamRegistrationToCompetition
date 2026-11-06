@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\ApiV1;
 
+use App\Model\Entity\User;
 use Cake\ORM\Query\SelectQuery;
 
 /**
@@ -49,6 +50,40 @@ class RegistrationsController extends AppController
         ]);
     }
 
+    /**
+     * Jelentkezők névsora és a klubelnök által beállított alcsapat.
+     */
+    public function roster(): void
+    {
+        $this->request->allowMethod(['get']);
+        $registrations = $this->publicRows($this->Registrations->find('roster')->all());
+        $this->set([
+            'success' => true,
+            'registrations' => $registrations,
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['success', 'registrations']);
+    }
+
+    /**
+     * A belépett tag saját nevezései és a hozzájuk rendelt alcsapat.
+     */
+    public function mine(): void
+    {
+        $this->request->allowMethod(['get']);
+        $identity = $this->request->getAttribute('identity');
+        $userId = $identity !== null ? ($identity['id'] ?? null) : null;
+        $registrations = $this->publicRows(
+            $this->Registrations->find('roster')
+                ->where(['Registrations.user_id' => $userId])
+                ->all()
+        );
+        $this->set([
+            'success' => true,
+            'registrations' => $registrations,
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['success', 'registrations']);
+    }
+
     public function add(): void
     {
         $this->request->allowMethod(['post']);
@@ -85,6 +120,24 @@ class RegistrationsController extends AppController
         }
         $registration = $this->Registrations->get($registration->id, contain: $this->contain());
         $this->respondSaved('registration', $registration, $created);
+    }
+
+    /**
+     * @param iterable<\App\Model\Entity\Registration> $rows
+     * @return array<int, array<string, string>>
+     */
+    private function publicRows(iterable $rows): array
+    {
+        $list = [];
+        foreach ($rows as $row) {
+            $list[] = [
+                'name' => User::displayName($row->user),
+                'team' => (string)($row->team->name ?? ''),
+                'competition' => (string)($row->competition->name ?? ''),
+            ];
+        }
+
+        return $list;
     }
 
     /**

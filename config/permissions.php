@@ -95,19 +95,33 @@ return [
             ],
             'bypassAuth' => true,
         ],
-        // Az admin mindenhez hozzáfér.
+        // Az admin csak a saját felületét és az API-t látja.
         [
             'role' => 'admin',
-            'prefix' => '*',
-            'extension' => '*',
-            'plugin' => '*',
+            'prefix' => 'Admin',
+            'plugin' => false,
             'controller' => '*',
             'action' => '*',
         ],
-        // A klubelnök az admin felületen fogadja el a jelentkezőket és állítja a szerepeket.
+        [
+            'role' => 'admin',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => '*',
+            'action' => '*',
+        ],
+        // A klubelnök csak a saját felületét látja.
         [
             'role' => 'president',
-            'prefix' => 'Admin',
+            'prefix' => 'President',
+            'plugin' => false,
+            'controller' => '*',
+            'action' => '*',
+        ],
+        // A tag csak a saját felületét látja.
+        [
+            'role' => 'member',
+            'prefix' => 'Member',
             'plugin' => false,
             'controller' => '*',
             'action' => '*',
@@ -141,14 +155,13 @@ return [
             'action' => 'display',
             'bypassAuth' => true,
         ],
-        // Elfogadott tag és klubelnök: az alkalmazás saját (nem admin) oldalai.
-        // A new szerep kimarad: neki csak a főoldal és a saját profilja jár.
+        // Új jelentkező: a főoldali profil mentése és a klubfelvételi kérelem.
         [
-            'role' => ['member', 'president'],
-            'prefix' => [false, 'Member'],
+            'role' => 'new',
+            'prefix' => false,
             'plugin' => false,
-            'controller' => '*',
-            'action' => '*',
+            'controller' => 'Pages',
+            'action' => ['saveProfile', 'requestMembership'],
         ],
         // API v1: versenyek, nevezések, csapatok. Elfogadott tag vagy klubelnök.
         [
@@ -156,7 +169,7 @@ return [
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => ['Competitions', 'Registrations', 'Teams'],
-            'action' => ['index', 'view', 'add', 'edit', 'delete'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
         ],
         // Saját profil: jelenleg a keresztnév és a vezetéknév szerkeszthető.
         [

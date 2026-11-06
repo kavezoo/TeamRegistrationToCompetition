@@ -16,6 +16,8 @@ declare(strict_types=1);
  */
 namespace App\Controller;
 
+use App\Model\Entity\User;
+use App\Service\MembershipNotifier;
 use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
@@ -59,6 +61,9 @@ class PagesController extends AppController
         if (!empty($path[1])) {
             $subpage = $path[1];
         }
+        if ($page === 'home' && $subpage === null) {
+            return $this->home();
+        }
         $this->set(compact('page', 'subpage'));
 
         try {
@@ -69,5 +74,104 @@ class PagesController extends AppController
             }
             throw new NotFoundException();
         }
+    }
+
+    public function saveProfile(): Response
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $users = $this->fetchTable('Users');
+        $user = $users->get($this->request->getAttribute('identity')['id']);
+        if ((string)$user->get('role') !== User::ROLE_NEW) {
+            return $this->redirect('/');
+        }
+        $user = $users->patchEntity($user, $this->request->getData(), [
+            'fields' => ['first_name', 'last_name'],
+        ]);
+        $user->set('profile_saved', true, ['guard' => false]);
+        if ($users->save($user)) {
+            $this->Flash->success('A profil mentve.');
+        } else {
+            $this->Flash->error('A profilt nem sikerült menteni.');
+        }
+
+        return $this->redirect('/');
+    }
+
+    public function requestMembership(): Response
+    {
+        $this->request->allowMethod(['post']);
+        $users = $this->fetchTable('Users');
+        $user = $users->get($this->request->getAttribute('identity')['id']);
+        if ((string)$user->get('role') !== User::ROLE_NEW || !$this->profileSaved($user)) {
+            $this->Flash->error('Előbb mentsd a profilodat.');
+
+            return $this->redirect('/');
+        }
+        if ((string)$user->get('membership_request') === 'pending') {
+            $this->Flash->success('A felvételi kérelem már a klubelnöknél van.');
+
+            return $this->redirect('/');
+        }
+        $user->set('membership_request', 'pending', ['guard' => false]);
+        if (!$users->save($user)) {
+            $this->Flash->error('A kérelmet nem sikerült elküldeni.');
+
+            return $this->redirect('/');
+        }
+        (new MembershipNotifier())->notifyPresidents($user);
+        $this->Flash->success('A felvételi kérelem elküldve a klubelnöknek.');
+
+        return $this->redirect('/');
+    }
+
+    private function home(): Response
+    {
+        $identity = $this->request->getAttribute('identity');
+        if ($identity === null) {
+            $page = 'home';
+            $subpage = null;
+            $this->set(compact('page', 'subpage'));
+
+            return $this->render('home');
+        }
+
+        $user = $this->fetchTable('Users')->get($identity['id']);
+        $role = (string)$user->get('role');
+        if (!empty($user->get('is_superuser'))) {
+            return $this->redirect('/admin');
+        }
+        $target = match ($role) {
+            User::ROLE_ADMIN => '/admin',
+            User::ROLE_PRESIDENT => '/president',
+            User::ROLE_MEMBER => '/member',
+            default => null,
+        };
+        if ($role === User::ROLE_NEW) {
+            $this->viewBuilder()->setLayout('login');
+            $this->set('authWide', true);
+            $this->set('authHeading', User::displayName($user));
+            $this->set(
+                'authSubtitle',
+                'A jelentkezésed még nincs elfogadva. Addig a főoldalon a saját adataid szerkeszthetők.'
+            );
+            $this->set('profileSaved', $this->profileSaved($user));
+            $this->set(compact('user'));
+
+            return $this->render('new_profile');
+        }
+        if ($target !== null) {
+            return $this->redirect($target);
+        }
+
+        $page = 'home';
+        $subpage = null;
+        $this->set(compact('page', 'subpage'));
+
+        return $this->render('home');
+    }
+
+    private function profileSaved(object $user): bool
+    {
+        return filter_var($user->get('profile_saved'), FILTER_VALIDATE_BOOLEAN);
     }
 }

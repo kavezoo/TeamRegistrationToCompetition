@@ -25,6 +25,8 @@ use Cake\ORM\Table;
  * @property bool $active
  * @property bool $is_superuser
  * @property string|null $role
+ * @property bool $profile_saved
+ * @property string|null $membership_request
  * @property \Cake\I18n\DateTime $created
  * @property \Cake\I18n\DateTime $modified
  * @property array|null $additional_data
@@ -159,6 +161,8 @@ class User extends Entity
         'active' => true,
         'is_superuser' => true,
         'role' => true,
+        'profile_saved' => true,
+        'membership_request' => true,
         'created' => true,
         'modified' => true,
         'additional_data' => true,

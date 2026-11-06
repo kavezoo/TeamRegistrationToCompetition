@@ -102,13 +102,29 @@ return function (RouteBuilder $routes): void {
 
 	$routes->prefix('Member', function (RouteBuilder $builder) {
 		$builder->setRouteClass(DashedRoute::class);
-		$builder->connect('/', ['controller' => 'Users', 'action' => 'index']);
+		$builder->connect('/', ['controller' => 'Registrations', 'action' => 'index']);
+		$builder->connect('/profile', ['controller' => 'Dashboard', 'action' => 'profile']);
+		$builder->fallbacks();
+	});
+
+	$routes->prefix('President', function (RouteBuilder $builder) {
+		$builder->setRouteClass(DashedRoute::class);
+		$builder->connect('/', ['controller' => 'Applicants', 'action' => 'index']);
+		$builder->connect('/profile', ['controller' => 'Dashboard', 'action' => 'profile']);
 		$builder->fallbacks();
 	});
 
     $routes->prefix('ApiV1', function (RouteBuilder $builder): void {
         $builder->setRouteClass(DashedRoute::class);
         $builder->setExtensions(['json']);
+        $builder->connect('/registrations/roster', [
+            'controller' => 'Registrations',
+            'action' => 'roster',
+        ])->setMethods(['GET']);
+        $builder->connect('/registrations/mine', [
+            'controller' => 'Registrations',
+            'action' => 'mine',
+        ])->setMethods(['GET']);
         $builder->resources('Competitions');
         $builder->resources('Registrations');
         $builder->resources('Teams');

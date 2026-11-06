@@ -153,13 +153,18 @@ class Application extends BaseApplication
             if ($action === 'profile') {
                 $identity = $request->getAttribute('identity');
                 $role = $identity ? (string)($identity['role'] ?? '') : '';
-                $isStaff = $identity && (
-                    $role === User::ROLE_ADMIN
-                    || $role === User::ROLE_PRESIDENT
-                    || !empty($identity['is_superuser'])
-                );
-                if ($isStaff) {
-                    $event->setResult($controller->redirect('/admin/profile'));
+                $target = match ($role) {
+                    User::ROLE_ADMIN => '/admin/profile',
+                    User::ROLE_PRESIDENT => '/president/profile',
+                    User::ROLE_MEMBER => '/member/profile',
+                    User::ROLE_NEW => '/',
+                    default => null,
+                };
+                if ($identity && !empty($identity['is_superuser'])) {
+                    $target = '/admin/profile';
+                }
+                if ($target !== null) {
+                    $event->setResult($controller->redirect($target));
                 } else {
                     $controller->viewBuilder()->setLayout('login');
                     $controller->viewBuilder()->addHelper('CakeDC/Users.User');
@@ -199,6 +204,32 @@ class Application extends BaseApplication
             if ($original !== null) {
                 $user->set('role', $original);
             }
+        });
+
+        // A szerep a belépéskor kerül a munkamenetbe. Elfogadás után a következő kérés már a friss szerepet látja.
+        $eventManager->on('Controller.startup', function (EventInterface $event): void {
+            $controller = $event->getSubject();
+            if (!$controller instanceof Controller) {
+                return;
+            }
+            $request = $controller->getRequest();
+            $identity = $request->getAttribute('identity');
+            $id = $identity !== null ? ($identity['id'] ?? null) : null;
+            if ($id === null || $id === '') {
+                return;
+            }
+            try {
+                $user = TableRegistry::getTableLocator()->get('Users')->get($id);
+            } catch (\Throwable) {
+                return;
+            }
+            $session = $request->getSession();
+            $auth = $session->read('Auth');
+            if (!is_array($auth) || (string)($auth['role'] ?? '') === (string)$user->get('role')) {
+                return;
+            }
+            $auth['role'] = $user->get('role');
+            $session->write('Auth', $auth);
         });
 
         // A new és a tag szerep a nyilvános profilon csak a saját nevét menti.
