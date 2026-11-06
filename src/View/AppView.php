@@ -49,10 +49,22 @@ class AppView extends View
         $formHelper['defaultPostLinkBlock'] = true;
         $this->helpers['Form'] = $formHelper;
 
+        $this->loadHelper('Flash');
+        $this->Html->css('flash', ['block' => true]);
+
         $this->getEventManager()->on('View.beforeLayout', function (): void {
             $postLinks = $this->fetch('postLink');
             if ($postLinks !== '') {
                 $this->append('content', $postLinks);
+            }
+
+            // A plugin elrendezése nem írja ki a flash üzenetet. A sablonok se fogyasszák el előre.
+            if ((string)$this->getLayout() !== 'JeffAdmin.default') {
+                return;
+            }
+            $flash = $this->Flash->render() . $this->Flash->render('auth');
+            if ($flash !== '') {
+                $this->prepend('content', $flash);
             }
         });
     }

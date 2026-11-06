@@ -5,7 +5,6 @@
  */
 $this->assign('title', $competition->isNew() ? 'Új verseny' : 'Verseny szerkesztése');
 ?>
-<?= $this->Flash->render() ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12 col-lg-8">
         <div class="card shadow">

@@ -41,7 +41,10 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this->loadComponent('Flash');
+        // A JeffAdmin plugin flash sablonjai (element/flash).
+        $this->loadComponent('Flash', [
+            'plugin' => 'JeffAdmin',
+        ]);
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.

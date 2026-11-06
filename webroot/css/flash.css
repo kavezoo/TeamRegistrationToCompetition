@@ -1,0 +1,32 @@
+/* A JeffAdmin plugin flash elemei (.message). A plugin témája nem stilizálja őket. */
+.message {
+    padding: 12px 16px;
+    margin: 16px 0;
+    border: 1px solid #c5d4e8;
+    border-radius: 8px;
+    background: #e8f0fe;
+    color: #1e3a8a;
+    cursor: pointer;
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message.success {
+    background: #d1e7dd;
+    color: #0f5132;
+    border-color: #a3cfbb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #842029;
+    border-color: #f1aeb5;
+}
+
+.message.warning {
+    background: #fff3cd;
+    color: #664d03;
+    border-color: #ffe69c;
+}

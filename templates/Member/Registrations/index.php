@@ -15,7 +15,6 @@ foreach ($rows as $row) {
     $grouped[$key]['rows'][] = $row;
 }
 ?>
-<?= $this->Flash->render() ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">

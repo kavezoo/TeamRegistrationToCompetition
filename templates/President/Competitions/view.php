@@ -8,7 +8,6 @@ use App\Model\Entity\User;
 
 $this->assign('title', $competition->name);
 ?>
-<?= $this->Flash->render() ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">
