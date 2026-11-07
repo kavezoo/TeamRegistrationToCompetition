@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\President;
 
 use App\Model\Entity\User;
+use App\Service\MembershipNotifier;
 use Cake\Http\Response;
 
 class ApplicantsController extends AppController
@@ -32,6 +33,7 @@ class ApplicantsController extends AppController
         $user->set('role', User::ROLE_MEMBER, ['guard' => false]);
         $user->set('membership_request', null, ['guard' => false]);
         if ($users->save($user)) {
+            (new MembershipNotifier())->notifyAccepted($user);
             $this->Flash->success(User::displayName($user) . ' mostantól tag.');
         } else {
             $this->Flash->error('A jelentkezőt nem sikerült elfogadni.');
