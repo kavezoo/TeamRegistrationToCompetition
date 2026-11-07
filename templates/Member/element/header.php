@@ -20,7 +20,8 @@ $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboar
           <div class="section__content section__content--p30">
             <div class="container-fluid">
               <div class="header-wrap">
-                <div class="header-button ms-auto">
+                <p class="header-brand mb-0">Lassúsági Pipaszívó Verseny</p>
+                <div class="header-button">
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
                       <div class="image"><?= $this->element('account_avatar', ['alt' => $accountName]) ?></div>

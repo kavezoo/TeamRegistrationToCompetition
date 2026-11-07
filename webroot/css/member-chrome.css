@@ -12,7 +12,21 @@ body.app .header-desktop.header-desktop--solo {
 
 body.app .header-desktop.header-desktop--solo .header-wrap {
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body.app .header-desktop.header-desktop--solo .header-brand {
+  margin: 0;
+  min-width: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #222;
+}
+
+body.app .header-desktop.header-desktop--solo .header-button {
+  flex: 0 0 auto;
 }
 
 @media (max-width: 991px) {
@@ -21,6 +35,11 @@ body.app .header-desktop.header-desktop--solo .header-wrap {
   }
 
   body.app .header-desktop.header-desktop--solo {
-    height: 75px;
+    height: auto;
+    min-height: 75px;
+  }
+
+  body.app .header-desktop.header-desktop--solo .header-brand {
+    font-size: 1rem;
   }
 }
