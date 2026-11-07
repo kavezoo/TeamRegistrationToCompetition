@@ -252,7 +252,7 @@ return [
     'Email' => [
         'default' => [
             'transport' => 'default',
-            'from' => ['president@teamreg.vzsfoto.hu' => 'Ibafai Klubelnök'],
+            'from' => ['noreply@teamreg.vzsfoto.hu' => 'Ibafai Pipaklub'],
             /*
              * Will by default be set to config value of App.encoding, if that exists otherwise to UTF-8.
              */
