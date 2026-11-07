@@ -8,7 +8,6 @@ use App\Model\Entity\User;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 use DateTimeInterface;
 
 /**
@@ -20,11 +19,7 @@ class CompetitionNotifier
     public function notifyMembers(Competition $competition): void
     {
         $name = trim((string)$competition->name);
-        $url = Router::url([
-            'prefix' => 'Member',
-            'controller' => 'Registrations',
-            'action' => 'index',
-        ], true);
+        $url = MailLinks::competitionSheet(User::ROLE_MEMBER, (int)$competition->id);
         $body = "Van új verseny kiírva, lehet jelentkezni.\n\n";
         if ($name !== '') {
             $body .= "Verseny: {$name}\n";
@@ -41,7 +36,7 @@ class CompetitionNotifier
         if ($deadline !== '') {
             $body .= "Jelentkezési határidő: {$deadline}\n";
         }
-        $body .= "\nA versenyek listája:\n{$url}\n";
+        $body .= "\n" . MailLinks::loginLine($url);
 
         try {
             $members = TableRegistry::getTableLocator()->get('Users')->find()

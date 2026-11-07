@@ -29,7 +29,8 @@ class MembershipNotifier
         if ($email !== '') {
             $body .= "E-mail: {$email}\n";
         }
-        $body .= "\nA kérelmet itt lehet elfogadni vagy elutasítani:\n{$url}\n";
+        $body .= "\nA kérelmet itt lehet elfogadni vagy elutasítani.\n";
+        $body .= MailLinks::loginLine($url);
 
         $presidents = TableRegistry::getTableLocator()->get('Users')->find()
             ->select(['id', 'email'])
@@ -67,7 +68,8 @@ class MembershipNotifier
         }
 
         $body = "A klubelnök elfogadta a jelentkezésedet. Most már beléphetsz.\n\n";
-        $body .= "Ha jelenleg be vagy jelentkezve, jelentkezz ki a Kilépés gombbal, majd lépj be újra.\n";
+        $body .= "Ha jelenleg be vagy jelentkezve, jelentkezz ki a Kilépés gombbal, majd lépj be újra.\n\n";
+        $body .= MailLinks::loginLine(MailLinks::memberHome());
 
         try {
             $mailer = new Mailer('default');

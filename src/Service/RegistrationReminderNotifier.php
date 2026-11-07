@@ -9,7 +9,6 @@ use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 use DateTimeInterface;
 
 /**
@@ -25,7 +24,7 @@ class RegistrationReminderNotifier
             return null;
         }
 
-        [$subject, $message] = $this->compose($competition);
+        [$subject, $message] = $this->compose($competition, $member);
         try {
             $mailer = new Mailer('default');
             $mailer
@@ -57,17 +56,14 @@ class RegistrationReminderNotifier
     /**
      * @return array{0: string, 1: string}
      */
-    public function compose(Competition $competition): array
+    public function compose(Competition $competition, object $member): array
     {
         $name = trim((string)$competition->name);
         $subject = $name !== ''
             ? 'Még nem jelentkeztél a versenyre: ' . $name
             : 'Még nem jelentkeztél a versenyre';
-        $url = Router::url([
-            'prefix' => 'Member',
-            'controller' => 'Registrations',
-            'action' => 'index',
-        ], true);
+        $role = (string)($member->get('role') ?? '');
+        $url = MailLinks::competitionSheet($role, (int)$competition->id);
         $message = "Még nem jelentkeztél a versenyre.\n\n";
         if ($name !== '') {
             $message .= "Verseny: {$name}\n";
@@ -84,7 +80,7 @@ class RegistrationReminderNotifier
         if ($deadline !== '') {
             $message .= "Jelentkezési határidő: {$deadline}\n";
         }
-        $message .= "\nItt lehet jelentkezni:\n{$url}\n";
+        $message .= "\n" . MailLinks::loginLine($url);
 
         return [$subject, $message];
     }

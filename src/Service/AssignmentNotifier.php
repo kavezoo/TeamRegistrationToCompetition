@@ -38,7 +38,11 @@ class AssignmentNotifier
         if ($competition !== '') {
             $body .= "Verseny: {$competition}\n";
         }
-        $body .= "Alcsoport: {$team}\n";
+        $body .= "Alcsoport: {$team}\n\n";
+        $body .= MailLinks::loginLine(MailLinks::registrationSheet(
+            (string)($registration->user->get('role') ?? ''),
+            $registration->id,
+        ));
 
         try {
             $mailer = new Mailer('default');

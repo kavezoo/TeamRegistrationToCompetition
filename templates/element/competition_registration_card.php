@@ -13,7 +13,7 @@ $registration = $registration ?? null;
 $closed = $competition->registrationClosed();
 $tab = 'competition-' . (int)$competition->id;
 ?>
-<div class="border rounded p-3 mb-3">
+<div class="border rounded p-3 mb-3" id="competition-<?= (int)$competition->id ?>">
     <h2 class="h5 mb-2"><?= h($competition->name) ?></h2>
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">

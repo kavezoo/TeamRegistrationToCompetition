@@ -8,6 +8,13 @@
 use App\Model\Entity\User;
 
 $this->assign('title', 'Versenyek');
+$focusCompetition = (int)$this->request->getQuery('competition');
+if ($focusCompetition > 0) {
+    $this->Html->scriptBlock(
+        'document.getElementById(' . json_encode('competition-' . $focusCompetition) . ')?.scrollIntoView({block:"start"});',
+        ['block' => true]
+    );
+}
 
 $grouped = [];
 foreach ($rows as $row) {

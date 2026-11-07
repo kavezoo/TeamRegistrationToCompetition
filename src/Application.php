@@ -200,8 +200,32 @@ class Application extends BaseApplication
                 return;
             }
 
+            if ($action === 'login') {
+                $redirect = (string)$request->getQuery('redirect');
+                if ($this->safeInternalPath($redirect)) {
+                    $request->getSession()->write('App.loginRedirect', $redirect);
+                } else {
+                    $request->getSession()->delete('App.loginRedirect');
+                }
+            }
+
             $controller->viewBuilder()->setLayout('login');
             $controller->viewBuilder()->addHelper('CakeDC/Users.User');
+        });
+
+        // A Google-belépés elveszíti a redirect queryt. A belépés előtti cím a munkamenetből visz vissza az adatlapra.
+        $eventManager->on(UsersPlugin::EVENT_AFTER_LOGIN, function (EventInterface $event): void {
+            $controller = $event->getSubject();
+            if (!$controller instanceof Controller) {
+                return;
+            }
+            $session = $controller->getRequest()->getSession();
+            $target = (string)$session->read('App.loginRedirect');
+            $session->delete('App.loginRedirect');
+            $url = $this->loginRedirectTarget($target);
+            if ($url !== null) {
+                $event->setResult($url);
+            }
         });
 
         // Új Google-felhasználó new szerepet kap. Meglévő fiók szerepe nem íródik felül.
@@ -339,5 +363,73 @@ class Application extends BaseApplication
         });
 
         return $eventManager;
+    }
+
+    /**
+     * Csak a saját felületek címe maradhat meg belépés után.
+     */
+    private function safeInternalPath(string $path): bool
+    {
+        return preg_match('#\A/(member|president|admin)(/[A-Za-z0-9/_-]*)?(\?[A-Za-z0-9=&_%.-]*)?\z#', $path) === 1;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function loginRedirectTarget(string $target): ?array
+    {
+        if (!$this->safeInternalPath($target)) {
+            return null;
+        }
+        $parts = parse_url($target);
+        if (!is_array($parts)) {
+            return null;
+        }
+        $path = (string)($parts['path'] ?? '');
+        $query = [];
+        if (!empty($parts['query'])) {
+            parse_str((string)$parts['query'], $query);
+        }
+        if (preg_match('#\A/(member|president)/registrations/edit/(\d+)\z#', $path, $match) === 1) {
+            return [
+                'prefix' => $match[1] === 'member' ? 'Member' : 'President',
+                'controller' => 'Registrations',
+                'action' => 'edit',
+                $match[2],
+            ];
+        }
+        if (preg_match('#\A/(member|president)/registrations\z#', $path, $match) === 1) {
+            $url = [
+                'prefix' => $match[1] === 'member' ? 'Member' : 'President',
+                'controller' => 'Registrations',
+                'action' => 'index',
+            ];
+            if (isset($query['competition']) && ctype_digit((string)$query['competition'])) {
+                $url['?'] = ['competition' => (int)$query['competition']];
+            }
+
+            return $url;
+        }
+        if ($path === '/member' || $path === '/member/registrations') {
+            $url = [
+                'prefix' => 'Member',
+                'controller' => 'Registrations',
+                'action' => 'index',
+            ];
+            if (isset($query['competition']) && ctype_digit((string)$query['competition'])) {
+                $url['?'] = ['competition' => (int)$query['competition']];
+            }
+
+            return $url;
+        }
+        if ($path === '/president' || $path === '/president/applicants') {
+            return [
+                'prefix' => 'President',
+                'controller' => 'Applicants',
+                'action' => 'index',
+            ];
+        }
+
+        return null;
     }
 }

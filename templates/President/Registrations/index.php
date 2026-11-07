@@ -5,6 +5,13 @@
  * @var array<int, \App\Model\Entity\Registration> $mineByCompetition
  */
 $this->assign('title', 'Nevezésem');
+$focusCompetition = (int)$this->request->getQuery('competition');
+if ($focusCompetition > 0) {
+    $this->Html->scriptBlock(
+        'document.getElementById(' . json_encode('competition-' . $focusCompetition) . ')?.scrollIntoView({block:"start"});',
+        ['block' => true]
+    );
+}
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
