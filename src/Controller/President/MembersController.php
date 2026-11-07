@@ -17,16 +17,7 @@ class MembersController extends AppController
             ->all()
             ->toList();
         $competition = $this->selectedCompetition($competitions);
-        $members = $this->fetchTable('Users')->find()
-            ->contain(User::socialAvatarContain())
-            ->where([
-                'role' => User::ROLE_MEMBER,
-                'active' => true,
-                'enabled' => true,
-            ])
-            ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
-            ->all()
-            ->toList();
+        $members = $this->recipients()->toList();
         foreach ($members as $member) {
             User::publishAvatar($member);
         }
@@ -66,7 +57,7 @@ class MembersController extends AppController
         }
         $member = $this->activeMember($id);
         if ($member === null) {
-            $this->Flash->error('Csak aktív tagnak lehet emlékeztetőt küldeni.');
+            $this->Flash->error('Ennek a felhasználónak nem lehet emlékeztetőt küldeni.');
 
             return $this->back($competition);
         }
@@ -98,13 +89,7 @@ class MembersController extends AppController
         if ($competition instanceof Response) {
             return $competition;
         }
-        $members = $this->fetchTable('Users')->find()
-            ->where([
-                'role' => User::ROLE_MEMBER,
-                'active' => true,
-                'enabled' => true,
-            ])
-            ->all();
+        $members = $this->recipients()->all();
         $registered = [];
         $rows = $this->fetchTable('Registrations')->find()
             ->select(['user_id'])
@@ -190,16 +175,34 @@ class MembersController extends AppController
         return $competition;
     }
 
-    private function activeMember(string $id): ?object
+    /**
+     * Aktív tagok, és a bejelentkezett elnök.
+     */
+    private function recipients(): \Cake\ORM\Query\SelectQuery
     {
+        $presidentId = $this->senderId();
+
         return $this->fetchTable('Users')->find()
+            ->contain(User::socialAvatarContain())
             ->where([
-                'id' => $id,
-                'role' => User::ROLE_MEMBER,
                 'active' => true,
                 'enabled' => true,
+                'OR' => [
+                    ['role' => User::ROLE_MEMBER],
+                    [
+                        'role' => User::ROLE_PRESIDENT,
+                        'id' => $presidentId,
+                    ],
+                ],
             ])
-            ->first();
+            ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC']);
+    }
+
+    private function activeMember(string $id): ?object
+    {
+        $person = $this->recipients()->where(['Users.id' => $id])->first();
+
+        return $person;
     }
 
     private function alreadyRegistered(object $member, Competition $competition): bool

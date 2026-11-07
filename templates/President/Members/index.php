@@ -94,7 +94,12 @@ if ($canRemind) {
                                     $isLast = isset($lastRecordId) && (string)$lastRecordId === (string)$member->id;
                                     ?>
                                     <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h((string)$member->id) ?>" data-id="<?= h((string)$member->id) ?>">
-                                        <td><?= $this->element('user_name', ['user' => $member]) ?></td>
+                                        <td>
+                                            <?= $this->element('user_name', ['user' => $member]) ?>
+                                            <?php if ((string)$member->get('role') === User::ROLE_PRESIDENT) : ?>
+                                                <span class="badge text-bg-secondary ms-1">Elnök</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= h($member->email) ?></td>
                                         <td><?= $competition === null ? '' : ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') ?></td>
                                         <td>
