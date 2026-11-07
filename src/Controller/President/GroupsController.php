@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\President;
 
 use App\Model\Entity\User;
+use App\Service\AssignmentNotifier;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
 use Cake\ORM\Query\SelectQuery;
@@ -43,6 +44,7 @@ class GroupsController extends AppController
         }
 
         if ($this->request->is(['post', 'put', 'patch'])) {
+            $previousTeamId = $registration->get('team_id');
             $data = $this->request->getData();
             if (($data['team_id'] ?? '') === '') {
                 $data['team_id'] = null;
@@ -50,8 +52,13 @@ class GroupsController extends AppController
             $registration = $registrations->patchEntity($registration, $data, [
                 'fields' => ['team_id'],
             ]);
+            $teamId = $registration->get('team_id');
+            $teamChanged = (string)($previousTeamId ?? '') !== (string)($teamId ?? '');
             if ($registrations->save($registration)) {
                 $this->Flash->success('Az alcsapat beállítva.');
+                if ($teamChanged && $teamId !== null && $teamId !== '') {
+                    (new AssignmentNotifier())->notify($registration->id);
+                }
 
                 return $this->redirectAfterSave();
             }

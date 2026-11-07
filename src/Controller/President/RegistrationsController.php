@@ -5,6 +5,7 @@ namespace App\Controller\President;
 
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
+use App\Service\AssignmentNotifier;
 use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
@@ -177,6 +178,7 @@ class RegistrationsController extends AppController
         $this->request->allowMethod(['post', 'put', 'patch']);
         $registrations = $this->fetchTable('Registrations');
         $registration = $registrations->get($id);
+        $previousTeamId = $registration->get('team_id');
         $data = $this->request->getData();
         if (($data['team_id'] ?? '') === '') {
             $data['team_id'] = null;
@@ -184,8 +186,13 @@ class RegistrationsController extends AppController
         $registration = $registrations->patchEntity($registration, $data, [
             'fields' => ['team_id'],
         ]);
+        $teamId = $registration->get('team_id');
+        $teamChanged = (string)($previousTeamId ?? '') !== (string)($teamId ?? '');
         if ($registrations->save($registration)) {
             $this->Flash->success('Az alcsapat beállítva.');
+            if ($teamChanged && $teamId !== null && $teamId !== '') {
+                (new AssignmentNotifier())->notify($registration->id);
+            }
         } else {
             $this->Flash->error('Az alcsapatot nem sikerült beállítani.');
         }
