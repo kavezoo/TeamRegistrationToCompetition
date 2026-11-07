@@ -56,20 +56,28 @@ class OutgoingMail
      * Megszólítás, szöveg és több gomb.
      *
      * @param list<array{0: string, 1: string}> $buttons cím, felirat
+     * @param string|null $hint Üres szöveggel a szokásos belépési megjegyzés kimarad.
      * @return array{0: string, 1: string}
      */
-    public static function notice(object|array|null $person, string $details, array $buttons): array
+    public static function notice(object|array|null $person, string $details, array $buttons, ?string $hint = null): array
     {
         $greeting = self::greeting($person);
-        $hint = 'Ha nincs belépve, a gomb először a belépésre visz, utána a választott oldal nyílik meg.';
-        $text = $greeting . "\n\n" . trim($details) . "\n\n" . $hint . "\n";
+        if ($hint === null) {
+            $hint = 'Ha nincs belépve, a gomb először a belépésre visz, utána a választott oldal nyílik meg.';
+        }
+        $text = $greeting . "\n\n" . trim($details) . "\n";
+        if ($hint !== '') {
+            $text .= "\n" . $hint . "\n";
+        }
         foreach ($buttons as [$url, $label]) {
             $text .= "\n" . $label . "\n" . $url . "\n";
         }
 
         $html = '<p style="margin:0 0 16px;">' . self::escape($greeting) . '</p>';
         $html .= self::paragraphs($details);
-        $html .= '<p style="margin:16px 0;">' . self::escape($hint) . '</p>';
+        if ($hint !== '') {
+            $html .= '<p style="margin:16px 0;">' . self::escape($hint) . '</p>';
+        }
         foreach ($buttons as [$url, $label]) {
             $html .= '<div style="margin-top:14px;">' . self::button($url, $label) . '</div>';
         }

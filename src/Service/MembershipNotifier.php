@@ -28,7 +28,7 @@ class MembershipNotifier
     }
 
     /**
-     * A jelentkező megtudja, hogy tag lett. A szerepkör csak új belépés után érvényes.
+     * A jelentkező megtudja, hogy tag lett, és mit tegyen: kijelentkezés, majd új belépés.
      */
     public function notifyAccepted(object $applicant): void
     {
@@ -38,10 +38,13 @@ class MembershipNotifier
         }
 
         $details = "A klubelnök elfogadta a jelentkezésedet.\n\n";
-        $details .= 'Jelentkezz ki a Kilépés gombbal, majd jelentkezz be újra. A következő bejelentkezéskor minden elérhető lesz.';
+        $details .= "Ezt tedd meg, ebben a sorrendben:\n";
+        $details .= "1. Kattints a lenti gombra. A gomb kijelentkeztet.\n";
+        $details .= "2. Utána a belépő oldal nyílik meg. Jelentkezz be újra ugyanazzal a Google-fiókkal.\n";
+        $details .= '3. A következő bejelentkezéskor minden elérhető lesz az új tagoknak, és a tagi felület megnyílik.';
         [$text, $html] = OutgoingMail::notice($applicant, $details, [
-            [MailLinks::memberHome(), 'A tagi felület megnyitása'],
-        ]);
+            [MailLinks::logout(), 'Kijelentkezés, utána belépés'],
+        ], '');
 
         try {
             OutgoingMail::send($to, 'A jelentkezésedet elfogadtuk', $text, $html);

@@ -55,14 +55,12 @@ class MailLinks
         ], true);
     }
 
-    public static function memberHome(): string
+    /**
+     * Kijelentkezés. A művelet utána a belépő oldalra visz, ott lehet újra belépni.
+     */
+    public static function logout(): string
     {
-        return Router::url([
-            'prefix' => 'Member',
-            'plugin' => null,
-            'controller' => 'Registrations',
-            'action' => 'index',
-        ], true);
+        return Router::url('/logout', true);
     }
 
     public static function applicants(): string
