@@ -64,6 +64,14 @@ class Competition extends Entity
     ];
 
     /**
+     * A nevezési határidő napja még nyitott. Csak a korábbi nap számít lezártnak.
+     */
+    public function registrationClosed(): bool
+    {
+        return $this->date_deadline !== null && $this->date_deadline->isPast();
+    }
+
+    /**
      * A leírás megjelenítésre. A sima szöveg marad szöveg, a szerkesztő HTML-jét
      * csak a megengedett formázás hagyja meg.
      */

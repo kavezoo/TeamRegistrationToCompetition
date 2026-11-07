@@ -138,7 +138,7 @@ class RegistrationsController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $registrations = $this->fetchTable('Registrations');
         try {
-            $registration = $registrations->get($id);
+            $registration = $registrations->get($id, contain: ['Competitions']);
         } catch (RecordNotFoundException) {
             $this->Flash->error('A jelentkezés nem található.');
 
@@ -146,6 +146,11 @@ class RegistrationsController extends AppController
         }
         if ((string)$registration->user_id !== $this->userId()) {
             $this->Flash->error('Ehhez a jelentkezéshez nincs hozzáférésed.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        if ($registration->competition?->registrationClosed()) {
+            $this->Flash->error('A nevezési határidő lejárt, a jelentkezést már nem lehet törölni.');
 
             return $this->redirect(['action' => 'index']);
         }

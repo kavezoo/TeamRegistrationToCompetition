@@ -81,17 +81,21 @@ $this->assign('title', 'Jelentkezés');
                             ['type' => 'submit', 'class' => 'btn btn-success', 'escapeTitle' => false]
                         ) ?>
                         <?= $this->Html->link('Mégse', ['action' => 'index'], ['class' => 'btn btn-outline-secondary']) ?>
+                        <?php if (!$competition->registrationClosed()) : ?>
                         <div class="ms-auto">
                           <button type="submit" class="btn btn-danger" form="registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
                         </div>
+                        <?php endif; ?>
                       </div>
                     </div>
                   </div>
                   <?= $this->Form->end() ?>
+                  <?php if (!$competition->registrationClosed()) : ?>
                   <?= $this->Form->create(null, [
                       'id' => 'registration-delete',
                       'url' => ['action' => 'delete', $registration->id],
                   ]) ?>
                   <?= $this->Form->end() ?>
+                  <?php endif; ?>
                 </div>
               </div>

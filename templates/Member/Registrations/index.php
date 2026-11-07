@@ -28,7 +28,7 @@ foreach ($rows as $row) {
                     <?php foreach ($competitions as $competition) : ?>
                         <?php
                         $registration = $mineByCompetition[(int)$competition->id] ?? null;
-                        $closed = $competition->date_deadline !== null && $competition->date_deadline->isPast();
+                        $closed = $competition->registrationClosed();
                         ?>
                         <div class="border rounded p-3 mb-3">
                             <h2 class="h5 mb-1"><?= h($competition->name) ?></h2>
@@ -56,12 +56,14 @@ foreach ($rows as $row) {
                                         ['action' => 'edit', $registration->id],
                                         ['class' => 'btn btn-outline-primary btn-sm']
                                     ) ?>
-                                    <?= $this->Form->create(null, ['url' => ['action' => 'delete', $registration->id]]) ?>
-                                        <?= $this->Form->button('Törlés', [
-                                            'class' => 'btn btn-outline-danger btn-sm',
-                                            'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
-                                        ]) ?>
-                                    <?= $this->Form->end() ?>
+                                    <?php if (!$closed) : ?>
+                                        <?= $this->Form->create(null, ['url' => ['action' => 'delete', $registration->id]]) ?>
+                                            <?= $this->Form->button('Törlés', [
+                                                'class' => 'btn btn-outline-danger btn-sm',
+                                                'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
+                                            ]) ?>
+                                        <?= $this->Form->end() ?>
+                                    <?php endif; ?>
                                 </div>
                             <?php elseif ($closed || !(bool)$competition->visible) : ?>
                                 <p class="mb-0">A jelentkezés lezárult.</p>
