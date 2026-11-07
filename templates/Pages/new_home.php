@@ -5,6 +5,8 @@
  * @var \App\View\AppView $this
  * @var \Cake\Datasource\EntityInterface $user
  */
+use App\Model\Entity\User;
+
 $state = (string)($user->get('membership_request') ?? '');
 $this->assign('title', 'Főoldal');
 ?>
@@ -16,13 +18,15 @@ $this->assign('title', 'Főoldal');
             </div>
             <div class="card-body">
                 <?php if ($state === 'denied') : ?>
-                    <p>A klubelnök jelezte, hogy nem vagy tag, csak kipróbáltad az oldalt. Az adataidat törölheted. Ha mégis tag szeretnél lenni, a profil mentése újra a klubelnök elé viszi a kérelmet.</p>
+                    <p><?= h(User::DENIED_NOTICE) ?></p>
                 <?php elseif ($state === 'pending') : ?>
                     <p>A jelentkezésed a klubelnöknél van. Amíg el nem fogad tagként, várakoznod kell. Ha elfogadja, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.</p>
                 <?php else : ?>
                     <p>A profilod megvan. Mentsd újra, hogy a kérelem a klubelnökhöz kerüljön. Ha a klubelnök elfogadja a jelentkezést, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.</p>
                 <?php endif; ?>
-                <p><?= $this->Html->link('Profil módosítása', ['controller' => 'Pages', 'action' => 'profile'], ['class' => 'btn btn-primary']) ?></p>
+                <?php if ($state !== 'denied') : ?>
+                    <p><?= $this->Html->link('Profil módosítása', ['controller' => 'Pages', 'action' => 'profile'], ['class' => 'btn btn-primary']) ?></p>
+                <?php endif; ?>
                 <?= $this->element('delete_own_account') ?>
             </div>
         </div>

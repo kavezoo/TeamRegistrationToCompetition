@@ -64,7 +64,10 @@ class PagesController extends AppController
             return $this->redirect('/');
         }
         $this->viewBuilder()->setLayout('JeffAdmin.default');
-        if ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($users, $user)) {
+        $denied = (string)$user->get('membership_request') === 'denied';
+        if ($denied && $this->request->is(['post', 'put', 'patch'])) {
+            $this->Flash->error(User::DENIED_NOTICE);
+        } elseif ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($users, $user)) {
             return $this->redirect('/');
         }
         $users->loadInto($user, User::socialAvatarContain());
@@ -88,6 +91,11 @@ class PagesController extends AppController
         $user = $users->get($this->request->getAttribute('identity')['id']);
         if ((string)$user->get('role') !== User::ROLE_NEW || !$this->profileSaved($user)) {
             $this->Flash->error('Előbb mentsd a profilodat.');
+
+            return $this->redirect('/');
+        }
+        if ((string)$user->get('membership_request') === 'denied') {
+            $this->Flash->error(User::DENIED_NOTICE);
 
             return $this->redirect('/');
         }
@@ -170,7 +178,8 @@ class PagesController extends AppController
             default => null,
         };
         if ($role === User::ROLE_NEW) {
-            if (!$this->profileSaved($user)) {
+            $denied = (string)$user->get('membership_request') === 'denied';
+            if (!$denied && !$this->profileSaved($user)) {
                 return $this->redirect(['controller' => 'Pages', 'action' => 'profile']);
             }
             $this->viewBuilder()->setLayout('JeffAdmin.default');
@@ -204,6 +213,11 @@ class PagesController extends AppController
      */
     private function storeProfile(Table $users, EntityInterface $user): bool
     {
+        if ((string)$user->get('membership_request') === 'denied') {
+            $this->Flash->error(User::DENIED_NOTICE);
+
+            return false;
+        }
         $user = $users->patchEntity($user, $this->request->getData(), [
             'fields' => ['first_name', 'last_name'],
         ]);

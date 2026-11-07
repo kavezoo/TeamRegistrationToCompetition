@@ -60,8 +60,7 @@ class MembershipNotifier
             return;
         }
 
-        $details = "A klubelnök jelezte, hogy nem vagy tag, csak kipróbáltad az oldalt.\n\n";
-        $details .= 'Az adataidat törölheted. Ha mégis tag szeretnél lenni, a profil mentése újra a klubelnök elé viszi a kérelmet.';
+        $details = User::DENIED_NOTICE;
         [$text, $html] = OutgoingMail::notice($applicant, $details, [
             [MailLinks::accountHome(), 'A saját oldalam megnyitása'],
         ]);

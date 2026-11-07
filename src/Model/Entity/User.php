@@ -49,6 +49,8 @@ class User extends Entity
 
     public const ROLE_ADMIN = 'admin';
 
+    public const DENIED_NOTICE = 'A klubelnök elutasította a jelentkezésedet. A profilodat nem módosíthatod. Az adataidat törölheted. Ha mégis jelentkezni szeretnél, töröld az adataidat, és egy új bejelentkezés után jelentkezz újra.';
+
     /**
      * Szerepkörök az admin űrlaphoz.
      *

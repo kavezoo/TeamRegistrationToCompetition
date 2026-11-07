@@ -9,8 +9,9 @@
 use App\Model\Entity\User;
 
 $this->assign('title', 'Saját adatok');
+$denied = (string)($user->get('membership_request') ?? '') === 'denied';
 $submitsRequest = (string)($user->get('membership_request') ?? '') !== 'pending';
-$explainsApplication = $submitsRequest || !$profileSaved;
+$explainsApplication = !$denied && ($submitsRequest || !$profileSaved);
 $applicationNotice = 'A klubba jelentkezés a Mentés gomb megnyomásával történik. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell. Ha a klubelnök elfogadja a jelentkezést, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.';
 $confirmSave = $applicationNotice . ' Mented?';
 ?>
@@ -37,6 +38,9 @@ $confirmSave = $applicationNotice . ' Mented?';
                       </ul>
                     </div>
                     <div class="card-body form-card-body">
+                      <?php if ($denied) : ?>
+                        <p class="alert alert-warning"><?= h(User::DENIED_NOTICE) ?></p>
+                      <?php endif; ?>
                       <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-basic" role="tabpanel" aria-labelledby="tab-basic-btn" tabindex="0">
                           <?= $this->element('profile_photo', ['user' => $user]) ?>
@@ -61,7 +65,7 @@ $confirmSave = $applicationNotice . ' Mented?';
                               <?= $this->Form->label('first_name', 'Vezetéknév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('first_name', ['class' => 'form-control', 'autofocus' => true]) ?>
+                              <?= $this->Input->control('first_name', ['class' => 'form-control', 'autofocus' => !$denied, 'readonly' => $denied, 'disabled' => $denied]) ?>
                             </div>
                           </div>
                           <div class="row mb-3">
@@ -69,17 +73,20 @@ $confirmSave = $applicationNotice . ' Mented?';
                               <?= $this->Form->label('last_name', 'Keresztnév:', ['class' => 'form-control-label fw-bold']) ?>
                             </div>
                             <div class="col-12 col-md-9">
-                              <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
+                              <?= $this->Input->control('last_name', ['class' => 'form-control', 'readonly' => $denied, 'disabled' => $denied]) ?>
                             </div>
                           </div>
+                          <?php if (!$denied) : ?>
                           <div class="row mb-3">
                             <div class="col-12 col-md-9 offset-md-2">
                               <?= $this->element('swap_names') ?>
                             </div>
                           </div>
+                          <?php endif; ?>
                         </div>
                       </div>
                     </div>
+                    <?php if (!$denied) : ?>
                     <div class="card-footer border-top">
                       <?php if ($explainsApplication) : ?>
                         <p class="alert alert-warning mb-3 offset-md-2"><?= h($applicationNotice) ?></p>
@@ -95,6 +102,7 @@ $confirmSave = $applicationNotice . ' Mented?';
                         <?php endif; ?>
                       </div>
                     </div>
+                    <?php endif; ?>
                   </div>
                   <?= $this->Form->end() ?>
                   <div class="mt-3">
