@@ -61,6 +61,9 @@ foreach ($user->social_accounts ?? [] as $account) {
             'label' => 'Keresztnév',
             'class' => 'au-input au-input--full',
         ]) ?>
+        <div class="form-group">
+            <?= $this->element('swap_names', ['swapClass' => 'au-btn au-btn--block au-btn--blue']) ?>
+        </div>
         <?= $this->Form->button('Mentés', ['class' => 'au-btn au-btn--block au-btn--green']) ?>
     <?= $this->Form->end() ?>
 <?php else : ?>

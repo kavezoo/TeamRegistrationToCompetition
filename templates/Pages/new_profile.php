@@ -68,6 +68,11 @@ $confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérel
                               <?= $this->Input->control('last_name', ['class' => 'form-control']) ?>
                             </div>
                           </div>
+                          <div class="row mb-3">
+                            <div class="col-12 col-md-9 offset-md-2">
+                              <?= $this->element('swap_names') ?>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

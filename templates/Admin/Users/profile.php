@@ -67,6 +67,11 @@ foreach ($user->social_accounts ?? [] as $account) {
                             </div>
                           </div>
                           <div class="row mb-3">
+                            <div class="col-12 col-md-9 offset-md-2">
+                              <?= $this->element('swap_names') ?>
+                            </div>
+                          </div>
+                          <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
                               <span class="form-control-label fw-bold">Google:</span>
                             </div>

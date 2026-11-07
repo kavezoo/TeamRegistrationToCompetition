@@ -27,13 +27,15 @@ $this->assign('title', 'Jelentkezés');
                         <li class="nav-item" role="presentation">
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                          <a class="nav-link" id="tab-description-btn" data-bs-toggle="tab" href="#tab-description" role="tab" aria-controls="tab-description" aria-selected="false"><?= __('Description') ?></a>
+                        </li>
                       </ul>
                       <?= $this->Action->close(null, ['action' => 'index']) ?>
                     </div>
                     <div class="card-body form-card-body">
                       <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-basic" role="tabpanel" aria-labelledby="tab-basic-btn" tabindex="0">
-                          <?= $this->element('competition_description', ['competition' => $competition]) ?>
                           <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
                             <?php $title = trim((string)$competition->get($titleField)); ?>
                             <?php if ($title === '') {
@@ -73,6 +75,15 @@ $this->assign('title', 'Jelentkezés');
                                   'maxlength' => 1000,
                               ]) ?>
                             </div>
+                          </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-description" role="tabpanel" aria-labelledby="tab-description-btn" tabindex="0">
+                          <div class="p-3">
+                            <?php if ($competition->descriptionHtml() === null) : ?>
+                              <p class="mb-0">Nincs leírás.</p>
+                            <?php else : ?>
+                              <?= $this->element('competition_description', ['competition' => $competition]) ?>
+                            <?php endif; ?>
                           </div>
                         </div>
                       </div>
