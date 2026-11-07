@@ -56,7 +56,6 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                             <thead>
                                 <tr>
                                     <th>Név</th>
-                                    <th>Jelentkezés</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -68,13 +67,6 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                     $teamName = $joined ? $entries[$memberId] : null;
                                     $sentAt = $recentSent[$memberId] ?? null;
                                     $isLast = isset($lastRecordId) && (string)$lastRecordId === $memberId;
-                                    if (!$joined) {
-                                        $status = $canRemind ? 'Még nem jelentkezett' : '';
-                                    } elseif ($teamName === null || $teamName === '') {
-                                        $status = 'Jelentkezett a versenyre és besorolásra vár';
-                                    } else {
-                                        $status = $teamName;
-                                    }
                                     ?>
                                     <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h($memberId) ?>" data-id="<?= h($memberId) ?>">
                                         <td>
@@ -85,12 +77,12 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                                 'mark' => (string)$member->get('role') === User::ROLE_PRESIDENT ? 'Elnök' : '',
                                             ]) ?>
                                         </td>
-                                        <td><?= h($status) ?></td>
                                         <td class="js-remind-action">
-                                            <?php if ($joined || !$canRemind) : ?>
+                                            <?php if ($joined) : ?>
+                                                <?= h($teamName === null || $teamName === '' ? 'Jelentkezett a versenyre és besorolásra vár' : $teamName) ?>
                                             <?php elseif ($sentAt !== null) : ?>
                                                 <?= h($sentAt) ?>
-                                            <?php elseif (trim((string)$member->email) !== '') : ?>
+                                            <?php elseif ($canRemind && trim((string)$member->email) !== '') : ?>
                                                 <button
                                                     type="button"
                                                     class="btn btn-sm btn-outline-primary js-member-remind"
@@ -98,8 +90,8 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                                     <?php if ($competition !== null) : ?>
                                                         data-competition="<?= (int)$competition->id ?>"
                                                     <?php endif; ?>
-                                                >E-mail küldése</button>
-                                            <?php else : ?>
+                                                >Emlékeztető email küldése</button>
+                                            <?php elseif ($canRemind) : ?>
                                                 Nincs e-mail címe
                                             <?php endif; ?>
                                         </td>
