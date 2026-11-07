@@ -15,6 +15,7 @@ $items = [
     'Applicants' => ['Jelentkezők', 'fa-user-check'],
     'Registrations' => ['Nevezésem', 'fa-clipboard-list'],
     'Groups' => ['Nevezők', 'fa-people-group'],
+    'Members' => ['Tagok', 'fa-users'],
     'Competitions' => ['Versenyek', 'fa-trophy'],
     'Teams' => ['Alcsapatok', 'fa-user-group'],
 ];
