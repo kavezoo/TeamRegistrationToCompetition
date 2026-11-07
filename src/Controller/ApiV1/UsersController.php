@@ -139,6 +139,11 @@ class UsersController extends AppController
     private function storeProfile(EntityInterface $user): void
     {
         $role = (string)$user->get('role');
+        if (!in_array($role, [User::ROLE_MEMBER, User::ROLE_PRESIDENT, User::ROLE_ADMIN, User::ROLE_NEW], true)) {
+            $role = User::ROLE_NEW;
+            $user->set('role', User::ROLE_NEW, ['guard' => false]);
+            $user->setDirty('role', true);
+        }
         if ($role === User::ROLE_NEW && (string)$user->get('membership_request') === 'denied') {
             $this->respondForbidden(User::DENIED_NOTICE);
 

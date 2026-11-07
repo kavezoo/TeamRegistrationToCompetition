@@ -74,6 +74,11 @@ class MobileAuthService
         if (!User::isEnabled($user) || !filter_var($user->get('active'), FILTER_VALIDATE_BOOLEAN)) {
             throw new MobileAuthException('A fiók nincs engedélyezve.', 403, 'ACCOUNT_DISABLED');
         }
+        $role = (string)$user->get('role');
+        if (!in_array($role, [User::ROLE_MEMBER, User::ROLE_PRESIDENT, User::ROLE_ADMIN], true) && $role !== User::ROLE_NEW) {
+            $user->set('role', User::ROLE_NEW, ['guard' => false]);
+            TableRegistry::getTableLocator()->get('Users')->save($user);
+        }
 
         return $user;
     }
