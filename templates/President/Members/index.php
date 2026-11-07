@@ -23,22 +23,24 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">
-            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <strong>Aktív tagok</strong>
+            <div class="card-header">
+                <strong class="d-block">Aktív tagok</strong>
                 <?php if ($canRemind && $missing > 0) : ?>
-                    <?= $this->Form->postLink(
-                        'Emlékeztető mindenkinek, aki még nem jelentkezett (' . $missing . ')',
-                        ['action' => 'remindMissing', '?' => $pageQuery],
-                        [
-                            'class' => 'btn btn-sm btn-primary',
-                            'data' => ['competition_id' => $competition->id],
-                            'confirm' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
-                            'data-swal-title' => 'E-mail küldése',
-                            'data-swal-text' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
-                            'data-swal-confirm' => __('Yes'),
-                            'data-swal-cancel' => __('No'),
-                        ]
-                    ) ?>
+                    <div class="mt-2">
+                        <?= $this->Form->postLink(
+                            'Emlékeztető mindenkinek, aki még nem jelentkezett (' . $missing . ')',
+                            ['action' => 'remindMissing', '?' => $pageQuery],
+                            [
+                                'class' => 'btn btn-sm btn-primary text-wrap',
+                                'data' => ['competition_id' => $competition->id],
+                                'confirm' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
+                                'data-swal-title' => 'E-mail küldése',
+                                'data-swal-text' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
+                                'data-swal-confirm' => __('Yes'),
+                                'data-swal-cancel' => __('No'),
+                            ]
+                        ) ?>
+                    </div>
                 <?php endif; ?>
             </div>
             <div class="card-body">
@@ -56,7 +58,8 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                             <thead>
                                 <tr>
                                     <th>Név</th>
-                                    <th></th>
+                                    <th>E-mail</th>
+                                    <th>Jelentkezés</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
@@ -73,11 +76,11 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                             <?= $this->element('user_name', [
                                                 'user' => $member,
                                                 'bold' => true,
-                                                'line' => (string)$member->email,
                                                 'mark' => (string)$member->get('role') === User::ROLE_PRESIDENT ? 'Elnök' : '',
                                             ]) ?>
                                         </td>
-                                        <td class="js-remind-action">
+                                        <td class="text-break"><?= h((string)$member->email) ?></td>
+                                        <td class="js-remind-action text-break">
                                             <?php if ($joined) : ?>
                                                 <?= h($teamName === null || $teamName === '' ? 'Jelentkezett a versenyre és besorolásra vár' : $teamName) ?>
                                             <?php elseif ($sentAt !== null) : ?>
