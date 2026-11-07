@@ -53,6 +53,7 @@ class AppView extends View
         $this->Html->css('flash', ['block' => true]);
         $this->Html->css('form-card', ['block' => true]);
         $this->Html->script('confirm-question', ['block' => true]);
+        $this->Html->script('date-guard', ['block' => true]);
 
         $this->getEventManager()->on('View.beforeLayout', function (): void {
             $postLinks = $this->fetch('postLink');
