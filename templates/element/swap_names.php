@@ -7,7 +7,7 @@
  */
 $swapClass = $swapClass ?? 'btn btn-outline-secondary btn-sm';
 ?>
-<button type="button" class="<?= h($swapClass) ?>" data-swap-names>Nevek cseréje</button>
+<button type="button" class="<?= h($swapClass) ?>" data-swap-names>Vezeték és a keresztnév cseréje</button>
 <?php
 $this->Html->scriptBlock(
     <<<'JS'
