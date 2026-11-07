@@ -66,6 +66,7 @@ class PagesController extends AppController
         if ($this->request->is(['post', 'put', 'patch']) && $this->storeProfile($users, $user)) {
             return $this->redirect('/');
         }
+        $users->loadInto($user, User::socialAvatarContain());
         $this->set('profileSaved', $this->profileSaved($user));
         $this->set(compact('user'));
 

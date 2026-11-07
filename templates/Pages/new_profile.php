@@ -39,6 +39,7 @@ $confirmSave = $applicationNotice . ' Mented?';
                     <div class="card-body form-card-body">
                       <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-basic" role="tabpanel" aria-labelledby="tab-basic-btn" tabindex="0">
+                          <?= $this->element('profile_photo', ['user' => $user]) ?>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
                               <?= $this->Form->label('username', 'Felhasználónév:', ['class' => 'form-control-label fw-bold']) ?>
