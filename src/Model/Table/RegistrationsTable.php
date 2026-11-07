@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Model\Entity\User;
+use Cake\Log\Log;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -164,16 +166,68 @@ class RegistrationsTable extends Table
     public function findRoster(SelectQuery $query): SelectQuery
     {
         return $query
-            ->contain([
-                'Teams',
-                'Competitions',
-                'Users' => function (SelectQuery $users): SelectQuery {
-                    return $users
-                        ->select(['id', 'username', 'email', 'first_name', 'last_name'])
-                        ->contain(\App\Model\Entity\User::socialAvatarContain());
-                },
-            ])
-            ->orderBy(['Registrations.id' => 'ASC']);
+            ->contain(['Teams', 'Competitions'])
+            ->orderBy(['Registrations.id' => 'ASC'])
+            ->formatResults(fn ($results) => $this->attachRosterUsers($results));
+    }
+
+    /**
+     * A nevet külön lekérdezés adja. A beágyazott felhasználó-csatolás
+     * csak az aktuális klubelnök nevét hagyta meg.
+     *
+     * @param iterable<mixed> $results
+     */
+    private function attachRosterUsers(iterable $results): \Cake\Collection\CollectionInterface
+    {
+        $rows = [];
+        $ids = [];
+        foreach ($results as $row) {
+            $rows[] = $row;
+            $id = (string)($row->user_id ?? '');
+            if ($id !== '') {
+                $ids[$id] = $id;
+            }
+        }
+
+        $users = $ids === [] ? [] : $this->rosterUsers($ids);
+        foreach ($rows as $row) {
+            if (!is_object($row) || !method_exists($row, 'set')) {
+                continue;
+            }
+            $row->set('user', $users[(string)$row->user_id] ?? null);
+            $row->setDirty('user', false);
+        }
+
+        return new \Cake\Collection\Collection($rows);
+    }
+
+    /**
+     * @param array<string, string> $ids
+     * @return array<string, \Cake\Datasource\EntityInterface>
+     */
+    private function rosterUsers(array $ids): array
+    {
+        $usersTable = $this->getAssociation('Users')->getTarget();
+        $query = $usersTable->find()
+            ->selectAllExcept($usersTable, ['password', 'token', 'api_token', 'secret', 'additional_data'])
+            ->where([$usersTable->aliasField('id') . ' IN' => array_values($ids)]);
+        try {
+            $loaded = $query->contain(User::socialAvatarContain())->all();
+        } catch (\Throwable $exception) {
+            Log::error('A jelentkezők képe nem tölthető: ' . $exception->getMessage());
+            $loaded = $usersTable->find()
+                ->selectAllExcept($usersTable, ['password', 'token', 'api_token', 'secret', 'additional_data'])
+                ->where([$usersTable->aliasField('id') . ' IN' => array_values($ids)])
+                ->all();
+        }
+
+        $users = [];
+        foreach ($loaded as $user) {
+            User::publishAvatar($user);
+            $users[(string)$user->get('id')] = $user;
+        }
+
+        return $users;
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Controller\President;
 
 use Cake\Http\Response;
-use Cake\ORM\Query\SelectQuery;
 
 class CompetitionsController extends AppController
 {
@@ -80,20 +79,12 @@ class CompetitionsController extends AppController
 
     public function view(string|int|null $id = null): void
     {
-        $competition = $this->fetchTable('Competitions')->get($id, contain: [
-            'Registrations' => function (SelectQuery $query): SelectQuery {
-                return $query
-                    ->contain([
-                        'Teams',
-                        'Users' => function (SelectQuery $users): SelectQuery {
-                            return $users
-                                ->select(['id', 'username', 'email', 'first_name', 'last_name'])
-                                ->contain(\App\Model\Entity\User::socialAvatarContain());
-                        },
-                    ])
-                    ->orderBy(['Registrations.id' => 'ASC']);
-            },
-        ]);
+        $competitions = $this->fetchTable('Competitions');
+        $competition = $competitions->get($id);
+        $competition->set('registrations', $this->fetchTable('Registrations')->find('roster')
+            ->where(['Registrations.competition_id' => $competition->id])
+            ->all()
+            ->toList());
         $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();
         $this->set(compact('competition', 'teams'));
     }
