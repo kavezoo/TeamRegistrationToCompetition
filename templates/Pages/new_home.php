@@ -22,10 +22,8 @@ $this->assign('title', 'Főoldal');
                 <?php else : ?>
                     <p>A profilod megvan. Mentsd újra, hogy a kérelem a klubelnökhöz kerüljön, és utána várnod kell a jóváhagyásra.</p>
                 <?php endif; ?>
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <?= $this->Html->link('Profil módosítása', ['controller' => 'Pages', 'action' => 'profile'], ['class' => 'btn btn-primary']) ?>
-                    <?= $this->element('delete_own_account') ?>
-                </div>
+                <p><?= $this->Html->link('Profil módosítása', ['controller' => 'Pages', 'action' => 'profile'], ['class' => 'btn btn-primary']) ?></p>
+                <?= $this->element('delete_own_account') ?>
             </div>
         </div>
     </div>

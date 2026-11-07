@@ -137,9 +137,16 @@ class PagesController extends AppController
             return $this->redirect('/');
         }
 
-        $this->Flash->success('Az adataid törölve lettek.');
+        $service = $this->request->getAttribute('authentication');
+        if (is_object($service) && method_exists($service, 'clearIdentity')) {
+            $cleared = $service->clearIdentity($this->request, $this->response);
+            $this->setRequest($cleared['request']);
+            $this->setResponse($cleared['response']);
+        }
+        $this->request->getSession()->delete('Auth');
+        $this->Flash->success('Az adataid törölve lettek, és kijelentkeztettünk.');
 
-        return $this->redirect('/logout');
+        return $this->redirect('/login');
     }
 
     private function home(): Response
