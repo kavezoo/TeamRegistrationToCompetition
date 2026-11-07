@@ -6,6 +6,8 @@ namespace App\Controller\ApiV1;
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
 use App\Model\Entity\User;
+use App\Service\AssignmentNotifier;
+use App\Service\RegistrationSignupNotifier;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query\SelectQuery;
 
@@ -147,7 +149,7 @@ class RegistrationsController extends AppController
     public function delete(string|int|null $id = null): void
     {
         $this->request->allowMethod(['delete']);
-        $registration = $this->Registrations->get($id);
+        $registration = $this->Registrations->get($id, contain: ['Competitions', 'Users']);
         if ($this->role() !== User::ROLE_ADMIN && (string)$registration->user_id !== $this->identityId()) {
             $this->respondForbidden('Csak a saját jelentkezésedet törölheted.');
 
@@ -158,21 +160,40 @@ class RegistrationsController extends AppController
 
             return;
         }
+        if (
+            $this->role() !== User::ROLE_ADMIN
+            && $registration->competition instanceof Competition
+            && $registration->competition->registrationClosed()
+        ) {
+            $this->respondConflict('A nevezési határidő lejárt, a jelentkezést már nem lehet törölni.');
+
+            return;
+        }
         if (!$this->Registrations->delete($registration)) {
             $this->respondValidationError($registration);
 
             return;
         }
+        (new RegistrationSignupNotifier())->notifyPresidentsWithdrawn($registration);
         $this->respondDeleted();
     }
 
     private function saveRegistration(\App\Model\Entity\Registration $registration, bool $created): void
     {
+        $previousTeamId = $registration->get('team_id');
         $registration = $this->patchFromRequest($this->Registrations, $registration, self::WRITE_FIELDS);
         if (!$this->Registrations->save($registration)) {
             $this->respondValidationError($registration);
 
             return;
+        }
+        if ($created) {
+            (new RegistrationSignupNotifier())->notify($registration->id);
+        }
+        $teamId = $registration->get('team_id');
+        $teamChanged = (string)($previousTeamId ?? '') !== (string)($teamId ?? '');
+        if (!$created && $teamChanged && $teamId !== null && $teamId !== '') {
+            (new AssignmentNotifier())->notify($registration->id);
         }
         $registration = $this->Registrations->get($registration->id, contain: $this->contain());
         $this->respondSaved('registration', $registration, $created);
@@ -215,6 +236,7 @@ class RegistrationsController extends AppController
 
             return;
         }
+        (new RegistrationSignupNotifier())->notify($registration->id);
         $registration = $this->Registrations->get($registration->id, contain: $this->contain());
         $this->respondSaved('registration', $registration, true);
     }
@@ -222,6 +244,7 @@ class RegistrationsController extends AppController
     private function editOwnOrAssign(Registration $registration): void
     {
         $isOwner = (string)$registration->user_id === $this->identityId();
+        $previousTeamId = $registration->get('team_id');
         $posted = $this->request->getData();
         $data = [];
         $fields = [];
@@ -246,6 +269,11 @@ class RegistrationsController extends AppController
             $this->respondValidationError($registration);
 
             return;
+        }
+        $teamId = $registration->get('team_id');
+        $teamChanged = (string)($previousTeamId ?? '') !== (string)($teamId ?? '');
+        if ($this->role() === User::ROLE_PRESIDENT && $teamChanged && $teamId !== null && $teamId !== '') {
+            (new AssignmentNotifier())->notify($registration->id);
         }
         $registration = $this->Registrations->get($registration->id, contain: $this->contain());
         $this->respondSaved('registration', $registration, false);

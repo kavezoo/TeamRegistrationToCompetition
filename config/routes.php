@@ -150,6 +150,42 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Users',
             'action' => 'profile',
         ])->setMethods(['GET', 'PATCH', 'PUT', 'POST']);
+        $builder->connect('/users/delete-account', [
+            'controller' => 'Users',
+            'action' => 'deleteAccount',
+        ])->setMethods(['POST', 'DELETE']);
+        $builder->connect('/auth/google', [
+            'controller' => 'Auth',
+            'action' => 'google',
+        ])->setMethods(['POST']);
+        $builder->connect('/auth/refresh', [
+            'controller' => 'Auth',
+            'action' => 'refresh',
+        ])->setMethods(['POST']);
+        $builder->connect('/auth/logout', [
+            'controller' => 'Auth',
+            'action' => 'logout',
+        ])->setMethods(['POST']);
+        $builder->connect('/auth/logout-all', [
+            'controller' => 'Auth',
+            'action' => 'logoutAll',
+        ])->setMethods(['POST']);
+        $builder->connect('/auth/me', [
+            'controller' => 'Auth',
+            'action' => 'me',
+        ])->setMethods(['GET']);
+        $builder->connect('/members', [
+            'controller' => 'Members',
+            'action' => 'index',
+        ])->setMethods(['GET']);
+        $builder->connect('/members/remind-missing', [
+            'controller' => 'Members',
+            'action' => 'remindMissing',
+        ])->setMethods(['POST']);
+        $builder->connect('/members/{id}/remind', [
+            'controller' => 'Members',
+            'action' => 'remind',
+        ])->setPass(['id'])->setMethods(['POST']);
     });
 
 };

@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Controller\ApiV1;
 
 use App\Model\Entity\User;
+use App\Service\MembershipNotifier;
+use Cake\Datasource\Exception\RecordNotFoundException;
 
 /**
  * Klubfelvételi kérelmek. Ugyanaz, mint a klubelnök webes listája.
@@ -46,7 +48,13 @@ class ApplicantsController extends AppController
             return;
         }
         $users = $this->fetchTable('Users');
-        $user = $users->get($id);
+        try {
+            $user = $users->get($id);
+        } catch (RecordNotFoundException) {
+            $this->respondNotFound('Ez a jelentkező törölte az adatait. A jelentkezése már nincs a listán.');
+
+            return;
+        }
         if ((string)$user->get('role') !== User::ROLE_NEW) {
             $this->respondConflict($approve ? 'Csak új jelentkező fogadható el.' : 'Csak új jelentkező utasítható el.');
 
@@ -62,6 +70,12 @@ class ApplicantsController extends AppController
             $this->respondValidationError($user);
 
             return;
+        }
+        $notifier = new MembershipNotifier();
+        if ($approve) {
+            $notifier->notifyAccepted($user);
+        } else {
+            $notifier->notifyDenied($user);
         }
         $this->set([
             'success' => true,
@@ -84,6 +98,7 @@ class ApplicantsController extends AppController
         $found = $users->find()
             ->contain(User::socialAvatarContain())
             ->where(User::openApplicantConditions($users))
+            ->where([$users->aliasField('profile_saved') => true])
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC'])
             ->all();
         foreach ($found as $user) {

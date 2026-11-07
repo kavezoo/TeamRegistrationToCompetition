@@ -279,6 +279,13 @@ class PagesController extends AppController
         if ($reminders->getSchema()->hasColumn('sender_id')) {
             $reminders->updateAll(['sender_id' => null], ['sender_id' => $userId]);
         }
+        try {
+            $sessions = $this->fetchTable('MobileSessions');
+            if ($sessions->getSchema()->hasColumn('user_id')) {
+                $sessions->deleteAll(['user_id' => $userId]);
+            }
+        } catch (\Throwable) {
+        }
     }
 
     private function privacyAccepted(): bool

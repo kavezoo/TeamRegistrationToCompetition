@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\ApiV1;
 
 use App\Model\Entity\User;
+use App\Service\CompetitionNotifier;
 use Cake\ORM\Query\SelectQuery;
 
 /**
@@ -27,8 +28,10 @@ class CompetitionsController extends AppController
         'extra_title_2',
         'extra_title_3',
         'comment',
+        'date_competition',
         'date_from',
         'date_deadline',
+        'map_url',
         'description',
         'visible',
         'pos',
@@ -133,6 +136,9 @@ class CompetitionsController extends AppController
             $this->respondValidationError($competition);
 
             return;
+        }
+        if ($created) {
+            (new CompetitionNotifier())->notifyMembers($competition);
         }
         $this->respondSaved('competition', $competition, $created);
     }

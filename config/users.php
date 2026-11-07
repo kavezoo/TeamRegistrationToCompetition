@@ -51,6 +51,10 @@ return [
                     ],
                 ],
             ],
+            'Mobile' => [
+                'className' => \App\Authenticator\MobileTokenAuthenticator::class,
+                'skipTwoFactorVerify' => true,
+            ],
         ],
         'FormLoginFailure' => [
             'defaultMessage' => 'Az e-mail-cím vagy a jelszó hibás',

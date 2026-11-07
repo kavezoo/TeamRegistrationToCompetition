@@ -95,6 +95,14 @@ return [
             ],
             'bypassAuth' => true,
         ],
+        // A mobilalkalmazás Google-belépése és tokenfrissítése bejelentkezés nélkül hívható.
+        [
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Auth',
+            'action' => ['google', 'refresh', 'logout'],
+            'bypassAuth' => true,
+        ],
         // Az admin csak a saját felületét és az API-t látja.
         [
             'role' => 'admin',
@@ -140,6 +148,20 @@ return [
             'plugin' => 'CakeDC/Users',
             'controller' => 'Users',
             'action' => ['logout'],
+        ],
+        [
+            'role' => 'new',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Auth',
+            'action' => ['logout', 'logoutAll', 'me'],
+        ],
+        [
+            'role' => 'new',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Users',
+            'action' => ['profile', 'deleteAccount'],
         ],
         [
             'role' => 'new',
@@ -191,6 +213,13 @@ return [
             'controller' => 'Registrations',
             'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
         ],
+        [
+            'role' => 'member',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Auth',
+            'action' => ['logout', 'logoutAll', 'me'],
+        ],
         // A klubelnök a webes felületével megegyezően kezeli a versenyeket, alcsapatokat és a nevezéseket.
         [
             'role' => 'president',
@@ -227,6 +256,20 @@ return [
             'plugin' => false,
             'controller' => 'Users',
             'action' => 'enabled',
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Auth',
+            'action' => ['logout', 'logoutAll', 'me'],
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Members',
+            'action' => ['index', 'remind', 'remindMissing'],
         ],
         // Saját profil: jelenleg a keresztnév és a vezetéknév szerkeszthető.
         [

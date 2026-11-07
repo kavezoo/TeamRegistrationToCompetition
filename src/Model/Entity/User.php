@@ -304,6 +304,36 @@ class User extends Entity
         }
     }
 
+    /**
+     * A mobilalkalmazásnak visszaadott profil. A first_name a vezetéknév.
+     *
+     * @return array<string, mixed>
+     */
+    public static function apiProfile(object $user): array
+    {
+        $role = (string)$user->get('role');
+        $mail = [];
+        foreach (array_keys(self::mailChoices($role)) as $field) {
+            $mail[$field] = self::wantsMail($user, $field);
+        }
+
+        return [
+            'id' => (string)$user->get('id'),
+            'username' => (string)$user->get('username'),
+            'email' => (string)$user->get('email'),
+            'first_name' => (string)$user->get('first_name'),
+            'last_name' => (string)$user->get('last_name'),
+            'name' => self::displayName($user),
+            'role' => $role,
+            'membership_request' => $user->get('membership_request'),
+            'profile_saved' => filter_var($user->get('profile_saved'), FILTER_VALIDATE_BOOLEAN),
+            'enabled' => self::isEnabled($user),
+            'tos_date' => $user->get('tos_date'),
+            'mail' => $mail,
+            'mail_choices' => self::mailChoices($role),
+        ];
+    }
+
     public static function roleLabel(?string $role): string
     {
         if ($role !== null && isset(self::ROLES[$role])) {
