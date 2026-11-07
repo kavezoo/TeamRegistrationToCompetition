@@ -6,6 +6,7 @@
  * @var array<int, \App\Model\Entity\User> $members
  * @var array<string, true> $registered
  * @var array<string, array<int, \App\Model\Entity\RegistrationReminder>> $history
+ * @var string|null $lastRecordId
  */
 use App\Model\Entity\User;
 
@@ -69,7 +70,7 @@ if ($canRemind) {
                     <p class="mb-0">Nincs aktív tag.</p>
                 <?php else : ?>
                     <div class="table-responsive">
-                        <table class="table table-striped align-middle">
+                        <table class="table table-data2 table-border table-hover table-striped align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Név</th>
@@ -79,13 +80,14 @@ if ($canRemind) {
                                     <th>Elküldött üzenetek</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="table-group-divider">
                                 <?php foreach ($members as $member) : ?>
                                     <?php
                                     $joined = isset($registered[(string)$member->id]);
                                     $messages = $history[(string)$member->id] ?? [];
+                                    $isLast = isset($lastRecordId) && (string)$lastRecordId === (string)$member->id;
                                     ?>
-                                    <tr>
+                                    <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h((string)$member->id) ?>" data-id="<?= h((string)$member->id) ?>">
                                         <td><?= $this->element('user_name', ['user' => $member]) ?></td>
                                         <td><?= h($member->email) ?></td>
                                         <td><?= $competition === null ? '' : ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') ?></td>
@@ -93,9 +95,9 @@ if ($canRemind) {
                                             <?php if ($canRemind && !$joined && trim((string)$member->email) !== '') : ?>
                                                 <?= $this->Form->create(null, ['url' => ['action' => 'remind', $member->id], 'class' => 'mb-0']) ?>
                                                     <?= $this->Form->hidden('competition_id', ['value' => $competition->id]) ?>
-                                                    <?= $this->Form->button('Emlékeztető', [
+                                                    <?= $this->Form->button('E-mail küldése', [
                                                         'class' => 'btn btn-sm btn-outline-primary',
-                                                        'onclick' => 'return confirm(' . json_encode('Elküldöd az emlékeztetőt?') . ');',
+                                                        'onclick' => 'return confirm(' . json_encode('Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?') . ');',
                                                     ]) ?>
                                                 <?= $this->Form->end() ?>
                                             <?php elseif ($canRemind && !$joined) : ?>

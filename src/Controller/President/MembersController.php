@@ -82,6 +82,7 @@ class MembersController extends AppController
         }
         $sent = (new RegistrationReminderNotifier())->remind($member, $competition, $this->senderId());
         if ($sent) {
+            $this->rememberLastRecord((string)$member->id);
             $this->Flash->success('Az emlékeztető elment: ' . User::displayName($member) . '.');
         } else {
             $this->Flash->error('Az emlékeztető nem ment ki.');
@@ -117,15 +118,20 @@ class MembersController extends AppController
         $senderId = $this->senderId();
         $sent = 0;
         $failed = 0;
+        $lastId = null;
         foreach ($members as $member) {
             if (isset($registered[(string)$member->id]) || trim((string)$member->email) === '') {
                 continue;
             }
             if ($notifier->remind($member, $competition, $senderId)) {
                 $sent++;
+                $lastId = (string)$member->id;
             } else {
                 $failed++;
             }
+        }
+        if ($lastId !== null) {
+            $this->rememberLastRecord($lastId);
         }
         if ($sent > 0) {
             $this->Flash->success($sent . ' emlékeztető elment.');
