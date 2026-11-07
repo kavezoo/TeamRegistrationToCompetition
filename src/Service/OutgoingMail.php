@@ -52,6 +52,31 @@ class OutgoingMail
         return [$text, self::document($html)];
     }
 
+    /**
+     * Megszólítás, szöveg és több gomb.
+     *
+     * @param list<array{0: string, 1: string}> $buttons cím, felirat
+     * @return array{0: string, 1: string}
+     */
+    public static function notice(object|array|null $person, string $details, array $buttons): array
+    {
+        $greeting = self::greeting($person);
+        $hint = 'Ha nincs belépve, a gomb először a belépésre visz, utána a választott oldal nyílik meg.';
+        $text = $greeting . "\n\n" . trim($details) . "\n\n" . $hint . "\n";
+        foreach ($buttons as [$url, $label]) {
+            $text .= "\n" . $label . "\n" . $url . "\n";
+        }
+
+        $html = '<p style="margin:0 0 16px;">' . self::escape($greeting) . '</p>';
+        $html .= self::paragraphs($details);
+        $html .= '<p style="margin:16px 0;">' . self::escape($hint) . '</p>';
+        foreach ($buttons as [$url, $label]) {
+            $html .= '<div style="margin-top:14px;">' . self::button($url, $label) . '</div>';
+        }
+
+        return [$text, self::document($html)];
+    }
+
     public static function send(string $to, string $subject, string $text, ?string $html = null): void
     {
         $mailer = new Mailer('default');

@@ -25,9 +25,32 @@ class MailLinks
     {
         return Router::url([
             'prefix' => $role === User::ROLE_PRESIDENT ? 'President' : 'Member',
+            'plugin' => null,
             'controller' => 'Registrations',
             'action' => 'edit',
             $registrationId,
+        ], true);
+    }
+
+    /**
+     * A jelentkezett tagok listája: tagnál a saját főoldal, klubelnöknél a nevezők.
+     */
+    public static function registrantList(string $role): string
+    {
+        if ($role === User::ROLE_PRESIDENT) {
+            return Router::url([
+                'prefix' => 'President',
+                'plugin' => null,
+                'controller' => 'Groups',
+                'action' => 'index',
+            ], true);
+        }
+
+        return Router::url([
+            'prefix' => 'Member',
+            'plugin' => null,
+            'controller' => 'Registrations',
+            'action' => 'index',
         ], true);
     }
 

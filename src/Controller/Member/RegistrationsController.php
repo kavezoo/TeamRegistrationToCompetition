@@ -5,6 +5,7 @@ namespace App\Controller\Member;
 
 use App\Model\Entity\Competition;
 use App\Model\Entity\Registration;
+use App\Service\RegistrationSignupNotifier;
 use Cake\Database\Exception\QueryException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
@@ -142,6 +143,7 @@ class RegistrationsController extends AppController
         }
         $registration = $registrations->newEntity($data);
         if ($this->saveRegistration($registrations, $registration)) {
+            (new RegistrationSignupNotifier())->notify($registration->id);
             $this->Flash->success('Jelentkeztél a versenyre. Add meg, miből mennyit kérsz.');
 
             return $this->redirect(['action' => 'edit', $registration->id]);
