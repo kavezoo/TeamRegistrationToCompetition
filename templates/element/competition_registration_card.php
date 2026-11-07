@@ -14,11 +14,10 @@ $closed = $competition->registrationClosed();
 $tab = 'competition-' . (int)$competition->id;
 ?>
 <div class="border rounded p-3 mb-3">
-    <h2 class="h5 mb-1"><?= h($competition->name) ?></h2>
-    <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
+    <h2 class="h5 mb-2"><?= h($competition->name) ?></h2>
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="<?= h($tab) ?>-data-btn" data-bs-toggle="tab" href="#<?= h($tab) ?>-data" role="tab" aria-controls="<?= h($tab) ?>-data" aria-selected="true">Adatlap</a>
+            <a class="nav-link active" id="<?= h($tab) ?>-data-btn" data-bs-toggle="tab" href="#<?= h($tab) ?>-data" role="tab" aria-controls="<?= h($tab) ?>-data" aria-selected="true">Adatok</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="<?= h($tab) ?>-description-btn" data-bs-toggle="tab" href="#<?= h($tab) ?>-description" role="tab" aria-controls="<?= h($tab) ?>-description" aria-selected="false">Leírás</a>
@@ -26,6 +25,7 @@ $tab = 'competition-' . (int)$competition->id;
     </ul>
     <div class="tab-content pt-3">
         <div class="tab-pane fade show active" id="<?= h($tab) ?>-data" role="tabpanel" aria-labelledby="<?= h($tab) ?>-data-btn" tabindex="0">
+            <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
             <?php if ($registration !== null) : ?>
                 <ul class="list-unstyled mb-2">
                     <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
