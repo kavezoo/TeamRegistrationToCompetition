@@ -57,6 +57,7 @@ return function (RouteBuilder $routes): void {
          */
         $builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
         $builder->connect('/profil', ['controller' => 'Pages', 'action' => 'profile']);
+        $builder->connect('/fiok-torlese', ['controller' => 'Pages', 'action' => 'deleteAccount']);
 
         /*
          * ...and connect the rest of 'Pages' controller's URLs.
