@@ -54,6 +54,7 @@ class ApplicantsController extends AppController
         }
         $user->set('membership_request', 'denied', ['guard' => false]);
         if ($users->save($user)) {
+            (new MembershipNotifier())->notifyDenied($user);
             $this->Flash->success(User::displayName($user) . ' nem tag, csak kipróbálta az oldalt.');
         } else {
             $this->Flash->error('A jelölést nem sikerült menteni.');

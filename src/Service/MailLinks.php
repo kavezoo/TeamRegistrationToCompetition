@@ -15,6 +15,7 @@ class MailLinks
     {
         return Router::url([
             'prefix' => $role === User::ROLE_PRESIDENT ? 'President' : 'Member',
+            'plugin' => null,
             'controller' => 'Registrations',
             'action' => 'index',
             '?' => ['competition' => $competitionId],
@@ -74,8 +75,8 @@ class MailLinks
         ], true);
     }
 
-    public static function loginLine(string $url): string
+    public static function accountHome(): string
     {
-        return "Ha nincs belépve, a link először a belépésre visz, utána ez az adatlap nyílik meg:\n{$url}\n";
+        return Router::url('/', true);
     }
 }

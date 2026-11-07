@@ -150,7 +150,7 @@ class RegistrationsController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $registrations = $this->fetchTable('Registrations');
         try {
-            $registration = $registrations->get($id, contain: ['Competitions']);
+            $registration = $registrations->get($id, contain: ['Competitions', 'Users']);
         } catch (RecordNotFoundException) {
             $this->Flash->error('A jelentkezés nem található.');
 
@@ -167,6 +167,7 @@ class RegistrationsController extends AppController
             return $this->redirect(['action' => 'index']);
         }
         if ($registrations->delete($registration)) {
+            (new RegistrationSignupNotifier())->notifyPresidentsWithdrawn($registration);
             $this->Flash->success('A jelentkezésedet töröltük.');
         } else {
             $this->Flash->error('A jelentkezést nem sikerült törölni.');

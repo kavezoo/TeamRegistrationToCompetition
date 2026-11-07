@@ -33,19 +33,18 @@ class AssignmentNotifier
         }
 
         $competition = trim((string)($registration->competition->name ?? ''));
-        $body = OutgoingMail::greeting($registration->user) . "\n\n";
-        $body .= "A klubelnök besorolt egy alcsoportba.\n\n";
+        $details = "A klubelnök besorolt egy alcsoportba.\n";
         if ($competition !== '') {
-            $body .= "Verseny: {$competition}\n";
+            $details .= "\nVerseny: {$competition}";
         }
-        $body .= "Alcsoport: {$team}\n\n";
-        $body .= MailLinks::loginLine(MailLinks::registrationSheet(
-            (string)($registration->user->get('role') ?? ''),
-            $registration->id,
-        ));
+        $details .= "\nAlcsoport: {$team}";
+        $role = (string)($registration->user->get('role') ?? '');
+        [$text, $html] = OutgoingMail::notice($registration->user, $details, [
+            [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],
+        ]);
 
         try {
-            OutgoingMail::send($to, 'Besoroltak egy alcsoportba', $body);
+            OutgoingMail::send($to, 'Besoroltak egy alcsoportba', $text, $html);
         } catch (\Throwable $exception) {
             Log::error('Az alcsoport-értesítés nem ment ki: ' . $exception->getMessage());
         }

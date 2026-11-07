@@ -5,7 +5,6 @@ namespace App\Service;
 
 use App\Model\Entity\User;
 use Cake\Log\Log;
-use Cake\ORM\TableRegistry;
 
 /**
  * A klubelnökök e-mailben értesülnek az új felvételi kérelemről,
@@ -18,32 +17,14 @@ class MembershipNotifier
     {
         $name = User::displayName($applicant);
         $email = trim((string)($applicant->email ?? ''));
-        $body = "Új jelentkező érkezett: {$name}\n";
+        $details = "Új jelentkező érkezett: {$name}\n";
         if ($email !== '') {
-            $body .= "E-mail: {$email}\n";
+            $details .= "E-mail: {$email}\n";
         }
-        $body .= "\nA jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.\n";
-        $body .= MailLinks::loginLine(MailLinks::applicants());
-
-        $presidents = TableRegistry::getTableLocator()->get('Users')->find()
-            ->select(['id', 'email', 'first_name', 'last_name', 'username'])
-            ->where([
-                'role' => User::ROLE_PRESIDENT,
-                'active' => true,
-            ])
-            ->all();
-
-        foreach ($presidents as $president) {
-            $to = trim((string)($president->email ?? ''));
-            if ($to === '') {
-                continue;
-            }
-            try {
-                OutgoingMail::send($to, 'Új klubjelentkező', OutgoingMail::greeting($president) . "\n\n" . $body);
-            } catch (\Throwable $exception) {
-                Log::error('A klubelnök értesítése nem ment ki: ' . $exception->getMessage());
-            }
-        }
+        $details .= "\nA jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
+        PresidentNotice::send('Új klubjelentkező', $details, [
+            [MailLinks::applicants(), 'Az új jelentkezők megtekintése'],
+        ]);
     }
 
     /**
@@ -56,15 +37,39 @@ class MembershipNotifier
             return;
         }
 
-        $body = OutgoingMail::greeting($applicant) . "\n\n";
-        $body .= "A klubelnök elfogadta a jelentkezésedet.\n\n";
-        $body .= "Jelentkezz ki a Kilépés gombbal, majd jelentkezz be újra. A következő bejelentkezéskor minden elérhető lesz.\n\n";
-        $body .= MailLinks::loginLine(MailLinks::memberHome());
+        $details = "A klubelnök elfogadta a jelentkezésedet.\n\n";
+        $details .= 'Jelentkezz ki a Kilépés gombbal, majd jelentkezz be újra. A következő bejelentkezéskor minden elérhető lesz.';
+        [$text, $html] = OutgoingMail::notice($applicant, $details, [
+            [MailLinks::memberHome(), 'A tagi felület megnyitása'],
+        ]);
 
         try {
-            OutgoingMail::send($to, 'A jelentkezésedet elfogadtuk', $body);
+            OutgoingMail::send($to, 'A jelentkezésedet elfogadtuk', $text, $html);
         } catch (\Throwable $exception) {
             Log::error('Az elfogadás értesítése nem ment ki: ' . $exception->getMessage());
+        }
+    }
+
+    /**
+     * A kipróbáló megtudja, hogy nem tag. Belépve törölheti az adatait, vagy újra kérheti a tagságot.
+     */
+    public function notifyDenied(object $applicant): void
+    {
+        $to = trim((string)($applicant->email ?? ''));
+        if ($to === '') {
+            return;
+        }
+
+        $details = "A klubelnök jelezte, hogy nem vagy tag, csak kipróbáltad az oldalt.\n\n";
+        $details .= 'Az adataidat törölheted. Ha mégis tag szeretnél lenni, a profil mentése újra a klubelnök elé viszi a kérelmet.';
+        [$text, $html] = OutgoingMail::notice($applicant, $details, [
+            [MailLinks::accountHome(), 'A saját oldalam megnyitása'],
+        ]);
+
+        try {
+            OutgoingMail::send($to, 'Nem tag, csak kipróbáltad az oldalt', $text, $html);
+        } catch (\Throwable $exception) {
+            Log::error('Az elutasítás értesítése nem ment ki: ' . $exception->getMessage());
         }
     }
 }

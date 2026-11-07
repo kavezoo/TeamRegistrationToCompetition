@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Model\Entity\User;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
 
@@ -27,26 +28,69 @@ class RegistrationSignupNotifier
 
         $user = $registration->user ?? null;
         $to = trim((string)($user->email ?? ''));
-        if ($user === null || $to === '') {
-            return;
+        if ($user !== null && $to !== '') {
+            $role = (string)($user->get('role') ?? '');
+            $name = trim((string)($registration->competition->name ?? ''));
+            $details = "Jelentkeztél a versenyre.\n";
+            if ($name !== '') {
+                $details .= "\nVerseny: {$name}";
+            }
+            $subject = $name !== '' ? 'Jelentkeztél a versenyre: ' . $name : 'Jelentkeztél a versenyre';
+            [$text, $html] = OutgoingMail::notice($user, $details, [
+                [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],
+                [MailLinks::registrantList($role), 'A jelentkezett tagok listája'],
+            ]);
+
+            try {
+                OutgoingMail::send($to, $subject, $text, $html);
+            } catch (\Throwable $exception) {
+                Log::error('A jelentkezési értesítés nem ment ki: ' . $exception->getMessage());
+            }
         }
 
-        $role = (string)($user->get('role') ?? '');
-        $name = trim((string)($registration->competition->name ?? ''));
-        $details = "Jelentkeztél a versenyre.\n";
+        $this->notifyPresidentsSignedUp($registration);
+    }
+
+    /**
+     * A lemondás után a klubelnökök látják, hogy valaki már nincs a nevezettek között.
+     */
+    public function notifyPresidentsWithdrawn(object $registration): void
+    {
+        $user = $registration->user ?? null;
+        $name = User::displayName($user);
+        $competition = trim((string)($registration->competition->name ?? ''));
+        $details = "Valaki lemondta a versenyre jelentkezését.\n";
         if ($name !== '') {
-            $details .= "\nVerseny: {$name}";
+            $details .= "\nNév: {$name}";
         }
-        $subject = $name !== '' ? 'Jelentkeztél a versenyre: ' . $name : 'Jelentkeztél a versenyre';
-        [$text, $html] = OutgoingMail::notice($user, $details, [
-            [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],
-            [MailLinks::registrantList($role), 'A jelentkezett tagok listája'],
-        ]);
+        if ($competition !== '') {
+            $details .= "\nVerseny: {$competition}";
+        }
+        $subject = $competition !== '' ? 'Lemondott versenyjelentkezés: ' . $competition : 'Lemondott versenyjelentkezés';
+        PresidentNotice::send($subject, $details, [
+            [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
+        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''));
+    }
 
-        try {
-            OutgoingMail::send($to, $subject, $text, $html);
-        } catch (\Throwable $exception) {
-            Log::error('A jelentkezési értesítés nem ment ki: ' . $exception->getMessage());
+    private function notifyPresidentsSignedUp(object $registration): void
+    {
+        $user = $registration->user ?? null;
+        $name = User::displayName($user);
+        $email = trim((string)($user->email ?? ''));
+        $competition = trim((string)($registration->competition->name ?? ''));
+        $details = "Valaki jelentkezett a versenyre.\n";
+        if ($name !== '') {
+            $details .= "\nNév: {$name}";
         }
+        if ($email !== '') {
+            $details .= "\nE-mail: {$email}";
+        }
+        if ($competition !== '') {
+            $details .= "\nVerseny: {$competition}";
+        }
+        $subject = $competition !== '' ? 'Új versenyjelentkezés: ' . $competition : 'Új versenyjelentkezés';
+        PresidentNotice::send($subject, $details, [
+            [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
+        ], $user !== null ? (string)($user->id ?? '') : null);
     }
 }
