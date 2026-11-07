@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Entity\User;
-use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
 
@@ -112,7 +111,6 @@ class MobileAuthService
             'is_superuser' => false,
             'role' => User::ROLE_NEW,
             'profile_saved' => false,
-            'tos_date' => DateTime::now(),
         ]);
         $connection = $users->getConnection();
         $connection->begin();

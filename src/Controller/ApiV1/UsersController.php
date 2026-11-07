@@ -146,7 +146,9 @@ class UsersController extends AppController
         }
         $user = $this->patchFromRequest($this->Users, $user, self::WRITE_FIELDS);
         $needsPrivacy = $role === User::ROLE_NEW || $role === User::ROLE_MEMBER;
-        if ($needsPrivacy && !filter_var($this->request->getData('accept_privacy'), FILTER_VALIDATE_BOOLEAN)) {
+        $alreadyAccepted = $user->get('tos_date') !== null;
+        $acceptsPrivacy = filter_var($this->request->getData('accept_privacy'), FILTER_VALIDATE_BOOLEAN);
+        if ($needsPrivacy && !$alreadyAccepted && !$acceptsPrivacy) {
             $this->response = $this->response->withStatus(422);
             $this->set([
                 'success' => false,
@@ -169,7 +171,7 @@ class UsersController extends AppController
             $user->set('profile_saved', true, ['guard' => false]);
             $user->setDirty('profile_saved', true);
         }
-        if ($needsPrivacy) {
+        if ($needsPrivacy && $acceptsPrivacy) {
             $user->set('tos_date', DateTime::now(), ['guard' => false]);
             $user->setDirty('tos_date', true);
         }
