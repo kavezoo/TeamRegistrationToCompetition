@@ -68,16 +68,18 @@
         const row = button.closest('tr');
         if (data && data.ok) {
           markRow(row);
-          prependStatus(row, data.message, data.sentAt, data.body);
+          showSent(button, data.sentAt);
         } else {
-          showError(row, (data && data.message) || 'Az emlékeztető nem ment ki.');
+          showError(button, (data && data.message) || 'Az emlékeztető nem ment ki.');
         }
       })
       .catch(() => {
-        showError(button.closest('tr'), 'Az emlékeztető nem ment ki.');
+        showError(button, 'Az emlékeztető nem ment ki.');
       })
       .finally(() => {
-        button.disabled = false;
+        if (button.isConnected) {
+          button.disabled = false;
+        }
       });
   }
 
@@ -94,46 +96,24 @@
     row.classList.add('is-last-touched');
   }
 
-  function prependStatus(row, message, sentAt, body) {
-    const cell = row ? row.querySelector('.js-remind-log') : null;
+  function showSent(button, sentAt) {
+    const cell = button.closest('td');
     if (!cell) {
       return;
     }
-    const empty = cell.querySelector('.js-remind-empty');
-    if (empty) {
-      empty.remove();
-    }
-    const previousError = cell.querySelector('.js-remind-error');
-    if (previousError) {
-      previousError.remove();
-    }
-    const block = document.createElement('div');
-    block.className = 'mb-2';
-    const title = document.createElement('strong');
-    title.textContent = message || 'Emlékeztető e-mail kiküldve';
-    const when = document.createElement('div');
-    when.textContent = sentAt || '';
-    block.append(title, when);
-    if (body) {
-      const text = document.createElement('div');
-      text.className = 'small';
-      text.style.whiteSpace = 'pre-wrap';
-      text.textContent = body;
-      block.append(text);
-    }
-    cell.prepend(block);
+    cell.textContent = sentAt || '';
   }
 
-  function showError(row, message) {
-    const cell = row ? row.querySelector('.js-remind-log') : null;
+  function showError(button, message) {
+    const cell = button.closest('td');
     if (!cell) {
       return;
     }
     let error = cell.querySelector('.js-remind-error');
     if (!error) {
       error = document.createElement('div');
-      error.className = 'js-remind-error text-danger mb-2';
-      cell.prepend(error);
+      error.className = 'js-remind-error text-danger mt-1';
+      cell.append(error);
     }
     error.textContent = message;
   }

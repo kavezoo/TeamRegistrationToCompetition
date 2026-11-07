@@ -7,6 +7,7 @@ use App\Model\Entity\Competition;
 use App\Model\Entity\User;
 use App\Service\RegistrationReminderNotifier;
 use Cake\Http\Response;
+use Cake\I18n\DateTime;
 
 class MembersController extends AppController
 {
@@ -22,32 +23,27 @@ class MembersController extends AppController
             User::publishAvatar($member);
         }
 
-        $registered = [];
+        $entries = [];
         if ($competition !== null) {
             $rows = $this->fetchTable('Registrations')->find()
-                ->select(['user_id'])
-                ->where(['competition_id' => $competition->id])
+                ->contain(['Teams'])
+                ->where(['Registrations.competition_id' => $competition->id])
                 ->all();
             foreach ($rows as $row) {
-                $registered[(string)$row->user_id] = true;
+                $team = trim((string)($row->team->name ?? ''));
+                $entries[(string)$row->user_id] = $team !== '' ? $team : null;
             }
         }
 
-        $history = [];
-        $memberIds = array_map(static fn ($member): string => (string)$member->id, $members);
-        if ($memberIds !== []) {
-            $reminders = $this->fetchTable('RegistrationReminders')->find()
-                ->where(['user_id IN' => $memberIds])
-                ->orderBy(['created' => 'DESC'])
-                ->all();
-            foreach ($reminders as $reminder) {
-                $history[(string)$reminder->user_id][] = $reminder;
-            }
+        $recentSent = $competition === null ? [] : $this->recentReminderTimes((int)$competition->id);
+        $registered = [];
+        foreach (array_keys($entries) as $userId) {
+            $registered[$userId] = true;
         }
 
-        $missing = $competition === null ? 0 : $this->missingCount($registered);
+        $missing = $competition === null ? 0 : $this->missingCount($registered, $recentSent);
         // A lapozó a nézet változói között keresi a lapozott eredményt.
-        $this->set(compact('competition', 'members', 'membersPage', 'registered', 'history', 'missing'));
+        $this->set(compact('competition', 'members', 'membersPage', 'entries', 'recentSent', 'missing'));
     }
 
     public function remind(string $id): Response
@@ -66,6 +62,10 @@ class MembersController extends AppController
         }
         if (trim((string)$member->email) === '') {
             return $this->remindJson(false, User::displayName($member) . ' nem kapott levelet, nincs e-mail címe.');
+        }
+        $recent = $this->recentReminderTimes((int)$competition->id);
+        if (isset($recent[(string)$member->id])) {
+            return $this->remindJson(false, 'Ennek a tagnak egy napon belül már ment emlékeztető.');
         }
         $row = (new RegistrationReminderNotifier())->remind($member, $competition, $this->senderId());
         if ($row === null) {
@@ -98,11 +98,13 @@ class MembersController extends AppController
 
         $notifier = new RegistrationReminderNotifier();
         $senderId = $this->senderId();
+        $recent = $this->recentReminderTimes((int)$competition->id);
         $sent = 0;
         $failed = 0;
         $lastId = null;
         foreach ($members as $member) {
-            if (isset($registered[(string)$member->id]) || trim((string)$member->email) === '') {
+            $memberId = (string)$member->id;
+            if (isset($registered[$memberId]) || isset($recent[$memberId]) || trim((string)$member->email) === '') {
                 continue;
             }
             if ($notifier->remind($member, $competition, $senderId)) {
@@ -148,18 +150,47 @@ class MembersController extends AppController
 
     /**
      * @param array<string, true> $registered
+     * @param array<string, string> $recentSent
      */
-    private function missingCount(array $registered): int
+    private function missingCount(array $registered, array $recentSent): int
     {
         $count = 0;
         foreach ($this->recipients()->all() as $member) {
-            if (isset($registered[(string)$member->id]) || trim((string)$member->email) === '') {
+            $memberId = (string)$member->id;
+            if (isset($registered[$memberId]) || isset($recentSent[$memberId]) || trim((string)$member->email) === '') {
                 continue;
             }
             $count++;
         }
 
         return $count;
+    }
+
+    /**
+     * Az elmúlt egy napban kiküldött emlékeztetők ideje ennél a versenynél.
+     *
+     * @return array<string, string>
+     */
+    private function recentReminderTimes(int $competitionId): array
+    {
+        $rows = $this->fetchTable('RegistrationReminders')->find()
+            ->select(['user_id', 'created'])
+            ->where([
+                'competition_id' => $competitionId,
+                'created >=' => DateTime::now()->subDays(1),
+            ])
+            ->orderBy(['created' => 'DESC'])
+            ->all();
+        $sent = [];
+        foreach ($rows as $row) {
+            $userId = (string)$row->user_id;
+            if (isset($sent[$userId]) || !$row->created instanceof \DateTimeInterface) {
+                continue;
+            }
+            $sent[$userId] = $row->created->format('Y.m.d. H:i');
+        }
+
+        return $sent;
     }
 
     /**

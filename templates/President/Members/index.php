@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Competition|null $competition
  * @var array<int, \App\Model\Entity\User> $members
  * @var \Cake\Datasource\Paging\PaginatedInterface $membersPage
- * @var array<string, true> $registered
- * @var array<string, array<int, \App\Model\Entity\RegistrationReminder>> $history
+ * @var array<string, string|null> $entries
+ * @var array<string, string> $recentSent
  * @var int $missing
  * @var string|null $lastRecordId
  */
@@ -58,17 +58,25 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                     <th>Név</th>
                                     <th>Jelentkezés</th>
                                     <th></th>
-                                    <th>Elküldött üzenetek</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
                                 <?php foreach ($members as $member) : ?>
                                     <?php
-                                    $joined = isset($registered[(string)$member->id]);
-                                    $messages = $history[(string)$member->id] ?? [];
-                                    $isLast = isset($lastRecordId) && (string)$lastRecordId === (string)$member->id;
+                                    $memberId = (string)$member->id;
+                                    $joined = array_key_exists($memberId, $entries);
+                                    $teamName = $joined ? $entries[$memberId] : null;
+                                    $sentAt = $recentSent[$memberId] ?? null;
+                                    $isLast = isset($lastRecordId) && (string)$lastRecordId === $memberId;
+                                    if (!$joined) {
+                                        $status = $canRemind ? 'Még nem jelentkezett' : '';
+                                    } elseif ($teamName === null || $teamName === '') {
+                                        $status = 'Jelentkezett a versenyre és besorolásra vár';
+                                    } else {
+                                        $status = $teamName;
+                                    }
                                     ?>
-                                    <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h((string)$member->id) ?>" data-id="<?= h((string)$member->id) ?>">
+                                    <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h($memberId) ?>" data-id="<?= h($memberId) ?>">
                                         <td>
                                             <?= $this->element('user_name', [
                                                 'user' => $member,
@@ -77,9 +85,12 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                                 'mark' => (string)$member->get('role') === User::ROLE_PRESIDENT ? 'Elnök' : '',
                                             ]) ?>
                                         </td>
-                                        <td><?= $canRemind ? ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') : '' ?></td>
-                                        <td>
-                                            <?php if (trim((string)$member->email) !== '') : ?>
+                                        <td><?= h($status) ?></td>
+                                        <td class="js-remind-action">
+                                            <?php if ($joined || !$canRemind) : ?>
+                                            <?php elseif ($sentAt !== null) : ?>
+                                                <?= h($sentAt) ?>
+                                            <?php elseif (trim((string)$member->email) !== '') : ?>
                                                 <button
                                                     type="button"
                                                     class="btn btn-sm btn-outline-primary js-member-remind"
@@ -90,19 +101,6 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                                 >E-mail küldése</button>
                                             <?php else : ?>
                                                 Nincs e-mail címe
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="js-remind-log">
-                                            <?php if ($messages === []) : ?>
-                                                <span class="js-remind-empty">Még nem kapott emlékeztetőt.</span>
-                                            <?php else : ?>
-                                                <?php foreach ($messages as $reminder) : ?>
-                                                    <div class="mb-2">
-                                                        <strong>Emlékeztető e-mail kiküldve</strong>
-                                                        <div><?= $this->Input->formatDatetime($reminder->created) ?></div>
-                                                        <div class="small" style="white-space:pre-wrap"><?= h($reminder->message) ?></div>
-                                                    </div>
-                                                <?php endforeach; ?>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
