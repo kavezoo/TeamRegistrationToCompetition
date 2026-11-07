@@ -5,7 +5,6 @@
  * @var array<int, \App\Model\Entity\Registration> $mineByCompetition
  * @var iterable<\App\Model\Entity\Registration> $rows
  */
-use App\Model\Entity\Registration;
 use App\Model\Entity\User;
 
 $this->assign('title', 'Versenyek');
@@ -26,53 +25,11 @@ foreach ($rows as $row) {
                     <p>Jelenleg nincs verseny, amire jelentkezni lehet.</p>
                 <?php else : ?>
                     <?php foreach ($competitions as $competition) : ?>
-                        <?php
-                        $registration = $mineByCompetition[(int)$competition->id] ?? null;
-                        $closed = $competition->registrationClosed();
-                        ?>
-                        <div class="border rounded p-3 mb-3">
-                            <h2 class="h5 mb-1"><?= h($competition->name) ?></h2>
-                            <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
-                            <?= $this->element('competition_description', ['competition' => $competition]) ?>
-                            <?php if ($registration !== null) : ?>
-                                <ul class="list-unstyled mb-2">
-                                    <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
-                                        <?php $title = trim((string)$competition->get($titleField)); ?>
-                                        <?php if ($title === '') {
-                                            continue;
-                                        } ?>
-                                        <li><?= h($title) ?>: <strong><?= (int)$registration->get($countField) ?></strong></li>
-                                    <?php endforeach; ?>
-                                    <?php if (trim((string)$registration->comment) !== '') : ?>
-                                        <li>Megjegyzés: <?= h($registration->comment) ?></li>
-                                    <?php endif; ?>
-                                    <li>Alcsapat: <?= h($registration->team?->name ?? 'Nincs besorolva') ?></li>
-                                </ul>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <?= $this->Html->link(
-                                        'Módosítás',
-                                        ['action' => 'edit', $registration->id],
-                                        ['class' => 'btn btn-outline-primary btn-sm']
-                                    ) ?>
-                                    <?php if (!$closed) : ?>
-                                        <?= $this->Form->create(null, ['url' => ['action' => 'delete', $registration->id]]) ?>
-                                            <?= $this->Form->button('Törlés', [
-                                                'class' => 'btn btn-outline-danger btn-sm',
-                                                'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
-                                            ]) ?>
-                                        <?= $this->Form->end() ?>
-                                    <?php endif; ?>
-                                </div>
-                            <?php elseif ($closed || !(bool)$competition->visible) : ?>
-                                <p class="mb-0">A jelentkezés lezárult.</p>
-                            <?php else : ?>
-                                <?= $this->Form->create(null, [
-                                    'url' => ['action' => 'add', $competition->id],
-                                ]) ?>
-                                    <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-primary']) ?>
-                                <?= $this->Form->end() ?>
-                            <?php endif; ?>
-                        </div>
+                        <?= $this->element('competition_registration_card', [
+                            'competition' => $competition,
+                            'registration' => $mineByCompetition[(int)$competition->id] ?? null,
+                            'deleteAction' => 'delete',
+                        ]) ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
