@@ -6,11 +6,11 @@
 $when = $this->Input->formatDatetime($competition->date_competition ?? null);
 $map = $competition->mapUrl();
 ?>
-<p class="text-muted mb-2">
-    Verseny ideje: <?= $when !== '' ? $when : 'nincs megadva' ?><br>
-    Jelentkezés kezdete: <?= $this->Input->formatDate($competition->date_from) ?><br>
-    Jelentkezési határidő: <?= $this->Input->formatDate($competition->date_deadline) ?>
+<p class="mb-2">
+    Verseny ideje: <strong><?= $when !== '' ? $when : 'nincs megadva' ?></strong><br>
+    Jelentkezés kezdete: <strong><?= $this->Input->formatDate($competition->date_from) ?></strong><br>
+    Jelentkezési határidő: <strong><?= $this->Input->formatDate($competition->date_deadline) ?></strong>
     <?php if ($map !== null) : ?>
-        <br><?= $this->Html->link('Helyszín a térképen', $map, ['target' => '_blank', 'rel' => 'noopener noreferrer']) ?>
+        <br>Helyszín: <strong><?= $this->Html->link('Térkép', $map, ['target' => '_blank', 'rel' => 'noopener noreferrer']) ?></strong>
     <?php endif; ?>
 </p>

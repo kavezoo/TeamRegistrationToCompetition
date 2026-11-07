@@ -36,9 +36,9 @@ $tab = 'competition-' . (int)$competition->id;
                         <li><?= h($title) ?>: <strong><?= (int)$registration->get($countField) ?></strong></li>
                     <?php endforeach; ?>
                     <?php if (trim((string)$registration->comment) !== '') : ?>
-                        <li>Megjegyzés: <?= h($registration->comment) ?></li>
+                        <li>Megjegyzés: <strong><?= h($registration->comment) ?></strong></li>
                     <?php endif; ?>
-                    <li>Alcsapat: <?= h($registration->team?->name ?? 'Nincs besorolva') ?></li>
+                    <li>Alcsapat: <strong><?= h($registration->team?->name ?? 'Nincs besorolva') ?></strong></li>
                 </ul>
                 <div class="d-flex flex-wrap gap-2">
                     <?= $this->Html->link(
