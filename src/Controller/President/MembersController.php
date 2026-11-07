@@ -13,12 +13,14 @@ class MembersController extends AppController
     public function index(): void
     {
         $competition = $this->openReminderCompetition();
-        $members = $this->paginate($this->recipients(), [
+        $membersPage = $this->paginate($this->recipients(), [
             'limit' => 100,
             'maxLimit' => 100,
-        ])->toList();
-        foreach ($members as $member) {
+        ]);
+        $members = [];
+        foreach ($membersPage as $member) {
             User::publishAvatar($member);
+            $members[] = $member;
         }
 
         $registered = [];
@@ -45,7 +47,8 @@ class MembersController extends AppController
         }
 
         $missing = $competition === null ? 0 : $this->missingCount($registered);
-        $this->set(compact('competition', 'members', 'registered', 'history', 'missing'));
+        // A lapozó a nézet változói között keresi a lapozott eredményt.
+        $this->set(compact('competition', 'members', 'membersPage', 'registered', 'history', 'missing'));
     }
 
     public function remind(string $id): Response
