@@ -53,35 +53,30 @@ class MembersController extends AppController
     public function remind(string $id): Response
     {
         $this->request->allowMethod(['post']);
-        $competition = $this->openCompetition();
-        if ($competition instanceof Response) {
-            return $competition;
+        $competition = $this->competitionForRemind();
+        if (!$competition instanceof Competition) {
+            return $this->remindJson(false, $competition);
         }
         $member = $this->activeMember($id);
         if ($member === null) {
-            $this->Flash->error('Ennek a felhasználónak nem lehet emlékeztetőt küldeni.');
-
-            return $this->back();
+            return $this->remindJson(false, 'Ennek a felhasználónak nem lehet emlékeztetőt küldeni.');
         }
         if ($this->alreadyRegistered($member, $competition)) {
-            $this->Flash->error(User::displayName($member) . ' már jelentkezett erre a versenyre.');
-
-            return $this->back();
+            return $this->remindJson(false, User::displayName($member) . ' már jelentkezett erre a versenyre.');
         }
         if (trim((string)$member->email) === '') {
-            $this->Flash->error(User::displayName($member) . ' nem kapott levelet, nincs e-mail címe.');
-
-            return $this->back();
+            return $this->remindJson(false, User::displayName($member) . ' nem kapott levelet, nincs e-mail címe.');
         }
-        $sent = (new RegistrationReminderNotifier())->remind($member, $competition, $this->senderId());
-        if ($sent) {
-            $this->rememberLastRecord((string)$member->id);
-            $this->Flash->success('Az emlékeztető elment: ' . User::displayName($member) . '.');
-        } else {
-            $this->Flash->error('Az emlékeztető nem ment ki.');
+        $row = (new RegistrationReminderNotifier())->remind($member, $competition, $this->senderId());
+        if ($row === null) {
+            return $this->remindJson(false, 'Az emlékeztető nem ment ki.');
         }
+        $this->rememberLastRecord((string)$member->id);
+        $sentAt = $row->created instanceof \DateTimeInterface
+            ? $row->created->format('Y.m.d. H:i')
+            : '';
 
-        return $this->back();
+        return $this->remindJson(true, 'Emlékeztető e-mail kiküldve', $sentAt, (string)$row->message);
     }
 
     public function remindMissing(): Response
@@ -165,6 +160,46 @@ class MembersController extends AppController
         }
 
         return $count;
+    }
+
+    /**
+     * @return \App\Model\Entity\Competition|string
+     */
+    private function competitionForRemind(): Competition|string
+    {
+        $id = (int)$this->request->getData('competition_id');
+        $competition = $id > 0
+            ? $this->fetchTable('Competitions')->find()->where(['id' => $id])->first()
+            : $this->openReminderCompetition();
+        if (!$competition instanceof Competition) {
+            return $id > 0
+                ? 'A verseny nem található.'
+                : 'Nincs nyitott verseny, emlékeztetőt nem lehet küldeni.';
+        }
+        if (!$competition->visible) {
+            return 'A verseny a tagoknak nem látható, emlékeztetőt nem küldök.';
+        }
+        if ($competition->registrationClosed()) {
+            return 'A nevezési határidő lejárt, emlékeztetőt nem küldök.';
+        }
+
+        return $competition;
+    }
+
+    private function remindJson(bool $ok, string $message, ?string $sentAt = null, ?string $body = null): Response
+    {
+        $payload = ['ok' => $ok, 'message' => $message];
+        if ($sentAt !== null && $sentAt !== '') {
+            $payload['sentAt'] = $sentAt;
+        }
+        if ($body !== null && $body !== '') {
+            $payload['body'] = $body;
+        }
+        $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody($json === false ? '{"ok":false,"message":"Az emlékeztető nem ment ki."}' : $json);
     }
 
     private function openCompetition(): Competition|Response

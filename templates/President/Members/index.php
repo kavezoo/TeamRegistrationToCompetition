@@ -12,11 +12,14 @@
 use App\Model\Entity\User;
 
 $this->assign('title', 'Tagok');
+$this->Html->script('member-remind', ['block' => true]);
 
 $canRemind = $competition !== null && $competition->visible && !$competition->registrationClosed();
 $page = (int)$this->request->getQuery('page');
 $pageQuery = $page > 1 ? ['page' => $page] : [];
+$csrf = (string)$this->request->getAttribute('csrfToken');
 ?>
+<div id="member-remind" data-csrf="<?= h($csrf) ?>" hidden></div>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">
@@ -55,7 +58,7 @@ $pageQuery = $page > 1 ? ['page' => $page] : [];
                                     <th>Név</th>
                                     <th>E-mail</th>
                                     <th>Jelentkezés</th>
-                                    <th></th>
+                                    <th>E-mail</th>
                                     <th>Elküldött üzenetek</th>
                                 </tr>
                             </thead>
@@ -76,31 +79,27 @@ $pageQuery = $page > 1 ? ['page' => $page] : [];
                                         <td><?= h($member->email) ?></td>
                                         <td><?= $canRemind ? ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') : '' ?></td>
                                         <td>
-                                            <?php if ($canRemind && !$joined && trim((string)$member->email) !== '') : ?>
-                                                <?= $this->Form->postLink(
-                                                    'E-mail küldése',
-                                                    ['action' => 'remind', $member->id, '?' => $pageQuery],
-                                                    [
-                                                        'class' => 'btn btn-sm btn-outline-primary',
-                                                        'data' => ['competition_id' => $competition->id],
-                                                        'confirm' => 'Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?',
-                                                        'data-swal-title' => 'E-mail küldése',
-                                                        'data-swal-text' => 'Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?',
-                                                        'data-swal-confirm' => __('Yes'),
-                                                        'data-swal-cancel' => __('No'),
-                                                    ]
-                                                ) ?>
-                                            <?php elseif ($canRemind && !$joined) : ?>
+                                            <?php if (trim((string)$member->email) !== '') : ?>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-primary js-member-remind"
+                                                    data-url="<?= h($this->Url->build(['action' => 'remind', $member->id])) ?>"
+                                                    <?php if ($competition !== null) : ?>
+                                                        data-competition="<?= (int)$competition->id ?>"
+                                                    <?php endif; ?>
+                                                >E-mail küldése</button>
+                                            <?php else : ?>
                                                 Nincs e-mail címe
                                             <?php endif; ?>
                                         </td>
-                                        <td>
+                                        <td class="js-remind-log">
                                             <?php if ($messages === []) : ?>
-                                                Még nem kapott emlékeztetőt.
+                                                <span class="js-remind-empty">Még nem kapott emlékeztetőt.</span>
                                             <?php else : ?>
                                                 <?php foreach ($messages as $reminder) : ?>
                                                     <div class="mb-2">
-                                                        <strong><?= $this->Input->formatDatetime($reminder->created) ?></strong>
+                                                        <strong>Emlékeztető e-mail kiküldve</strong>
+                                                        <div><?= $this->Input->formatDatetime($reminder->created) ?></div>
                                                         <div class="small" style="white-space:pre-wrap"><?= h($reminder->message) ?></div>
                                                     </div>
                                                 <?php endforeach; ?>

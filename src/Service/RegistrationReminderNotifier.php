@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Entity\Competition;
+use App\Model\Entity\RegistrationReminder;
+use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
@@ -16,11 +18,11 @@ use DateTimeInterface;
  */
 class RegistrationReminderNotifier
 {
-    public function remind(object $member, Competition $competition, string $senderId): bool
+    public function remind(object $member, Competition $competition, string $senderId): ?RegistrationReminder
     {
         $to = trim((string)($member->email ?? ''));
         if ($to === '') {
-            return false;
+            return null;
         }
 
         [$subject, $message] = $this->compose($competition);
@@ -33,21 +35,23 @@ class RegistrationReminderNotifier
         } catch (\Throwable $exception) {
             Log::error('A nevezési emlékeztető nem ment ki: ' . $exception->getMessage());
 
-            return false;
+            return null;
         }
 
-        $row = TableRegistry::getTableLocator()->get('RegistrationReminders')->newEntity([
+        $reminders = TableRegistry::getTableLocator()->get('RegistrationReminders');
+        $row = $reminders->newEntity([
             'user_id' => (string)($member->id ?? ''),
             'competition_id' => (int)$competition->id,
             'sender_id' => $senderId !== '' ? $senderId : null,
             'subject' => $subject,
             'message' => $message,
         ]);
-        if (!TableRegistry::getTableLocator()->get('RegistrationReminders')->save($row)) {
+        if (!$reminders->save($row)) {
             Log::error('A nevezési emlékeztető kiment, a naplóba nem került be.');
+            $row->set('created', DateTime::now());
         }
 
-        return true;
+        return $row;
     }
 
     /**
