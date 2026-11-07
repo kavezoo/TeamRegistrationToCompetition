@@ -56,9 +56,8 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                             <thead>
                                 <tr>
                                     <th>Név</th>
-                                    <th>E-mail</th>
                                     <th>Jelentkezés</th>
-                                    <th>E-mail</th>
+                                    <th></th>
                                     <th>Elküldött üzenetek</th>
                                 </tr>
                             </thead>
@@ -71,12 +70,13 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                     ?>
                                     <tr<?= $isLast ? ' class="is-last-touched"' : '' ?> id="row-<?= h((string)$member->id) ?>" data-id="<?= h((string)$member->id) ?>">
                                         <td>
-                                            <?= $this->element('user_name', ['user' => $member]) ?>
-                                            <?php if ((string)$member->get('role') === User::ROLE_PRESIDENT) : ?>
-                                                <span class="badge text-bg-secondary ms-1">Elnök</span>
-                                            <?php endif; ?>
+                                            <?= $this->element('user_name', [
+                                                'user' => $member,
+                                                'bold' => true,
+                                                'line' => (string)$member->email,
+                                                'mark' => (string)$member->get('role') === User::ROLE_PRESIDENT ? 'Elnök' : '',
+                                            ]) ?>
                                         </td>
-                                        <td><?= h($member->email) ?></td>
                                         <td><?= $canRemind ? ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') : '' ?></td>
                                         <td>
                                             <?php if (trim((string)$member->email) !== '') : ?>
