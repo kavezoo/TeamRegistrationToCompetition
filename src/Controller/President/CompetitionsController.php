@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\President;
 
+use App\Service\CompetitionNotifier;
 use Cake\Http\Response;
 
 class CompetitionsController extends AppController
@@ -48,6 +49,7 @@ class CompetitionsController extends AppController
                 'fields' => self::FIELDS,
             ]);
             if ($competitions->save($competition)) {
+                (new CompetitionNotifier())->notifyMembers($competition);
                 $this->Flash->success('A verseny kiírva.');
 
                 return $this->redirectAfterSave();
