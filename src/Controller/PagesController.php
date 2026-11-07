@@ -227,7 +227,7 @@ class PagesController extends AppController
         if ($notify) {
             (new MembershipNotifier())->notifyPresidents($user);
         }
-        $this->Flash->success('A profil mentve. A klubelnök jóváhagyására kell várnod.');
+        $this->Flash->success('A profil mentve. A kérelem a klubelnöknél van. Ha elfogadja, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.');
 
         return true;
     }

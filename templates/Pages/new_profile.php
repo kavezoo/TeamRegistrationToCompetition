@@ -11,7 +11,7 @@ use App\Model\Entity\User;
 $this->assign('title', 'Saját adatok');
 $submitsRequest = (string)($user->get('membership_request') ?? '') !== 'pending';
 $explainsApplication = $submitsRequest || !$profileSaved;
-$applicationNotice = 'A klubba jelentkezés a Mentés gomb megnyomásával történik. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell.';
+$applicationNotice = 'A klubba jelentkezés a Mentés gomb megnyomásával történik. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell. Ha a klubelnök elfogadja a jelentkezést, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.';
 $confirmSave = $applicationNotice . ' Mented?';
 ?>
               <div class="row row-tight" style="margin-top: 16px;">

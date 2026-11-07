@@ -57,8 +57,8 @@ class MembershipNotifier
         }
 
         $body = OutgoingMail::greeting($applicant) . "\n\n";
-        $body .= "A klubelnök elfogadta a jelentkezésedet. Most már beléphetsz.\n\n";
-        $body .= "Ha jelenleg be vagy jelentkezve, jelentkezz ki a Kilépés gombbal, majd lépj be újra.\n\n";
+        $body .= "A klubelnök elfogadta a jelentkezésedet.\n\n";
+        $body .= "Jelentkezz ki a Kilépés gombbal, majd jelentkezz be újra. A következő bejelentkezéskor minden elérhető lesz.\n\n";
         $body .= MailLinks::loginLine(MailLinks::memberHome());
 
         try {
