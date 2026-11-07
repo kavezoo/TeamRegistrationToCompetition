@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Entity\User;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
 
@@ -26,16 +27,23 @@ class MobileAuthService
 
         $users = TableRegistry::getTableLocator()->get('Users');
         $accounts = $users->SocialAccounts;
+        $this->removeOrphanAccounts($users, $accounts, $email, $sub);
         $linked = $accounts->find()
             ->where([
-                'provider' => 'google',
                 'reference' => $sub,
+                'LOWER(provider) =' => 'google',
             ])
             ->first();
         if ($linked !== null) {
-            $user = $users->get((string)$linked->get('user_id'));
-
-            return $this->usable($user);
+            try {
+                $user = $users->get((string)$linked->get('user_id'));
+            } catch (RecordNotFoundException) {
+                $accounts->delete($linked);
+                $linked = null;
+            }
+            if ($linked !== null) {
+                return $this->usable($user);
+            }
         }
 
         $existing = $users->find()->where(['email' => $email])->first();
@@ -111,6 +119,7 @@ class MobileAuthService
             'is_superuser' => false,
             'role' => User::ROLE_NEW,
             'profile_saved' => false,
+            'token_send_requested' => false,
         ]);
         $connection = $users->getConnection();
         $connection->begin();
@@ -160,7 +169,37 @@ class MobileAuthService
             'token' => 'mobile',
             'token_secret' => '',
             'active' => true,
+            'data' => serialize([
+                'sub' => $sub,
+                'email' => $email,
+                'email_verified' => filter_var($payload['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'name' => is_string($payload['name'] ?? null) ? $payload['name'] : '',
+            ]),
         ];
+    }
+
+    /**
+     * A törölt felhasználó után maradt Google-kapcsolat megakadályozná az új belépést.
+     */
+    private function removeOrphanAccounts(object $users, object $accounts, string $email, string $sub): void
+    {
+        $rows = $accounts->find()
+            ->where([
+                'OR' => [
+                    [
+                        'reference' => $sub,
+                        'LOWER(provider) =' => 'google',
+                    ],
+                    ['username' => $email],
+                ],
+            ])
+            ->all();
+        foreach ($rows as $row) {
+            $userId = (string)$row->get('user_id');
+            if ($userId === '' || !$users->exists(['id' => $userId])) {
+                $accounts->delete($row);
+            }
+        }
     }
 
     private function username(object $users, string $email): string
