@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace App;
 
 use App\Middleware\HostHeaderMiddleware;
+use App\Middleware\RefreshSessionRoleMiddleware;
+use Authorization\Middleware\AuthorizationMiddleware;
 use App\Model\Behavior\LoginFinderBehavior;
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
@@ -118,6 +120,18 @@ class Application extends BaseApplication
             }));
 
         return $middlewareQueue;
+    }
+
+    /**
+     * A plugin a beléptetést és a jogosultságot a sor végére teszi.
+     * A szerepfrissítés a kettő közé kerül, hogy az elfogadott tag már ezen a kérésen tag legyen.
+     */
+    public function pluginMiddleware(MiddlewareQueue $middleware): MiddlewareQueue
+    {
+        $middleware = parent::pluginMiddleware($middleware);
+        $middleware->insertBefore(AuthorizationMiddleware::class, new RefreshSessionRoleMiddleware());
+
+        return $middleware;
     }
 
     /**
@@ -283,7 +297,8 @@ class Application extends BaseApplication
             }
         });
 
-        // A szerep a belépéskor kerül a munkamenetbe. Elfogadás után a következő kérés már a friss szerepet látja.
+        // A szerep a belépéskor kerül a munkamenetbe. A middleware a jogosultság előtt frissíti;
+        // itt a letiltott fiók kiszűrése marad, és a munkamenet szerepe akkor is igazodik, ha a middleware kimaradt.
         $eventManager->on('Controller.startup', function (EventInterface $event): void {
             $controller = $event->getSubject();
             if (!$controller instanceof Controller) {
@@ -316,13 +331,11 @@ class Application extends BaseApplication
 
                 return;
             }
-            $session = $request->getSession();
-            $auth = $session->read('Auth');
-            if (!is_array($auth) || (string)($auth['role'] ?? '') === (string)$user->get('role')) {
-                return;
-            }
-            $auth['role'] = $user->get('role');
-            $session->write('Auth', $auth);
+            RefreshSessionRoleMiddleware::persistRole(
+                $request->getSession(),
+                $request->getSession()->read('Auth'),
+                (string)$user->get('role'),
+            );
         });
 
         // Sikertelen belépés: ha az e-mail kitiltott fióké, a belépési lapon ez látszik.
