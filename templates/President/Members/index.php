@@ -58,8 +58,7 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                             <thead>
                                 <tr>
                                     <th>Név</th>
-                                    <th>E-mail</th>
-                                    <th>Jelentkezés</th>
+                                    <th>Vegyes+</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
@@ -76,10 +75,10 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                             <?= $this->element('user_name', [
                                                 'user' => $member,
                                                 'bold' => true,
+                                                'line' => (string)$member->email,
                                                 'mark' => (string)$member->get('role') === User::ROLE_PRESIDENT ? 'Elnök' : '',
                                             ]) ?>
                                         </td>
-                                        <td class="text-break"><?= h((string)$member->email) ?></td>
                                         <td class="js-remind-action text-break">
                                             <?php if ($joined) : ?>
                                                 <?= h($teamName === null || $teamName === '' ? 'Jelentkezett a versenyre és besorolásra vár' : $teamName) ?>

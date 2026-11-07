@@ -27,7 +27,7 @@ $mark = trim((string)($mark ?? ''));
     <span class="lh-sm">
         <span<?= $bold ? ' class="fw-bold"' : '' ?>><?= h($name) ?></span><?php if ($mark !== '') : ?><span class="badge text-bg-secondary ms-1"><?= h($mark) ?></span><?php endif; ?>
         <?php if ($line !== '') : ?>
-            <span class="d-block fw-normal"><?= h($line) ?></span>
+            <span class="d-block fw-normal text-break"><?= h($line) ?></span>
         <?php endif; ?>
     </span>
 </span>
