@@ -61,7 +61,6 @@ foreach ($namesByCompetition as $competitionId => $names) {
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-end">
-                                            <?= $this->Html->link('Nevezők', ['action' => 'view', $competition->id], ['class' => 'btn btn-sm btn-primary']) ?>
                                             <?= $this->Html->link('Szerkesztés', ['action' => 'edit', $competition->id], ['class' => 'btn btn-sm btn-secondary']) ?>
                                         </td>
                                     </tr>
