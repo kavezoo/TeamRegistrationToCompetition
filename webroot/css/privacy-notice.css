@@ -1,0 +1,64 @@
+.privacy-login {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.privacy-login p {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.privacy-notice-btn {
+  white-space: normal;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.privacy-statement h3 {
+  font-size: 1rem;
+  margin: 1.15rem 0 0.4rem;
+}
+
+.privacy-statement h3:first-child {
+  margin-top: 0;
+}
+
+.privacy-statement p,
+.privacy-statement li {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.privacy-statement ul {
+  margin-bottom: 0.75rem;
+  padding-left: 1.2rem;
+}
+
+body.app .header-desktop.header-desktop--solo .header-button {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 991.98px) {
+  body.app .header-desktop.header-desktop--solo .header-wrap {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    row-gap: 8px !important;
+  }
+
+  body.app .header-desktop.header-desktop--solo .header-brand,
+  body.app .header-desktop.header-desktop--solo .header-button {
+    grid-column: 1 !important;
+    justify-self: stretch !important;
+  }
+
+  body.app .header-desktop.header-desktop--solo .header-button {
+    justify-content: flex-start;
+  }
+}

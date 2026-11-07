@@ -54,13 +54,18 @@ class AppView extends View
         $this->Html->css('form-card', ['block' => true]);
         $identity = $this->getRequest()->getAttribute('identity');
         $role = $identity ? (string)($identity['role'] ?? '') : '';
-        if ((string)$this->getRequest()->getParam('prefix') === 'Member' || $role === 'new') {
+        $showsPrivacy = (string)$this->getRequest()->getParam('prefix') === 'Member' || $role === 'new';
+        if ($showsPrivacy) {
             $this->Html->css('member-chrome', ['block' => true]);
+            $this->Html->css('privacy-notice', ['block' => true]);
         }
         $this->Html->script('confirm-question', ['block' => true]);
         $this->Html->script('date-guard', ['block' => true]);
 
-        $this->getEventManager()->on('View.beforeLayout', function (): void {
+        $this->getEventManager()->on('View.beforeLayout', function () use ($showsPrivacy): void {
+            if ($showsPrivacy) {
+                $this->append('script', $this->element('privacy_modal'));
+            }
             $postLinks = $this->fetch('postLink');
             if ($postLinks !== '') {
                 $this->append('content', $postLinks);

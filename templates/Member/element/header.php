@@ -22,6 +22,7 @@ $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboar
               <div class="header-wrap">
                 <p class="header-brand mb-0">Lassúsági Pipaszívó Verseny</p>
                 <div class="header-button">
+                  <button type="button" class="btn btn-outline-secondary btn-sm privacy-notice-btn" data-bs-toggle="modal" data-bs-target="#privacy-notice-modal">Adatkezelési nyilatkozat</button>
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
                       <div class="image"><?= $this->element('account_avatar', ['alt' => $accountName]) ?></div>
