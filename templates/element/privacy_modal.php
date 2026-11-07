@@ -1,6 +1,6 @@
 <?php
 /**
- * Az adatkezelési nyilatkozat modal ablaka. A gomb külön van, hogy a belépő oldalon a szöveg is ki legyen írva.
+ * Az adatkezelési nyilatkozat modal ablaka a new és a member felületen.
  *
  * @var \App\View\AppView $this
  */
