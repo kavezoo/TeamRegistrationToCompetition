@@ -17,9 +17,10 @@ $confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérel
                   <?= $this->Form->create($user, [
                       'url' => ['controller' => 'Pages', 'action' => 'profile'],
                       'class' => 'form-horizontal',
-                      'onsubmit' => $submitsRequest
-                          ? 'return confirm(' . json_encode($confirmSave, JSON_UNESCAPED_UNICODE) . ');'
-                          : null,
+                      'data-swal-title' => $submitsRequest ? 'Biztosan?' : null,
+                      'data-swal-text' => $submitsRequest ? $confirmSave : null,
+                      'data-swal-confirm' => $submitsRequest ? 'Igen' : null,
+                      'data-swal-cancel' => $submitsRequest ? 'Nem' : null,
                   ]) ?>
                   <div class="card shadow" aria-labelledby="profile-form-title">
                     <div class="card-header form-card-header">

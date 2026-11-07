@@ -40,29 +40,8 @@ $tab = 'competition-' . (int)$competition->id;
                     <?php endif; ?>
                     <li>Alcsapat: <strong><?= h($registration->team?->name ?? 'Nincs besorolva') ?></strong></li>
                 </ul>
-                <div class="d-flex flex-wrap gap-2">
-                    <?= $this->Html->link(
-                        'Módosítás',
-                        ['action' => 'edit', $registration->id],
-                        ['class' => 'btn btn-outline-primary btn-sm']
-                    ) ?>
-                    <?php if (!$closed) : ?>
-                        <?= $this->Form->create(null, ['url' => ['action' => $deleteAction, $registration->id]]) ?>
-                            <?= $this->Form->button('Törlés', [
-                                'class' => 'btn btn-outline-danger btn-sm',
-                                'onclick' => 'return confirm(' . json_encode('Biztosan törlöd a jelentkezést?') . ');',
-                            ]) ?>
-                        <?= $this->Form->end() ?>
-                    <?php endif; ?>
-                </div>
             <?php elseif ($closed || !(bool)$competition->visible) : ?>
                 <p class="mb-0">A jelentkezés lezárult.</p>
-            <?php else : ?>
-                <?= $this->Form->create(null, [
-                    'url' => ['action' => 'add', $competition->id],
-                ]) ?>
-                    <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-primary']) ?>
-                <?= $this->Form->end() ?>
             <?php endif; ?>
         </div>
         <div class="tab-pane fade" id="<?= h($tab) ?>-description" role="tabpanel" aria-labelledby="<?= h($tab) ?>-description-btn" tabindex="0">
@@ -73,4 +52,36 @@ $tab = 'competition-' . (int)$competition->id;
             <?php endif; ?>
         </div>
     </div>
+    <?php if ($registration !== null) : ?>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <?= $this->Html->link(
+                'Módosítás',
+                ['action' => 'edit', $registration->id],
+                ['class' => 'btn btn-outline-primary btn-sm']
+            ) ?>
+            <?php if (!$closed) : ?>
+                <?= $this->Form->postLink(
+                    $this->Icon->outline('trash') . ' Törlés',
+                    ['action' => $deleteAction, $registration->id],
+                    [
+                        'class' => 'btn btn-danger btn-sm',
+                        'escape' => false,
+                        'confirm' => 'Biztosan törlöd a jelentkezést?',
+                        'data-swal-title' => __('Are you sure?'),
+                        'data-swal-text' => 'Biztosan törlöd a jelentkezést? ' . __('This action cannot be undone.'),
+                        'data-swal-confirm' => __('Yes, delete it!'),
+                        'data-swal-cancel' => __('Cancel'),
+                    ]
+                ) ?>
+            <?php endif; ?>
+        </div>
+    <?php elseif (!$closed && (bool)$competition->visible) : ?>
+        <div class="mt-3">
+            <?= $this->Form->create(null, [
+                'url' => ['action' => 'add', $competition->id],
+            ]) ?>
+                <?= $this->Form->button('Jelentkezés', ['class' => 'btn btn-primary']) ?>
+            <?= $this->Form->end() ?>
+        </div>
+    <?php endif; ?>
 </div>

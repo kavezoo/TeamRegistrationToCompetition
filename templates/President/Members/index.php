@@ -32,13 +32,19 @@ if ($canRemind) {
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <strong>Aktív tagok</strong>
                 <?php if ($canRemind && $missing > 0) : ?>
-                    <?= $this->Form->create(null, ['url' => ['action' => 'remindMissing'], 'class' => 'mb-0']) ?>
-                        <?= $this->Form->hidden('competition_id', ['value' => $competition->id]) ?>
-                        <?= $this->Form->button('Emlékeztető mindenkinek, aki még nem jelentkezett (' . $missing . ')', [
+                    <?= $this->Form->postLink(
+                        'Emlékeztető mindenkinek, aki még nem jelentkezett (' . $missing . ')',
+                        ['action' => 'remindMissing'],
+                        [
                             'class' => 'btn btn-sm btn-primary',
-                            'onclick' => 'return confirm(' . json_encode('Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?') . ');',
-                        ]) ?>
-                    <?= $this->Form->end() ?>
+                            'data' => ['competition_id' => $competition->id],
+                            'confirm' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
+                            'data-swal-title' => 'E-mail küldése',
+                            'data-swal-text' => 'Elküldöd az emlékeztetőt mindenkinek, aki még nem jelentkezett?',
+                            'data-swal-confirm' => __('Yes'),
+                            'data-swal-cancel' => __('No'),
+                        ]
+                    ) ?>
                 <?php endif; ?>
             </div>
             <div class="card-body">
@@ -93,13 +99,19 @@ if ($canRemind) {
                                         <td><?= $competition === null ? '' : ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') ?></td>
                                         <td>
                                             <?php if ($canRemind && !$joined && trim((string)$member->email) !== '') : ?>
-                                                <?= $this->Form->create(null, ['url' => ['action' => 'remind', $member->id], 'class' => 'mb-0']) ?>
-                                                    <?= $this->Form->hidden('competition_id', ['value' => $competition->id]) ?>
-                                                    <?= $this->Form->button('E-mail küldése', [
+                                                <?= $this->Form->postLink(
+                                                    'E-mail küldése',
+                                                    ['action' => 'remind', $member->id],
+                                                    [
                                                         'class' => 'btn btn-sm btn-outline-primary',
-                                                        'onclick' => 'return confirm(' . json_encode('Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?') . ');',
-                                                    ]) ?>
-                                                <?= $this->Form->end() ?>
+                                                        'data' => ['competition_id' => $competition->id],
+                                                        'confirm' => 'Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?',
+                                                        'data-swal-title' => 'E-mail küldése',
+                                                        'data-swal-text' => 'Elküldöd az emlékeztetőt, hogy még nem jelentkezett a versenyre?',
+                                                        'data-swal-confirm' => __('Yes'),
+                                                        'data-swal-cancel' => __('No'),
+                                                    ]
+                                                ) ?>
                                             <?php elseif ($canRemind && !$joined) : ?>
                                                 Nincs e-mail címe
                                             <?php endif; ?>

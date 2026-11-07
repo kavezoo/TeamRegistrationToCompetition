@@ -95,7 +95,7 @@ $this->assign('title', 'Jelentkezés');
                         <?= $this->Html->link('Mégse', ['action' => 'index'], ['class' => 'btn btn-outline-secondary']) ?>
                         <?php if (!$competition->registrationClosed()) : ?>
                         <div class="ms-auto">
-                          <button type="submit" class="btn btn-danger" form="registration-delete" onclick="return confirm(<?= h(json_encode('Biztosan törlöd a jelentkezést?')) ?>);"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
+                          <button type="submit" class="btn btn-danger" form="registration-delete" data-confirm-message="Biztosan törlöd a jelentkezést?" data-swal-title="<?= h(__('Are you sure?')) ?>" data-swal-text="<?= h('Biztosan törlöd a jelentkezést? ' . __('This action cannot be undone.')) ?>" data-swal-confirm="<?= h(__('Yes, delete it!')) ?>" data-swal-cancel="<?= h(__('Cancel')) ?>" onclick="document.registrationDelete.requestSubmit(); return false;"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
                         </div>
                         <?php endif; ?>
                       </div>
@@ -105,6 +105,7 @@ $this->assign('title', 'Jelentkezés');
                   <?php if (!$competition->registrationClosed()) : ?>
                   <?= $this->Form->create(null, [
                       'id' => 'registration-delete',
+                      'name' => 'registrationDelete',
                       'url' => ['action' => 'delete', $registration->id],
                   ]) ?>
                   <?= $this->Form->end() ?>
