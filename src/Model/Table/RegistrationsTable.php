@@ -54,7 +54,7 @@ class RegistrationsTable extends Table
         $this->belongsTo('Users', [
             'className' => 'CakeDC/Users.Users',
             'foreignKey' => 'user_id',
-            'joinType' => 'INNER',
+            'joinType' => 'LEFT',
         ]);
         $this->belongsTo('Teams', [
             'foreignKey' => 'team_id',
@@ -173,11 +173,7 @@ class RegistrationsTable extends Table
                         ->contain(\App\Model\Entity\User::socialAvatarContain());
                 },
             ])
-            ->orderBy([
-                'Competitions.name' => 'ASC',
-                'Users.first_name' => 'ASC',
-                'Users.last_name' => 'ASC',
-            ]);
+            ->orderBy(['Registrations.id' => 'ASC']);
     }
 
     /**

@@ -2,8 +2,20 @@
 /**
  * @var \App\View\AppView $this
  * @var iterable<\App\Model\Entity\Competition> $competitions
+ * @var iterable<\App\Model\Entity\Registration> $registrations
  */
+use App\Model\Entity\User;
+
 $this->assign('title', 'Versenyek');
+
+$namesByCompetition = [];
+foreach ($registrations as $registration) {
+    $namesByCompetition[(int)$registration->competition_id][] = User::displayName($registration->user);
+}
+foreach ($namesByCompetition as $competitionId => $names) {
+    usort($names, 'strnatcasecmp');
+    $namesByCompetition[$competitionId] = $names;
+}
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
@@ -33,7 +45,14 @@ $this->assign('title', 'Versenyek');
                                         <td><?= h($competition->name) ?></td>
                                         <td><?= h((string)$competition->date_from) ?></td>
                                         <td><?= h((string)$competition->date_deadline) ?></td>
-                                        <td><?= (int)$competition->registration_count ?></td>
+                                        <td>
+                                            <?php $names = $namesByCompetition[(int)$competition->id] ?? []; ?>
+                                            <?php if ($names === []) : ?>
+                                                0
+                                            <?php else : ?>
+                                                <?= h(implode(', ', $names)) ?>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-end">
                                             <?= $this->Html->link('Nevezők', ['action' => 'view', $competition->id], ['class' => 'btn btn-sm btn-primary']) ?>
                                             <?= $this->Html->link('Szerkesztés', ['action' => 'edit', $competition->id], ['class' => 'btn btn-sm btn-secondary']) ?>

@@ -2,25 +2,36 @@
 /**
  * @var \App\View\AppView $this
  * @var iterable<\App\Model\Entity\Registration> $rows
+ * @var array<int|string, string> $teams
  */
+use App\Model\Entity\User;
 
-$this->assign('title', 'Csoportok');
+$this->assign('title', 'Nevezők');
 
 $grouped = [];
 foreach ($rows as $row) {
     $key = (string)$row->competition_id;
-    $grouped[$key]['name'] = (string)$row->competition->name;
+    $grouped[$key]['name'] = (string)($row->competition->name ?? 'Verseny');
     $grouped[$key]['rows'][] = $row;
+}
+foreach ($grouped as $key => $group) {
+    usort($group['rows'], function ($left, $right): int {
+        return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
+    });
+    $grouped[$key] = $group;
 }
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
         <div class="card shadow">
-            <div class="card-header"><strong>Csoportok</strong></div>
+            <div class="card-header"><strong>Jelentkezők</strong></div>
             <div class="card-body">
                 <?php if ($grouped === []) : ?>
                     <p>Még nincs jelentkező.</p>
                 <?php else : ?>
+                    <?php if ($teams === []) : ?>
+                        <p>Előbb hozz létre alcsapatot, utána lehet besorolni a jelentkezőket. <?= $this->Html->link('Alcsapatok', ['controller' => 'Teams', 'action' => 'index']) ?></p>
+                    <?php endif; ?>
                     <?php foreach ($grouped as $group) : ?>
                         <h2 class="h5"><?= h($group['name']) ?></h2>
                         <div class="table-responsive mb-4">
@@ -29,21 +40,13 @@ foreach ($rows as $row) {
                                     <tr>
                                         <th>Név</th>
                                         <th>Alcsapat</th>
-                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
                                             <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
-                                            <td><?= h($registration->team?->name ?? 'Nincs besorolva') ?></td>
-                                            <td class="text-end">
-                                                <?= $this->Html->link(
-                                                    'Szerkesztés',
-                                                    ['action' => 'edit', $registration->id],
-                                                    ['class' => 'btn btn-sm btn-outline-primary']
-                                                ) ?>
-                                            </td>
+                                            <td><?= $this->element('registration_team_form', ['registration' => $registration, 'teams' => $teams]) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

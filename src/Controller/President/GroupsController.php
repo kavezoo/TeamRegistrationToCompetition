@@ -16,7 +16,8 @@ class GroupsController extends AppController
     public function index(): void
     {
         $rows = $this->fetchTable('Registrations')->find('roster')->all();
-        $this->set(compact('rows'));
+        $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();
+        $this->set(compact('rows', 'teams'));
     }
 
     /**

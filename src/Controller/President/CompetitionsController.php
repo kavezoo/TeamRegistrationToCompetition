@@ -34,7 +34,8 @@ class CompetitionsController extends AppController
         $competitions = $this->fetchTable('Competitions')->find()
             ->orderBy(['date_from' => 'DESC', 'name' => 'ASC'])
             ->all();
-        $this->set(compact('competitions'));
+        $registrations = $this->fetchTable('Registrations')->find('roster')->all();
+        $this->set(compact('competitions', 'registrations'));
     }
 
     public function add(): ?Response
@@ -90,7 +91,7 @@ class CompetitionsController extends AppController
                                 ->contain(\App\Model\Entity\User::socialAvatarContain());
                         },
                     ])
-                    ->orderBy(['Users.first_name' => 'ASC', 'Users.last_name' => 'ASC']);
+                    ->orderBy(['Registrations.id' => 'ASC']);
             },
         ]);
         $teams = $this->fetchTable('Teams')->find('list')->orderByAsc('name')->toArray();

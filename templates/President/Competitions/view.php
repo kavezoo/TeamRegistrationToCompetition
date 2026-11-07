@@ -23,11 +23,24 @@ $this->assign('title', $competition->name);
                     Nevezési határidő: <?= h((string)$competition->date_deadline) ?>
                 </p>
                 <?= $this->element('competition_description', ['competition' => $competition]) ?>
+                <h2 class="h5">Jelentkezők</h2>
                 <?php if ($teams === []) : ?>
-                    <p>Előbb hozz létre alcsapatot, utána lehet besorolni a nevezőket.</p>
+                    <p>Előbb hozz létre alcsapatot, utána lehet besorolni a jelentkezőket.</p>
                     <p><?= $this->Html->link('Alcsapatok', ['controller' => 'Teams', 'action' => 'index'], ['class' => 'btn btn-sm btn-primary']) ?></p>
                 <?php endif; ?>
-                <?php if (count($competition->registrations) === 0) : ?>
+                <?php
+                $registrations = $competition->registrations ?? [];
+                if (!is_array($registrations)) {
+                    $registrations = iterator_to_array($registrations);
+                }
+                usort($registrations, function ($left, $right): int {
+                    return strnatcasecmp(
+                        \App\Model\Entity\User::displayName($left->user ?? null),
+                        \App\Model\Entity\User::displayName($right->user ?? null)
+                    );
+                });
+                ?>
+                <?php if ($registrations === []) : ?>
                     <p>Erre a versenyre még nem nevezett senki.</p>
                 <?php else : ?>
                     <div class="table-responsive">
@@ -39,22 +52,10 @@ $this->assign('title', $competition->name);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($competition->registrations as $registration) : ?>
+                                <?php foreach ($registrations as $registration) : ?>
                                     <tr>
-                                        <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
-                                        <td>
-                                            <?= $this->Form->create($registration, [
-                                                'url' => ['controller' => 'Registrations', 'action' => 'assign', $registration->id],
-                                                'class' => 'd-flex gap-2',
-                                            ]) ?>
-                                                <?= $this->Form->control('team_id', [
-                                                    'label' => false,
-                                                    'options' => $teams,
-                                                    'empty' => $teams === [] ? 'Nincs alcsapat' : false,
-                                                ]) ?>
-                                                <?= $this->Form->button('Mentés', ['class' => 'btn btn-sm btn-primary', 'disabled' => $teams === []]) ?>
-                                            <?= $this->Form->end() ?>
-                                        </td>
+                                        <td><?= $this->element('user_name', ['user' => $registration->user ?? null]) ?></td>
+                                        <td><?= $this->element('registration_team_form', ['registration' => $registration, 'teams' => $teams]) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

@@ -172,13 +172,22 @@ class RegistrationsController extends AppController
         $this->request->allowMethod(['post', 'put', 'patch']);
         $registrations = $this->fetchTable('Registrations');
         $registration = $registrations->get($id);
-        $registration = $registrations->patchEntity($registration, $this->request->getData(), [
+        $data = $this->request->getData();
+        if (($data['team_id'] ?? '') === '') {
+            $data['team_id'] = null;
+        }
+        $registration = $registrations->patchEntity($registration, $data, [
             'fields' => ['team_id'],
         ]);
         if ($registrations->save($registration)) {
             $this->Flash->success('Az alcsapat beállítva.');
         } else {
             $this->Flash->error('Az alcsapatot nem sikerült beállítani.');
+        }
+
+        $referer = $this->request->referer(true);
+        if (is_string($referer) && $this->isSafeReturnPath($referer)) {
+            return $this->redirect($referer);
         }
 
         return $this->redirect([
