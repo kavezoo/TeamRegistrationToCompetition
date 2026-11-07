@@ -35,6 +35,18 @@ use Cake\ORM\Entity;
 class Competition extends Entity
 {
     /**
+     * Új verseny kiírásakor ezek a címek vannak kitöltve.
+     *
+     * @var array<string, string>
+     */
+    public const TITLE_DEFAULTS = [
+        'lunch_title' => 'Kísérő ebéd igény',
+        'special_lunch_title' => 'Extra ebéd igény',
+        'competition_pipe_title_1' => 'Világos versenypipa igény',
+        'competition_pipe_title_2' => 'Sötét versenypipa igény',
+        'extra_title_1' => 'Extra ebéd igény (érzékenység)',
+    ];
+    /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
      * Note that when '*' is set to true, this allows all unspecified fields to

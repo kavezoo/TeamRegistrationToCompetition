@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Controller\Admin\AppController;
+use App\Model\Entity\Competition;
 
 /**
  * Competitions Controller
@@ -85,6 +86,7 @@ class CompetitionsController extends AppController
     public function add()
     {
         $competition = $this->Competitions->newEmptyEntity();
+        $competition->set(Competition::TITLE_DEFAULTS);
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             //dd($data);

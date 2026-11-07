@@ -128,13 +128,13 @@ msgid "Competition Pipe 3"
 msgstr "Versenyszám 3"
 
 msgid "Competition Pipe Title 1"
-msgstr "Versenyszám címe 1"
+msgstr "1. Verseny pipa neve"
 
 msgid "Competition Pipe Title 2"
-msgstr "Versenyszám címe 2"
+msgstr "2. Verseny pipa neve"
 
 msgid "Competition Pipe Title 3"
-msgstr "Versenyszám címe 3"
+msgstr "3. Verseny pipa neve"
 
 msgid "Competitions"
 msgstr "Versenyek"

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\President;
 
+use App\Model\Entity\Competition;
 use App\Service\CompetitionNotifier;
 use Cake\Http\Response;
 
@@ -44,6 +45,7 @@ class CompetitionsController extends AppController
     {
         $competitions = $this->fetchTable('Competitions');
         $competition = $competitions->newEmptyEntity();
+        $competition->set(Competition::TITLE_DEFAULTS);
         if ($this->request->is('post')) {
             $competition = $competitions->patchEntity($competition, $this->withDefaults($this->request->getData()), [
                 'fields' => self::FIELDS,
