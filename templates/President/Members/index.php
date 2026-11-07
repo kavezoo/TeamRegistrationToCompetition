@@ -1,30 +1,20 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var array<int, \App\Model\Entity\Competition> $competitions
  * @var \App\Model\Entity\Competition|null $competition
  * @var array<int, \App\Model\Entity\User> $members
  * @var array<string, true> $registered
  * @var array<string, array<int, \App\Model\Entity\RegistrationReminder>> $history
+ * @var int $missing
  * @var string|null $lastRecordId
  */
 use App\Model\Entity\User;
 
 $this->assign('title', 'Tagok');
 
-$options = [];
-foreach ($competitions as $row) {
-    $options[$row->id] = $row->name;
-}
 $canRemind = $competition !== null && $competition->visible && !$competition->registrationClosed();
-$missing = 0;
-if ($canRemind) {
-    foreach ($members as $member) {
-        if (!isset($registered[(string)$member->id]) && trim((string)$member->email) !== '') {
-            $missing++;
-        }
-    }
-}
+$page = (int)$this->request->getQuery('page');
+$pageQuery = $page > 1 ? ['page' => $page] : [];
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
@@ -34,7 +24,7 @@ if ($canRemind) {
                 <?php if ($canRemind && $missing > 0) : ?>
                     <?= $this->Form->postLink(
                         'Emlékeztető mindenkinek, aki még nem jelentkezett (' . $missing . ')',
-                        ['action' => 'remindMissing'],
+                        ['action' => 'remindMissing', '?' => $pageQuery],
                         [
                             'class' => 'btn btn-sm btn-primary',
                             'data' => ['competition_id' => $competition->id],
@@ -48,28 +38,10 @@ if ($canRemind) {
                 <?php endif; ?>
             </div>
             <div class="card-body">
-                <?php if ($competitions === []) : ?>
-                    <p>Még nincs kiírt verseny.</p>
-                <?php else : ?>
-                    <?= $this->Form->create(null, ['type' => 'get', 'class' => 'row g-2 align-items-end mb-3']) ?>
-                        <div class="col-12 col-md-6">
-                            <?= $this->Form->control('competition_id', [
-                                'type' => 'select',
-                                'label' => 'Verseny',
-                                'options' => $options,
-                                'value' => $competition?->id,
-                                'class' => 'form-control',
-                            ]) ?>
-                        </div>
-                        <div class="col-12 col-md-auto">
-                            <?= $this->Form->button('Mutat', ['class' => 'btn btn-outline-secondary']) ?>
-                        </div>
-                    <?= $this->Form->end() ?>
-                    <?php if ($competition !== null && !$competition->visible) : ?>
-                        <p>Ez a verseny a tagoknak nem látható, ezért emlékeztetőt nem lehet küldeni.</p>
-                    <?php elseif ($competition !== null && $competition->registrationClosed()) : ?>
-                        <p>A nevezési határidő lejárt, emlékeztetőt nem lehet küldeni.</p>
-                    <?php endif; ?>
+                <?php if ($canRemind) : ?>
+                    <p>A jelentkezés és az emlékeztető ehhez a versenyhez tartozik: <strong><?= h($competition->name) ?></strong></p>
+                <?php elseif ($competition === null) : ?>
+                    <p>Nincs nyitott verseny, ezért emlékeztetőt nem lehet küldeni.</p>
                 <?php endif; ?>
 
                 <?php if ($members === []) : ?>
@@ -101,12 +73,12 @@ if ($canRemind) {
                                             <?php endif; ?>
                                         </td>
                                         <td><?= h($member->email) ?></td>
-                                        <td><?= $competition === null ? '' : ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') ?></td>
+                                        <td><?= $canRemind ? ($joined ? 'Jelentkezett' : 'Még nem jelentkezett') : '' ?></td>
                                         <td>
                                             <?php if ($canRemind && !$joined && trim((string)$member->email) !== '') : ?>
                                                 <?= $this->Form->postLink(
                                                     'E-mail küldése',
-                                                    ['action' => 'remind', $member->id],
+                                                    ['action' => 'remind', $member->id, '?' => $pageQuery],
                                                     [
                                                         'class' => 'btn btn-sm btn-outline-primary',
                                                         'data' => ['competition_id' => $competition->id],
@@ -140,6 +112,11 @@ if ($canRemind) {
                     </div>
                 <?php endif; ?>
             </div>
+            <?php if ($members !== []) : ?>
+                <div class="card-footer border-top d-flex align-items-center justify-content-between">
+                    <?= $this->element('JeffAdmin.pagination') ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

@@ -12,18 +12,17 @@ class MembersController extends AppController
 {
     public function index(): void
     {
-        $competitions = $this->fetchTable('Competitions')->find()
-            ->orderBy(['date_from' => 'ASC', 'name' => 'ASC'])
-            ->all()
-            ->toList();
-        $competition = $this->selectedCompetition($competitions);
-        $members = $this->recipients()->toList();
+        $competition = $this->openReminderCompetition();
+        $members = $this->paginate($this->recipients(), [
+            'limit' => 100,
+            'maxLimit' => 100,
+        ])->toList();
         foreach ($members as $member) {
             User::publishAvatar($member);
         }
 
         $registered = [];
-        if ($competition !== null && $members !== []) {
+        if ($competition !== null) {
             $rows = $this->fetchTable('Registrations')->find()
                 ->select(['user_id'])
                 ->where(['competition_id' => $competition->id])
@@ -45,7 +44,8 @@ class MembersController extends AppController
             }
         }
 
-        $this->set(compact('competitions', 'competition', 'members', 'registered', 'history'));
+        $missing = $competition === null ? 0 : $this->missingCount($registered);
+        $this->set(compact('competition', 'members', 'registered', 'history', 'missing'));
     }
 
     public function remind(string $id): Response
@@ -59,17 +59,17 @@ class MembersController extends AppController
         if ($member === null) {
             $this->Flash->error('Ennek a felhasználónak nem lehet emlékeztetőt küldeni.');
 
-            return $this->back($competition);
+            return $this->back();
         }
         if ($this->alreadyRegistered($member, $competition)) {
             $this->Flash->error(User::displayName($member) . ' már jelentkezett erre a versenyre.');
 
-            return $this->back($competition);
+            return $this->back();
         }
         if (trim((string)$member->email) === '') {
             $this->Flash->error(User::displayName($member) . ' nem kapott levelet, nincs e-mail címe.');
 
-            return $this->back($competition);
+            return $this->back();
         }
         $sent = (new RegistrationReminderNotifier())->remind($member, $competition, $this->senderId());
         if ($sent) {
@@ -79,7 +79,7 @@ class MembersController extends AppController
             $this->Flash->error('Az emlékeztető nem ment ki.');
         }
 
-        return $this->back($competition);
+        return $this->back();
     }
 
     public function remindMissing(): Response
@@ -128,27 +128,41 @@ class MembersController extends AppController
             $this->Flash->success('Nincs olyan aktív tag, aki még nem jelentkezett.');
         }
 
-        return $this->back($competition);
+        return $this->back();
     }
 
     /**
-     * @param array<int, \App\Model\Entity\Competition> $competitions
+     * A legutóbb kiírt, a tagoknak látható és még nyitott verseny.
      */
-    private function selectedCompetition(array $competitions): ?Competition
+    private function openReminderCompetition(): ?Competition
     {
-        $requested = (int)$this->request->getQuery('competition_id');
-        foreach ($competitions as $competition) {
-            if ((int)$competition->id === $requested) {
-                return $competition;
-            }
-        }
-        foreach ($competitions as $competition) {
-            if ($competition->visible && !$competition->registrationClosed()) {
+        $rows = $this->fetchTable('Competitions')->find()
+            ->where(['visible' => true])
+            ->orderBy(['created' => 'DESC', 'id' => 'DESC'])
+            ->all();
+        foreach ($rows as $competition) {
+            if ($competition instanceof Competition && !$competition->registrationClosed()) {
                 return $competition;
             }
         }
 
-        return $competitions[0] ?? null;
+        return null;
+    }
+
+    /**
+     * @param array<string, true> $registered
+     */
+    private function missingCount(array $registered): int
+    {
+        $count = 0;
+        foreach ($this->recipients()->all() as $member) {
+            if (isset($registered[(string)$member->id]) || trim((string)$member->email) === '') {
+                continue;
+            }
+            $count++;
+        }
+
+        return $count;
     }
 
     private function openCompetition(): Competition|Response
@@ -164,12 +178,12 @@ class MembersController extends AppController
         if (!$competition->visible) {
             $this->Flash->error('A verseny a tagoknak nem látható, emlékeztetőt nem küldök.');
 
-            return $this->back($competition);
+            return $this->back();
         }
         if ($competition->registrationClosed()) {
             $this->Flash->error('A nevezési határidő lejárt, emlékeztetőt nem küldök.');
 
-            return $this->back($competition);
+            return $this->back();
         }
 
         return $competition;
@@ -220,8 +234,13 @@ class MembersController extends AppController
         return (string)($identity['id'] ?? '');
     }
 
-    private function back(Competition $competition): Response
+    private function back(): Response
     {
-        return $this->redirect(['action' => 'index', '?' => ['competition_id' => $competition->id]]);
+        $page = (int)$this->request->getQuery('page');
+        if ($page > 1) {
+            return $this->redirect(['action' => 'index', '?' => ['page' => $page]]);
+        }
+
+        return $this->redirect(['action' => 'index']);
     }
 }
