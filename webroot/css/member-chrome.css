@@ -29,17 +29,36 @@ body.app .header-desktop.header-desktop--solo .header-button {
   flex: 0 0 auto;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 991.98px) {
   body.app .page-wrapper:has(.header-desktop--solo) .page-container {
-    top: 0;
+    top: 0 !important;
   }
 
   body.app .header-desktop.header-desktop--solo {
-    height: auto;
-    min-height: 75px;
+    position: relative !important;
+    height: auto !important;
+    min-height: 60px !important;
+  }
+
+  body.app .header-desktop.header-desktop--solo .section__content,
+  body.app .header-desktop.header-desktop--solo .section__content--p30,
+  body.app .header-desktop.header-desktop--solo .container-fluid,
+  body.app .header-desktop.header-desktop--solo .header-wrap {
+    height: auto !important;
+  }
+
+  body.app .header-desktop.header-desktop--solo .header-wrap {
+    min-height: 60px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
   }
 
   body.app .header-desktop.header-desktop--solo .header-brand {
+    grid-column: 1 !important;
     font-size: 1rem;
+  }
+
+  body.app .page-wrapper:has(.header-desktop--solo) .main-content {
+    padding-top: 16px !important;
   }
 }
