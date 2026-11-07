@@ -49,10 +49,7 @@ class RegistrationsController extends AppController
 
         $rosterRows = [];
         $rosterCompetition = $this->currentRosterCompetition($competitions);
-        if (
-            $rosterCompetition !== null
-            && isset($mineByCompetition[(int)$rosterCompetition->id])
-        ) {
+        if ($rosterCompetition !== null) {
             foreach ($rows as $row) {
                 if ((int)$row->competition_id === (int)$rosterCompetition->id) {
                     $rosterRows[] = $row;
