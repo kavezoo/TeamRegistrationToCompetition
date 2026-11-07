@@ -35,7 +35,7 @@ class CompetitionsController extends AppController
     public function index(): void
     {
         $competitions = $this->fetchTable('Competitions')->find()
-            ->orderBy(['date_from' => 'DESC', 'name' => 'ASC'])
+            ->orderBy(['created' => 'DESC', 'id' => 'DESC'])
             ->all();
         $registrations = $this->fetchTable('Registrations')->find('roster')->all();
         $this->set(compact('competitions', 'registrations'));
