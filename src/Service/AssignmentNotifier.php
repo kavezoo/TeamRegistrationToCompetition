@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use Cake\Log\Log;
-use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -34,7 +33,8 @@ class AssignmentNotifier
         }
 
         $competition = trim((string)($registration->competition->name ?? ''));
-        $body = "A klubelnök besorolt egy alcsoportba.\n\n";
+        $body = OutgoingMail::greeting($registration->user) . "\n\n";
+        $body .= "A klubelnök besorolt egy alcsoportba.\n\n";
         if ($competition !== '') {
             $body .= "Verseny: {$competition}\n";
         }
@@ -45,11 +45,7 @@ class AssignmentNotifier
         ));
 
         try {
-            $mailer = new Mailer('default');
-            $mailer
-                ->setTo($to)
-                ->setSubject('Besoroltak egy alcsoportba')
-                ->deliver($body);
+            OutgoingMail::send($to, 'Besoroltak egy alcsoportba', $body);
         } catch (\Throwable $exception) {
             Log::error('Az alcsoport-értesítés nem ment ki: ' . $exception->getMessage());
         }

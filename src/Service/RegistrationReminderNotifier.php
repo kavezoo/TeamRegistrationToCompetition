@@ -7,7 +7,6 @@ use App\Model\Entity\Competition;
 use App\Model\Entity\RegistrationReminder;
 use Cake\I18n\DateTime;
 use Cake\Log\Log;
-use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
 use DateTimeInterface;
 
@@ -24,13 +23,9 @@ class RegistrationReminderNotifier
             return null;
         }
 
-        [$subject, $message] = $this->compose($competition, $member);
+        [$subject, $message, $html] = $this->compose($competition, $member);
         try {
-            $mailer = new Mailer('default');
-            $mailer
-                ->setTo($to)
-                ->setSubject($subject)
-                ->deliver($message);
+            OutgoingMail::send($to, $subject, $message, $html);
         } catch (\Throwable $exception) {
             Log::error('A nevezési emlékeztető nem ment ki: ' . $exception->getMessage());
 
@@ -54,7 +49,7 @@ class RegistrationReminderNotifier
     }
 
     /**
-     * @return array{0: string, 1: string}
+     * @return array{0: string, 1: string, 2: string}
      */
     public function compose(Competition $competition, object $member): array
     {
@@ -64,25 +59,30 @@ class RegistrationReminderNotifier
             : 'Még nem jelentkeztél a versenyre';
         $role = (string)($member->get('role') ?? '');
         $url = MailLinks::competitionSheet($role, (int)$competition->id);
-        $message = "Még nem jelentkeztél a versenyre.\n\n";
+        $details = "Még nem jelentkeztél a versenyre.\n\n";
         if ($name !== '') {
-            $message .= "Verseny: {$name}\n";
+            $details .= "Verseny: {$name}\n";
         }
         $when = $this->formatWhen($competition->date_competition);
         if ($when !== '') {
-            $message .= "Verseny ideje: {$when}\n";
+            $details .= "Verseny ideje: {$when}\n";
         }
         $from = $this->formatDay($competition->date_from);
         if ($from !== '') {
-            $message .= "Jelentkezés kezdete: {$from}\n";
+            $details .= "Jelentkezés kezdete: {$from}\n";
         }
         $deadline = $this->formatDay($competition->date_deadline);
         if ($deadline !== '') {
-            $message .= "Jelentkezési határidő: {$deadline}\n";
+            $details .= "Jelentkezési határidő: {$deadline}\n";
         }
-        $message .= "\n" . MailLinks::loginLine($url);
+        [$message, $html] = OutgoingMail::competitionRegistration(
+            $member,
+            $details,
+            $url,
+            $competition->descriptionHtml(),
+        );
 
-        return [$subject, $message];
+        return [$subject, $message, $html];
     }
 
     private function formatWhen(mixed $value): string

@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Model\Entity\Competition;
 use App\Model\Entity\User;
 use Cake\Log\Log;
-use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
 use DateTimeInterface;
 
@@ -20,27 +19,26 @@ class CompetitionNotifier
     {
         $name = trim((string)$competition->name);
         $url = MailLinks::competitionSheet(User::ROLE_MEMBER, (int)$competition->id);
-        $body = "Van új verseny kiírva, lehet jelentkezni.\n\n";
+        $details = "Van új verseny kiírva, lehet jelentkezni.\n\n";
         if ($name !== '') {
-            $body .= "Verseny: {$name}\n";
+            $details .= "Verseny: {$name}\n";
         }
         $when = $this->formatWhen($competition->date_competition);
         if ($when !== '') {
-            $body .= "Verseny ideje: {$when}\n";
+            $details .= "Verseny ideje: {$when}\n";
         }
         $from = $this->formatDay($competition->date_from);
         if ($from !== '') {
-            $body .= "Jelentkezés kezdete: {$from}\n";
+            $details .= "Jelentkezés kezdete: {$from}\n";
         }
         $deadline = $this->formatDay($competition->date_deadline);
         if ($deadline !== '') {
-            $body .= "Jelentkezési határidő: {$deadline}\n";
+            $details .= "Jelentkezési határidő: {$deadline}\n";
         }
-        $body .= "\n" . MailLinks::loginLine($url);
 
         try {
             $members = TableRegistry::getTableLocator()->get('Users')->find()
-                ->select(['id', 'email'])
+                ->select(['id', 'email', 'first_name', 'last_name', 'username'])
                 ->where([
                     'role' => User::ROLE_MEMBER,
                     'active' => true,
@@ -59,11 +57,13 @@ class CompetitionNotifier
                 continue;
             }
             try {
-                $mailer = new Mailer('default');
-                $mailer
-                    ->setTo($to)
-                    ->setSubject('Új verseny kiírva')
-                    ->deliver($body);
+                [$text, $html] = OutgoingMail::competitionRegistration(
+                    $member,
+                    $details,
+                    $url,
+                    $competition->descriptionHtml(),
+                );
+                OutgoingMail::send($to, 'Új verseny kiírva', $text, $html);
             } catch (\Throwable $exception) {
                 Log::error('Az új verseny értesítése nem ment ki: ' . $exception->getMessage());
             }
