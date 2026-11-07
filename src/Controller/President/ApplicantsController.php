@@ -5,6 +5,7 @@ namespace App\Controller\President;
 
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
+use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Response;
 
@@ -74,7 +75,7 @@ class ApplicantsController extends AppController
     /**
      * A törölt jelentkező már nincs a táblában. A lista ettől megnyitható.
      */
-    private function applicant(string $id): User|Response
+    private function applicant(string $id): EntityInterface|Response
     {
         try {
             return $this->fetchTable('Users')->get($id);
