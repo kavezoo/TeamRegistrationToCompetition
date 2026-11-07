@@ -30,12 +30,7 @@ $this->assign('title', $competition->name);
                 if (!is_array($registrations)) {
                     $registrations = iterator_to_array($registrations);
                 }
-                usort($registrations, function ($left, $right): int {
-                    return strnatcasecmp(
-                        \App\Model\Entity\User::displayName($left->user ?? null),
-                        \App\Model\Entity\User::displayName($right->user ?? null)
-                    );
-                });
+                usort($registrations, [\App\Model\Entity\Registration::class, 'compareByAssignment']);
                 ?>
                 <?php if ($registrations === []) : ?>
                     <p>Erre a versenyre még nem nevezett senki.</p>

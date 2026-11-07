@@ -46,6 +46,14 @@ class Competition extends Entity
         'competition_pipe_title_2' => 'Sötét versenypipa igény',
         'extra_title_1' => 'Extra ebéd igény (érzékenység)',
     ];
+
+    /**
+     * @var array<string>
+     */
+    protected array $_virtual = [
+        'description_html',
+    ];
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -124,5 +132,10 @@ class Competition extends Entity
         }
 
         return $html;
+    }
+
+    protected function _getDescriptionHtml(): ?string
+    {
+        return $this->descriptionHtml();
     }
 }

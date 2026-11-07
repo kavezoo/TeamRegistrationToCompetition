@@ -4,8 +4,6 @@
  * @var iterable<\App\Model\Entity\Registration> $rows
  * @var array<int|string, string> $teams
  */
-use App\Model\Entity\User;
-
 $this->assign('title', 'Nevezők');
 
 $grouped = [];
@@ -16,9 +14,7 @@ foreach ($rows as $row) {
     $grouped[$key]['rows'][] = $row;
 }
 foreach ($grouped as $key => $group) {
-    usort($group['rows'], function ($left, $right): int {
-        return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
-    });
+    usort($group['rows'], [\App\Model\Entity\Registration::class, 'compareByAssignment']);
     $grouped[$key] = $group;
 }
 ?>

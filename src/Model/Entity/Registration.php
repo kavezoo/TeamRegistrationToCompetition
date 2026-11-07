@@ -78,4 +78,35 @@ class Registration extends Entity
         'team' => true,
         'competition' => true,
     ];
+
+    /**
+     * Besoroltak a csoport sorrendjében, azon belül név szerint.
+     * A besorolatlanok a lista végére kerülnek.
+     */
+    public static function compareByAssignment(object $left, object $right): int
+    {
+        $leftTeam = $left->team ?? null;
+        $rightTeam = $right->team ?? null;
+        $leftTeamName = trim((string)($leftTeam?->name ?? ''));
+        $rightTeamName = trim((string)($rightTeam?->name ?? ''));
+        $leftAssigned = $leftTeamName !== '';
+        $rightAssigned = $rightTeamName !== '';
+        if ($leftAssigned !== $rightAssigned) {
+            return $leftAssigned ? -1 : 1;
+        }
+        $leftPos = $leftAssigned ? (int)($leftTeam?->pos ?? 0) : PHP_INT_MAX;
+        $rightPos = $rightAssigned ? (int)($rightTeam?->pos ?? 0) : PHP_INT_MAX;
+        if ($leftPos !== $rightPos) {
+            return $leftPos <=> $rightPos;
+        }
+        $byTeam = strnatcasecmp($leftTeamName, $rightTeamName);
+        if ($byTeam !== 0) {
+            return $byTeam;
+        }
+
+        return strnatcasecmp(
+            User::displayName($left->user ?? null),
+            User::displayName($right->user ?? null),
+        );
+    }
 }

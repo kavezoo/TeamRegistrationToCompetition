@@ -17,9 +17,7 @@ if ($focusCompetition > 0) {
     );
 }
 
-usort($rosterRows, function ($left, $right): int {
-    return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
-});
+usort($rosterRows, [\App\Model\Entity\Registration::class, 'compareByAssignment']);
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">

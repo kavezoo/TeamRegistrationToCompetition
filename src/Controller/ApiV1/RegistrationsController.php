@@ -368,11 +368,15 @@ class RegistrationsController extends AppController
      */
     private function publicRows(iterable $rows, bool $withAvatar = false): array
     {
+        $rows = is_array($rows) ? $rows : iterator_to_array($rows);
+        usort($rows, [Registration::class, 'compareByAssignment']);
         $list = [];
         foreach ($rows as $row) {
+            $teamName = trim((string)($row->team?->name ?? ''));
             $item = [
                 'name' => User::displayName($row->user),
-                'team' => (string)($row->team->name ?? ''),
+                'team' => $teamName,
+                'team_pos' => $teamName === '' ? null : (int)($row->team?->pos ?? 0),
                 'competition' => (string)($row->competition->name ?? ''),
             ];
             if ($withAvatar) {
