@@ -1,0 +1,26 @@
+/*
+ * A tagnak nincs oldalsávja. A tartalom és a fejléc a lap szélétől indul,
+ * mobilon a hamburger sáv helye sem marad üresen.
+ */
+body.app .page-wrapper:has(.header-desktop--solo) .page-container {
+  padding-left: 0;
+}
+
+body.app .header-desktop.header-desktop--solo {
+  left: 0;
+}
+
+body.app .header-desktop.header-desktop--solo .header-wrap {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+@media (max-width: 991px) {
+  body.app .page-wrapper:has(.header-desktop--solo) .page-container {
+    top: 0;
+  }
+
+  body.app .header-desktop.header-desktop--solo {
+    height: 75px;
+  }
+}
