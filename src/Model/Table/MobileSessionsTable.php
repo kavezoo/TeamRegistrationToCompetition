@@ -14,7 +14,9 @@ class MobileSessionsTable extends Table
         $this->setTable('mobile_sessions');
         $this->setPrimaryKey('id');
         $this->setDisplayField('id');
+        // A Users alias a CakeDC táblára van kötve, az App UsersTable ettől eltér.
         $this->belongsTo('Users', [
+            'className' => 'CakeDC/Users.Users',
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
