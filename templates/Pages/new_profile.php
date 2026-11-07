@@ -10,17 +10,19 @@ use App\Model\Entity\User;
 
 $this->assign('title', 'Saját adatok');
 $submitsRequest = (string)($user->get('membership_request') ?? '') !== 'pending';
-$confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell. Mented?';
+$explainsApplication = $submitsRequest || !$profileSaved;
+$applicationNotice = 'A klubba jelentkezés a Mentés gomb megnyomásával történik. A kérelem a klubelnökhöz kerül, és a jóváhagyásáig várnod kell.';
+$confirmSave = $applicationNotice . ' Mented?';
 ?>
               <div class="row row-tight" style="margin-top: 16px;">
                 <div class="col-12 col-xxl-11">
                   <?= $this->Form->create($user, [
                       'url' => ['controller' => 'Pages', 'action' => 'profile'],
                       'class' => 'form-horizontal',
-                      'data-swal-title' => $submitsRequest ? 'Biztosan?' : null,
-                      'data-swal-text' => $submitsRequest ? $confirmSave : null,
-                      'data-swal-confirm' => $submitsRequest ? 'Igen' : null,
-                      'data-swal-cancel' => $submitsRequest ? 'Nem' : null,
+                      'data-swal-title' => $explainsApplication ? 'Biztosan?' : null,
+                      'data-swal-text' => $explainsApplication ? $confirmSave : null,
+                      'data-swal-confirm' => $explainsApplication ? 'Igen' : null,
+                      'data-swal-cancel' => $explainsApplication ? 'Nem' : null,
                   ]) ?>
                   <div class="card shadow" aria-labelledby="profile-form-title">
                     <div class="card-header form-card-header">
@@ -78,6 +80,9 @@ $confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérel
                       </div>
                     </div>
                     <div class="card-footer border-top">
+                      <?php if ($explainsApplication) : ?>
+                        <p class="alert alert-warning mb-3 offset-md-2"><?= h($applicationNotice) ?></p>
+                      <?php endif; ?>
                       <div class="d-flex align-items-center flex-wrap gap-2 offset-md-2">
                         <?= $this->Form->button(
                             $this->Icon->outline('device-floppy') . ' ' . __('Save'),
