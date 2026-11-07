@@ -83,6 +83,7 @@ $confirmSave = $applicationNotice . ' Mented?';
                             </div>
                           </div>
                           <?php endif; ?>
+                          <?= $this->element('mail_preferences', ['user' => $user, 'disabled' => $denied]) ?>
                         </div>
                       </div>
                     </div>

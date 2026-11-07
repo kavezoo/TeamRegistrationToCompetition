@@ -37,8 +37,13 @@ class CompetitionNotifier
         }
 
         try {
-            $members = TableRegistry::getTableLocator()->get('Users')->find()
-                ->select(['id', 'email', 'first_name', 'last_name', 'username'])
+            $users = TableRegistry::getTableLocator()->get('Users');
+            $select = ['id', 'email', 'first_name', 'last_name', 'username'];
+            if ($users->getSchema()->hasColumn(User::MAIL_COMPETITION)) {
+                $select[] = User::MAIL_COMPETITION;
+            }
+            $members = $users->find()
+                ->select($select)
                 ->where([
                     'role' => User::ROLE_MEMBER,
                     'active' => true,
@@ -53,7 +58,7 @@ class CompetitionNotifier
 
         foreach ($members as $member) {
             $to = trim((string)($member->email ?? ''));
-            if ($to === '') {
+            if ($to === '' || !User::wantsMail($member, User::MAIL_COMPETITION)) {
                 continue;
             }
             try {

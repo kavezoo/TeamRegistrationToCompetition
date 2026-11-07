@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Model\Entity\User;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
 
@@ -28,7 +29,7 @@ class AssignmentNotifier
 
         $team = trim((string)($registration->team->name ?? ''));
         $to = trim((string)($registration->user->email ?? ''));
-        if ($team === '' || $to === '') {
+        if ($team === '' || $to === '' || !User::wantsMail($registration->user, User::MAIL_ASSIGNMENT)) {
             return;
         }
 

@@ -240,6 +240,7 @@ class PagesController extends AppController
         $user->setDirty('profile_saved', true);
         $user->set('tos_date', DateTime::now(), ['guard' => false]);
         $user->setDirty('tos_date', true);
+        User::applyMailRequest($user, $this->request->getData(), $users->getSchema());
         $notify = (string)$user->get('membership_request') !== 'pending';
         if ($notify) {
             $user->set('membership_request', 'pending', ['guard' => false]);

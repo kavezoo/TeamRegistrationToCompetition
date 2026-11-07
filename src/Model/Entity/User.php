@@ -27,6 +27,13 @@ use Cake\ORM\Table;
  * @property bool $is_superuser
  * @property string|null $role
  * @property bool $profile_saved
+ * @property bool $mail_membership
+ * @property bool $mail_signup
+ * @property bool $mail_assignment
+ * @property bool $mail_competition
+ * @property bool $mail_reminder
+ * @property bool $mail_applicants
+ * @property bool $mail_president_entries
  * @property string|null $membership_request
  * @property \Cake\I18n\DateTime $created
  * @property \Cake\I18n\DateTime $modified
@@ -50,6 +57,20 @@ class User extends Entity
     public const ROLE_ADMIN = 'admin';
 
     public const DENIED_NOTICE = 'A klubelnök elutasította a jelentkezésedet. A profilodat nem módosíthatod. Az adataidat törölheted. Ha mégis jelentkezni szeretnél, töröld az adataidat, és egy új bejelentkezés után jelentkezz újra.';
+
+    public const MAIL_MEMBERSHIP = 'mail_membership';
+
+    public const MAIL_SIGNUP = 'mail_signup';
+
+    public const MAIL_ASSIGNMENT = 'mail_assignment';
+
+    public const MAIL_COMPETITION = 'mail_competition';
+
+    public const MAIL_REMINDER = 'mail_reminder';
+
+    public const MAIL_APPLICANTS = 'mail_applicants';
+
+    public const MAIL_PRESIDENT_ENTRIES = 'mail_president_entries';
 
     /**
      * Szerepkörök az admin űrlaphoz.
@@ -204,6 +225,85 @@ class User extends Entity
         ];
     }
 
+    /**
+     * A saját adatlapján ezek közül választja ki, melyik levelet kéri.
+     * Az oszlop alapból be van kapcsolva.
+     *
+     * @return array<string, string>
+     */
+    public static function mailChoices(string $role): array
+    {
+        $membership = 'E-mail a klubtagság elfogadásáról és elutasításáról';
+        $signup = 'E-mail, ha jelentkezem egy versenyre';
+        $assignment = 'E-mail, ha alcsoportba sorolnak';
+        $competition = 'E-mail, ha új versenyt írnak ki';
+        $reminder = 'Emlékeztető, ha még nem jelentkeztem egy versenyre';
+        $applicants = 'E-mail az új és a törölt klubjelentkezőkről';
+        $entries = 'E-mail, ha valaki jelentkezik egy versenyre vagy lemondja';
+
+        return match ($role) {
+            self::ROLE_NEW => [
+                self::MAIL_MEMBERSHIP => $membership,
+            ],
+            self::ROLE_MEMBER => [
+                self::MAIL_SIGNUP => $signup,
+                self::MAIL_ASSIGNMENT => $assignment,
+                self::MAIL_COMPETITION => $competition,
+                self::MAIL_REMINDER => $reminder,
+            ],
+            self::ROLE_PRESIDENT => [
+                self::MAIL_APPLICANTS => $applicants,
+                self::MAIL_PRESIDENT_ENTRIES => $entries,
+                self::MAIL_SIGNUP => $signup,
+                self::MAIL_ASSIGNMENT => $assignment,
+            ],
+            self::ROLE_ADMIN => [
+                self::MAIL_MEMBERSHIP => $membership,
+                self::MAIL_SIGNUP => $signup,
+                self::MAIL_ASSIGNMENT => $assignment,
+                self::MAIL_COMPETITION => $competition,
+                self::MAIL_REMINDER => $reminder,
+                self::MAIL_APPLICANTS => $applicants,
+                self::MAIL_PRESIDENT_ENTRIES => $entries,
+            ],
+            default => [],
+        };
+    }
+
+    /**
+     * Üres vagy hiányzó jelölés bekapcsolt levelet jelent, amíg az oszlop nincs betöltve.
+     */
+    public static function wantsMail(object|array|null $user, string $field): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+        $value = is_array($user) ? ($user[$field] ?? null) : $user->get($field);
+        if ($value === null) {
+            return true;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * A profil mentése a szerephez tartozó levélkapcsolókat is eltárolja.
+     * A még nem létező oszlopot kihagyja, hogy a mentés a tábla bővítése előtt is sikerüljön.
+     */
+    public static function applyMailRequest(object $user, array $data, object $schema): void
+    {
+        if (!method_exists($user, 'set') || !method_exists($schema, 'hasColumn')) {
+            return;
+        }
+        foreach (array_keys(self::mailChoices((string)$user->get('role'))) as $field) {
+            if (!$schema->hasColumn($field)) {
+                continue;
+            }
+            $user->set($field, filter_var($data[$field] ?? false, FILTER_VALIDATE_BOOLEAN), ['guard' => false]);
+            $user->setDirty($field, true);
+        }
+    }
+
     public static function roleLabel(?string $role): string
     {
         if ($role !== null && isset(self::ROLES[$role])) {
@@ -299,6 +399,13 @@ class User extends Entity
         'role' => true,
         'profile_saved' => true,
         'membership_request' => true,
+        'mail_membership' => true,
+        'mail_signup' => true,
+        'mail_assignment' => true,
+        'mail_competition' => true,
+        'mail_reminder' => true,
+        'mail_applicants' => true,
+        'mail_president_entries' => true,
         'created' => true,
         'modified' => true,
         'additional_data' => true,

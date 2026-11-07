@@ -29,6 +29,7 @@ trait OwnProfileTrait
                     $user->set('tos_date', DateTime::now(), ['guard' => false]);
                     $user->setDirty('tos_date', true);
                 }
+                User::applyMailRequest($user, $this->request->getData(), $users->getSchema());
                 if ($users->save($user)) {
                     $this->Flash->success('A profil mentve.');
 

@@ -10,7 +10,7 @@
 
     <h3>Milyen adatot tartunk nyilván</h3>
     <p>A Google-belépésből a vezetéknevet, a keresztnevet, az e-mail-címet, a profilképet és a fiók technikai azonosítóját. A jelszavadat nem kapjuk meg, és nem tároljuk.</p>
-    <p>A saját adatlapról a mentett nevet, valamint azt, hogy a klubtagsági kérelem folyamatban van, vagy a klubelnök jelezte, hogy az illető nem tag. A profil mentésekor azt is rögzítjük, hogy az adatkezelési nyilatkozatot elfogadtad, és ennek az időpontját.</p>
+    <p>A saját adatlapról a mentett nevet, valamint azt, hogy a klubtagsági kérelem folyamatban van, vagy a klubelnök jelezte, hogy az illető nem tag. A profil mentésekor azt is rögzítjük, hogy az adatkezelési nyilatkozatot elfogadtad, és ennek az időpontját. Itt tároljuk azt is, hogy melyik e-mail-fajtát kérted.</p>
     <p>A versenyre jelentkezésből azt, hogy melyik versenyre szól a nevezés, a kiírásban kért darabszámokat, a megjegyzést, és a csapatbesorolást, amit a klubelnök állít be.</p>
     <p>A működéshez a belépés időpontját, a fiók szerepét, a munkamenetet, valamint a kiküldött emlékeztető levél időpontját és szövegét is megőrizzük. Különleges adatot, például egészségügyi adatot nem kérünk.</p>
 
@@ -19,9 +19,20 @@
         <li>beléptetésre,</li>
         <li>a klubtagsági kérelem elbírálására,</li>
         <li>a verseny létszámának és a csapatok összeállítására,</li>
-        <li>értesítésre a jelentkezésről, a besorolásról és az új jelentkezőről.</li>
+        <li>értesítésre a jelentkezésről, a besorolásról, az új jelentkezőről és a többi, lent felsorolt eseményről.</li>
     </ul>
     <p>A bejelentkezett tagok az aktuális verseny jelentkezőinek nevét, profilképét és csapatát látják, hogy a nevezés átlátható legyen.</p>
+
+    <h3>E-mailek</h3>
+    <p>Minden ilyen eseményről e-mailt küldünk a saját címedre, amíg a saját adatlapodon bekapcsolva hagyod az adott levélfajtát. A jelölés alapból be van kapcsolva. A kikapcsolt fajtából nem küldünk levelet.</p>
+    <ul>
+        <li>a klubtagság elfogadásáról és elutasításáról, benne azzal, hogy elutasítás után mit kell tenni, ha mégis tag szeretnél lenni,</li>
+        <li>a saját versenyjelentkezésedről,</li>
+        <li>az alcsoportba sorolásról,</li>
+        <li>az új verseny kiírásáról,</li>
+        <li>emlékeztetőről, ha egy nyitott versenyre még nem jelentkeztél.</li>
+    </ul>
+    <p>A klubelnök e-mailt kap az új klubjelentkezőről, a saját adatait törlő jelentkezőről, valamint arról, ha valaki jelentkezik egy versenyre vagy lemondja a nevezését. Ezeket a levélfajtákat a klubelnök a saját adatlapján kapcsolhatja ki.</p>
 
     <h3>Harmadik fél</h3>
     <p>Az adatokat nem adjuk ki harmadik félnek, nem értékesítjük, és nem használjuk reklámra.</p>

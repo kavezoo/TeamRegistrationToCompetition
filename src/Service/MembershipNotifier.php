@@ -27,7 +27,7 @@ class MembershipNotifier
         $details .= "\nA profilját elmentette. A jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
         PresidentNotice::send('Új klubjelentkező', $details, [
             [MailLinks::applicants(), 'Az új jelentkezők megtekintése'],
-        ]);
+        ], null, User::MAIL_APPLICANTS);
     }
 
     /**
@@ -46,7 +46,7 @@ class MembershipNotifier
         $details .= "\nVéletlenül járt az oldalon, és a saját adatait törölte. A jelentkezők listáján már nem szerepel.";
         PresidentNotice::send('Törölt klubjelentkezés', $details, [
             [MailLinks::applicants(), 'A jelentkezők listája'],
-        ]);
+        ], null, User::MAIL_APPLICANTS);
     }
 
     /**
@@ -55,7 +55,7 @@ class MembershipNotifier
     public function notifyAccepted(object $applicant): void
     {
         $to = trim((string)($applicant->email ?? ''));
-        if ($to === '') {
+        if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {
             return;
         }
 
@@ -76,22 +76,28 @@ class MembershipNotifier
     }
 
     /**
-     * A kipróbáló megtudja, hogy nem tag. Belépve törölheti az adatait, vagy újra kérheti a tagságot.
+     * A kipróbáló megtudja, hogy nem tag, és mit tegyen, ha mégis tag szeretne lenni.
      */
     public function notifyDenied(object $applicant): void
     {
         $to = trim((string)($applicant->email ?? ''));
-        if ($to === '') {
+        if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {
             return;
         }
 
-        $details = User::DENIED_NOTICE;
+        $details = "A klubelnök elutasította a jelentkezésedet. Nem tag, csak kipróbáltad az oldalt.\n\n";
+        $details .= "A profilodat nem módosíthatod. Az adataidat törölheted a saját oldaladon.\n\n";
+        $details .= "Ha mégis tag szeretnél lenni, ezt tedd meg, ebben a sorrendben:\n";
+        $details .= "1. Nyisd meg a saját oldaladat a lenti gombbal.\n";
+        $details .= "2. Töröld az adataidat. A törlés egyben kijelentkeztet.\n";
+        $details .= "3. Jelentkezz be újra ugyanazzal a Google-fiókkal.\n";
+        $details .= '4. Mentsd el a profilodat. A mentés újra elküldi a jelentkezést a klubelnöknek.';
         [$text, $html] = OutgoingMail::notice($applicant, $details, [
             [MailLinks::accountHome(), 'A saját oldalam megnyitása'],
-        ]);
+        ], '');
 
         try {
-            OutgoingMail::send($to, 'Nem tag, csak kipróbáltad az oldalt', $text, $html);
+            OutgoingMail::send($to, 'A klubelnök elutasította a jelentkezésedet', $text, $html);
         } catch (\Throwable $exception) {
             Log::error('Az elutasítás értesítése nem ment ki: ' . $exception->getMessage());
         }

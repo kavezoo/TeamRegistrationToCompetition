@@ -63,6 +63,9 @@ class MembersController extends AppController
         if (trim((string)$member->email) === '') {
             return $this->remindJson(false, User::displayName($member) . ' nem kapott levelet, nincs e-mail címe.');
         }
+        if (!User::wantsMail($member, User::MAIL_REMINDER)) {
+            return $this->remindJson(false, User::displayName($member) . ' nem kért emlékeztető levelet.');
+        }
         $recent = $this->recentReminderTimes((int)$competition->id);
         if (isset($recent[(string)$member->id])) {
             return $this->remindJson(false, 'Ennek a tagnak egy napon belül már ment emlékeztető.');
@@ -104,7 +107,12 @@ class MembersController extends AppController
         $lastId = null;
         foreach ($members as $member) {
             $memberId = (string)$member->id;
-            if (isset($registered[$memberId]) || isset($recent[$memberId]) || trim((string)$member->email) === '') {
+            if (
+                isset($registered[$memberId])
+                || isset($recent[$memberId])
+                || trim((string)$member->email) === ''
+                || !User::wantsMail($member, User::MAIL_REMINDER)
+            ) {
                 continue;
             }
             if ($notifier->remind($member, $competition, $senderId)) {

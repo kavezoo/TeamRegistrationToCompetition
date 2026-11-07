@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Entity\Competition;
+use App\Model\Entity\User;
 use App\Model\Entity\RegistrationReminder;
 use Cake\I18n\DateTime;
 use Cake\Log\Log;
@@ -19,7 +20,7 @@ class RegistrationReminderNotifier
     public function remind(object $member, Competition $competition, string $senderId): ?RegistrationReminder
     {
         $to = trim((string)($member->email ?? ''));
-        if ($to === '') {
+        if ($to === '' || !User::wantsMail($member, User::MAIL_REMINDER)) {
             return null;
         }
 

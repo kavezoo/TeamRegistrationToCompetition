@@ -87,6 +87,7 @@ foreach ($user->social_accounts ?? [] as $account) {
                               <?php endif; ?>
                             </div>
                           </div>
+                          <?= $this->element('mail_preferences', ['user' => $user]) ?>
                         </div>
                       </div>
                     </div>

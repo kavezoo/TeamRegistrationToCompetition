@@ -28,7 +28,7 @@ class RegistrationSignupNotifier
 
         $user = $registration->user ?? null;
         $to = trim((string)($user->email ?? ''));
-        if ($user !== null && $to !== '') {
+        if ($user !== null && $to !== '' && User::wantsMail($user, User::MAIL_SIGNUP)) {
             $role = (string)($user->get('role') ?? '');
             $name = trim((string)($registration->competition->name ?? ''));
             $details = "Jelentkeztél a versenyre.\n";
@@ -69,7 +69,7 @@ class RegistrationSignupNotifier
         $subject = $competition !== '' ? 'Lemondott versenyjelentkezés: ' . $competition : 'Lemondott versenyjelentkezés';
         PresidentNotice::send($subject, $details, [
             [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
-        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''));
+        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''), User::MAIL_PRESIDENT_ENTRIES);
     }
 
     private function notifyPresidentsSignedUp(object $registration): void
@@ -91,6 +91,6 @@ class RegistrationSignupNotifier
         $subject = $competition !== '' ? 'Új versenyjelentkezés: ' . $competition : 'Új versenyjelentkezés';
         PresidentNotice::send($subject, $details, [
             [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
-        ], $user !== null ? (string)($user->id ?? '') : null);
+        ], $user !== null ? (string)($user->id ?? '') : null, User::MAIL_PRESIDENT_ENTRIES);
     }
 }

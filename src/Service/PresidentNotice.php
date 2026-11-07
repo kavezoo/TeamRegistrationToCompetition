@@ -15,11 +15,21 @@ class PresidentNotice
     /**
      * @param list<array{0: string, 1: string}> $buttons cím, felirat
      */
-    public static function send(string $subject, string $details, array $buttons, ?string $exceptUserId = null): void
-    {
+    public static function send(
+        string $subject,
+        string $details,
+        array $buttons,
+        ?string $exceptUserId = null,
+        ?string $mailField = null,
+    ): void {
         try {
-            $presidents = TableRegistry::getTableLocator()->get('Users')->find()
-                ->select(['id', 'email', 'first_name', 'last_name', 'username'])
+            $users = TableRegistry::getTableLocator()->get('Users');
+            $select = ['id', 'email', 'first_name', 'last_name', 'username'];
+            if ($mailField !== null && $users->getSchema()->hasColumn($mailField)) {
+                $select[] = $mailField;
+            }
+            $presidents = $users->find()
+                ->select($select)
                 ->where([
                     'role' => User::ROLE_PRESIDENT,
                     'active' => true,
@@ -33,6 +43,9 @@ class PresidentNotice
 
         foreach ($presidents as $president) {
             if ($exceptUserId !== null && (string)$president->id === $exceptUserId) {
+                continue;
+            }
+            if ($mailField !== null && !User::wantsMail($president, $mailField)) {
                 continue;
             }
             $to = trim((string)($president->email ?? ''));

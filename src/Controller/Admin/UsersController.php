@@ -194,6 +194,7 @@ class UsersController extends AppController
             $user = $this->Users->patchEntity($user, $this->request->getData(), [
                 'fields' => ['first_name', 'last_name'],
             ]);
+            User::applyMailRequest($user, $this->request->getData(), $this->Users->getSchema());
             if ($this->Users->save($user)) {
                 $this->Flash->success('A profil mentve.');
 
