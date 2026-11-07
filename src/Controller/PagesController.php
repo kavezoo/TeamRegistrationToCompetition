@@ -21,6 +21,7 @@ use App\Service\MembershipNotifier;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Response;
+use Cake\Log\Log;
 use Cake\ORM\Table;
 
 /**
@@ -105,6 +106,42 @@ class PagesController extends AppController
         return $this->redirect('/');
     }
 
+    /**
+     * Az új jelentkező törli a saját adatait. Tag és elnök ezt nem teheti meg itt.
+     */
+    public function deleteAccount(): Response
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $users = $this->fetchTable('Users');
+        $user = $this->newUser($users);
+        if ($user === null) {
+            $this->Flash->error('Az adatok törlése csak új jelentkezőnek érhető el.');
+
+            return $this->redirect('/');
+        }
+
+        $userId = (string)$user->get('id');
+        $connection = $users->getConnection();
+        $connection->begin();
+        try {
+            $this->deleteOwnedRows($users, $userId);
+            if (!$users->delete($user)) {
+                throw new \RuntimeException('A felhasználó törlése nem sikerült.');
+            }
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            $connection->rollback();
+            Log::error('Az új jelentkező adatait nem sikerült törölni: ' . $exception->getMessage());
+            $this->Flash->error('Az adataidat nem sikerült törölni.');
+
+            return $this->redirect('/');
+        }
+
+        $this->Flash->success('Az adataid törölve lettek.');
+
+        return $this->redirect('/logout');
+    }
+
     private function home(): Response
     {
         $identity = $this->request->getAttribute('identity');
@@ -185,6 +222,28 @@ class PagesController extends AppController
         $this->Flash->success('A profil mentve. A klubelnök jóváhagyására kell várnod.');
 
         return true;
+    }
+
+    private function deleteOwnedRows(Table $users, string $userId): void
+    {
+        foreach (['SocialAccounts', 'FailedPasswordAttempts', 'Registrations'] as $name) {
+            if (!$users->hasAssociation($name)) {
+                continue;
+            }
+            $table = $users->getAssociation($name)->getTarget();
+            if (!$table->getSchema()->hasColumn('user_id')) {
+                continue;
+            }
+            $table->deleteAll(['user_id' => $userId]);
+        }
+
+        $reminders = $this->fetchTable('RegistrationReminders');
+        if ($reminders->getSchema()->hasColumn('user_id')) {
+            $reminders->deleteAll(['user_id' => $userId]);
+        }
+        if ($reminders->getSchema()->hasColumn('sender_id')) {
+            $reminders->updateAll(['sender_id' => null], ['sender_id' => $userId]);
+        }
     }
 
     private function profileSaved(object $user): bool

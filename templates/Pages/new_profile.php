@@ -90,5 +90,8 @@ $confirmSave = 'A tagságod csak a mentéssel számít jelentkezésnek. A kérel
                     </div>
                   </div>
                   <?= $this->Form->end() ?>
+                  <div class="mt-3">
+                    <?= $this->element('delete_own_account') ?>
+                  </div>
                 </div>
               </div>

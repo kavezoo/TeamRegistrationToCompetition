@@ -19,6 +19,7 @@ namespace App;
 use App\Middleware\HostHeaderMiddleware;
 use App\Model\Behavior\LoginFinderBehavior;
 use App\Model\Entity\User;
+use App\Service\MembershipNotifier;
 use Cake\Controller\Controller;
 use Cake\Http\Exception\UnauthorizedException;
 use Cake\ORM\Table;
@@ -30,6 +31,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
+use Cake\Log\Log;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
@@ -226,6 +228,41 @@ class Application extends BaseApplication
             if ($url !== null) {
                 $event->setResult($url);
             }
+        });
+
+        // Új Google-fiók: a klubelnökök egy levelet kapnak, hogy engedélyezhessék vagy elutasíthassák.
+        $eventManager->on(UsersPlugin::EVENT_AFTER_REGISTER, function (EventInterface $event): void {
+            $user = $event->getData('user');
+            if (!$user instanceof EntityInterface) {
+                return;
+            }
+            if ((string)$user->get('role') !== User::ROLE_NEW) {
+                return;
+            }
+            $requestState = (string)$user->get('membership_request');
+            if ($requestState === 'pending' || $requestState === 'denied') {
+                return;
+            }
+            try {
+                $users = TableRegistry::getTableLocator()->get('Users');
+                $fresh = $users->get($user->get('id'));
+            } catch (\Throwable $exception) {
+                Log::error('Az új jelentkező értesítése nem indulhatott: ' . $exception->getMessage());
+
+                return;
+            }
+            if ((string)$fresh->get('role') !== User::ROLE_NEW) {
+                return;
+            }
+            $freshState = (string)$fresh->get('membership_request');
+            if ($freshState === 'pending' || $freshState === 'denied') {
+                return;
+            }
+            $fresh->set('membership_request', 'pending', ['guard' => false]);
+            if (!$users->save($fresh)) {
+                return;
+            }
+            (new MembershipNotifier())->notifyPresidents($fresh);
         });
 
         // Új Google-felhasználó new szerepet kap. Meglévő fiók szerepe nem íródik felül.

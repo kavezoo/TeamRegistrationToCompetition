@@ -35,7 +35,18 @@ class MailLinks
     {
         return Router::url([
             'prefix' => 'Member',
+            'plugin' => null,
             'controller' => 'Registrations',
+            'action' => 'index',
+        ], true);
+    }
+
+    public static function applicants(): string
+    {
+        return Router::url([
+            'prefix' => 'President',
+            'plugin' => null,
+            'controller' => 'Applicants',
             'action' => 'index',
         ], true);
     }

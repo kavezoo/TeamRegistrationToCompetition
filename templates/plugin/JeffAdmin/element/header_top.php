@@ -2,7 +2,9 @@
 /**
  * Mobilos fejléc. A tagnál nincs oldalsáv, ezért a hamburger sem kell.
  */
-if ((string)$this->request->getParam('prefix') === 'Member') {
+$identity = $this->request->getAttribute('identity');
+$role = $identity ? (string)($identity['role'] ?? '') : '';
+if ((string)$this->request->getParam('prefix') === 'Member' || $role === 'new') {
     return;
 }
 ?>

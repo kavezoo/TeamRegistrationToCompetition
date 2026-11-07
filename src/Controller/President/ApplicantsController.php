@@ -54,9 +54,9 @@ class ApplicantsController extends AppController
         }
         $user->set('membership_request', 'denied', ['guard' => false]);
         if ($users->save($user)) {
-            $this->Flash->success(User::displayName($user) . ' jelentkezése elutasítva.');
+            $this->Flash->success(User::displayName($user) . ' nem tag, csak kipróbálta az oldalt.');
         } else {
-            $this->Flash->error('A jelentkezőt nem sikerült elutasítani.');
+            $this->Flash->error('A jelölést nem sikerült menteni.');
         }
 
         return $this->redirect(['action' => 'index']);

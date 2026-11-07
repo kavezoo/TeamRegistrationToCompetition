@@ -35,12 +35,18 @@ $this->assign('title', 'Jelentkezők');
                                             ]) ?>
                                                 <?= $this->Form->button('Elfogad', ['class' => 'btn btn-sm btn-success']) ?>
                                             <?= $this->Form->end() ?>
-                                            <?= $this->Form->create(null, [
-                                                'url' => ['action' => 'deny', $applicant->get('id')],
-                                                'style' => 'display:inline',
-                                            ]) ?>
-                                                <?= $this->Form->button('Elutasít', ['class' => 'btn btn-sm btn-danger']) ?>
-                                            <?= $this->Form->end() ?>
+                                            <?php if ((string)$applicant->get('membership_request') !== 'denied') : ?>
+                                                <?= $this->Form->create(null, [
+                                                    'url' => ['action' => 'deny', $applicant->get('id')],
+                                                    'style' => 'display:inline',
+                                                    'data-swal-title' => 'Nem tag',
+                                                    'data-swal-text' => 'Megjelölöd, hogy nem tag, csak kipróbálta az oldalt?',
+                                                    'data-swal-confirm' => 'Igen',
+                                                    'data-swal-cancel' => 'Mégse',
+                                                ]) ?>
+                                                    <?= $this->Form->button('Nem tag, csak kipróbálta', ['class' => 'btn btn-sm btn-danger']) ?>
+                                                <?= $this->Form->end() ?>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

@@ -52,7 +52,9 @@ class AppView extends View
         $this->loadHelper('Flash');
         $this->Html->css('flash', ['block' => true]);
         $this->Html->css('form-card', ['block' => true]);
-        if ((string)$this->getRequest()->getParam('prefix') === 'Member') {
+        $identity = $this->getRequest()->getAttribute('identity');
+        $role = $identity ? (string)($identity['role'] ?? '') : '';
+        if ((string)$this->getRequest()->getParam('prefix') === 'Member' || $role === 'new') {
             $this->Html->css('member-chrome', ['block' => true]);
         }
         $this->Html->script('confirm-question', ['block' => true]);

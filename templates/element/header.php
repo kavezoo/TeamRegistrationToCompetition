@@ -1,6 +1,6 @@
 <?php
 /**
- * Új jelentkező fejléce. A profil külön oldal, a főoldal a várakozás.
+ * Új jelentkező fejléce. Nincs oldalsáv, kereső és hamburger.
  *
  * @var \Cake\View\View $this
  */
@@ -16,12 +16,12 @@ if ($identity) {
 }
 $profileUrl = $this->Url->build(['controller' => 'Pages', 'action' => 'profile']);
 ?>
-		<header class="header-desktop">
+		<header class="header-desktop header-desktop--solo">
           <div class="section__content section__content--p30">
             <div class="container-fluid">
               <div class="header-wrap">
-                <button class="sidebar-toggle js-sidebar-toggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="main-sidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
-                <div class="header-button ms-auto">
+                <p class="header-brand mb-0">Lassúsági Pipaszívó Verseny</p>
+                <div class="header-button">
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
                       <div class="image"><?= $this->element('account_avatar', ['alt' => $accountName]) ?></div>

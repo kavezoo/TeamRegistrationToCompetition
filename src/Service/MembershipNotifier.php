@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Model\Entity\User;
 use Cake\Log\Log;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 
 /**
  * A klubelnökök e-mailben értesülnek az új felvételi kérelemről,
@@ -19,17 +18,12 @@ class MembershipNotifier
     {
         $name = User::displayName($applicant);
         $email = trim((string)($applicant->email ?? ''));
-        $url = Router::url([
-            'prefix' => 'President',
-            'controller' => 'Applicants',
-            'action' => 'index',
-        ], true);
-        $body = "Új klubjelentkező: {$name}\n";
+        $body = "Új jelentkező érkezett: {$name}\n";
         if ($email !== '') {
             $body .= "E-mail: {$email}\n";
         }
-        $body .= "\nA kérelmet itt lehet elfogadni vagy elutasítani.\n";
-        $body .= MailLinks::loginLine($url);
+        $body .= "\nA jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.\n";
+        $body .= MailLinks::loginLine(MailLinks::applicants());
 
         $presidents = TableRegistry::getTableLocator()->get('Users')->find()
             ->select(['id', 'email', 'first_name', 'last_name', 'username'])
