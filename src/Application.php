@@ -391,12 +391,12 @@ class Application extends BaseApplication
             parse_str((string)$parts['query'], $query);
         }
         if (preg_match('#\A/(member|president)/registrations/edit/(\d+)\z#', $path, $match) === 1) {
-            return [
+            return $this->appUrl([
                 'prefix' => $match[1] === 'member' ? 'Member' : 'President',
                 'controller' => 'Registrations',
                 'action' => 'edit',
                 $match[2],
-            ];
+            ]);
         }
         if (preg_match('#\A/(member|president)/registrations\z#', $path, $match) === 1) {
             $url = [
@@ -408,7 +408,7 @@ class Application extends BaseApplication
                 $url['?'] = ['competition' => (int)$query['competition']];
             }
 
-            return $url;
+            return $this->appUrl($url);
         }
         if ($path === '/member' || $path === '/member/registrations') {
             $url = [
@@ -420,16 +420,29 @@ class Application extends BaseApplication
                 $url['?'] = ['competition' => (int)$query['competition']];
             }
 
-            return $url;
+            return $this->appUrl($url);
         }
         if ($path === '/president' || $path === '/president/applicants') {
-            return [
+            return $this->appUrl([
                 'prefix' => 'President',
                 'controller' => 'Applicants',
                 'action' => 'index',
-            ];
+            ]);
         }
 
         return null;
+    }
+
+    /**
+     * A belépés a Users pluginból indul. A plugin ne maradjon a célcímen.
+     *
+     * @param array<string, mixed> $url
+     * @return array<string, mixed>
+     */
+    private function appUrl(array $url): array
+    {
+        $url['plugin'] = null;
+
+        return $url;
     }
 }
