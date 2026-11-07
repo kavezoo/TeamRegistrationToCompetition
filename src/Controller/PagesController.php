@@ -131,6 +131,8 @@ class PagesController extends AppController
         }
 
         $userId = (string)$user->get('id');
+        $deletedName = User::displayName($user);
+        $deletedEmail = trim((string)$user->get('email'));
         $connection = $users->getConnection();
         $connection->begin();
         try {
@@ -146,6 +148,8 @@ class PagesController extends AppController
 
             return $this->redirect('/');
         }
+
+        (new MembershipNotifier())->notifyDeleted($deletedName, $deletedEmail);
 
         $service = $this->request->getAttribute('authentication');
         if (is_object($service) && method_exists($service, 'clearIdentity')) {

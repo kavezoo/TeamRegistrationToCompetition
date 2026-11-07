@@ -15,15 +15,37 @@ class MembershipNotifier
 {
     public function notifyPresidents(object $applicant): void
     {
+        if (!filter_var($applicant->profile_saved ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
         $name = User::displayName($applicant);
         $email = trim((string)($applicant->email ?? ''));
         $details = "Új jelentkező érkezett: {$name}\n";
         if ($email !== '') {
             $details .= "E-mail: {$email}\n";
         }
-        $details .= "\nA jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
+        $details .= "\nA profilját elmentette. A jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
         PresidentNotice::send('Új klubjelentkező', $details, [
             [MailLinks::applicants(), 'Az új jelentkezők megtekintése'],
+        ]);
+    }
+
+    /**
+     * A jelentkező törölte a saját adatait. A lista ettől fogva nem tartalmazza.
+     */
+    public function notifyDeleted(string $name, string $email): void
+    {
+        $name = trim($name);
+        if ($name === '') {
+            $name = $email !== '' ? $email : 'Egy jelentkező';
+        }
+        $details = "{$name} törölte az adatait.\n";
+        if ($email !== '' && $email !== $name) {
+            $details .= "E-mail: {$email}\n";
+        }
+        $details .= "\nVéletlenül járt az oldalon, és a saját adatait törölte. A jelentkezők listáján már nem szerepel.";
+        PresidentNotice::send('Törölt klubjelentkezés', $details, [
+            [MailLinks::applicants(), 'A jelentkezők listája'],
         ]);
     }
 
