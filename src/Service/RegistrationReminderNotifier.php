@@ -26,7 +26,7 @@ class RegistrationReminderNotifier
 
         [$subject, $message, $html] = $this->compose($competition, $member);
         try {
-            OutgoingMail::send($to, $subject, $message, $html);
+            OutgoingMail::send($to, $subject, $message, $html, $member);
         } catch (\Throwable $exception) {
             Log::error('A nevezési emlékeztető nem ment ki: ' . $exception->getMessage());
 

@@ -45,7 +45,7 @@ class AssignmentNotifier
         ]);
 
         try {
-            OutgoingMail::send($to, 'Besoroltak egy alcsoportba', $text, $html);
+            OutgoingMail::send($to, 'Besoroltak egy alcsoportba', $text, $html, $registration->user);
         } catch (\Throwable $exception) {
             Log::error('Az alcsoport-értesítés nem ment ki: ' . $exception->getMessage());
         }

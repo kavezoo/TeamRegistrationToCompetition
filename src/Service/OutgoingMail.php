@@ -40,6 +40,8 @@ class OutgoingMail
         if ($plainDescription !== '') {
             $text .= "\n" . $plainDescription . "\n";
         }
+        $profileUrl = self::profileUrl($person);
+        $text .= "\n" . self::FOOTER . "\n" . $profileUrl . "\n";
 
         $html = '<p style="margin:0 0 16px;">' . self::escape($greeting) . '</p>';
         $html .= self::paragraphs($details);
@@ -49,7 +51,7 @@ class OutgoingMail
             $html .= '<div style="margin-top:28px;">' . $descriptionHtml . '</div>';
         }
 
-        return [$text, self::document($html)];
+        return [$text, self::document($html, $profileUrl)];
     }
 
     /**
@@ -69,9 +71,11 @@ class OutgoingMail
         if ($hint !== '') {
             $text .= "\n" . $hint . "\n";
         }
+        $profileUrl = self::profileUrl($person);
         foreach ($buttons as [$url, $label]) {
             $text .= "\n" . $label . "\n" . $url . "\n";
         }
+        $text .= "\n" . self::FOOTER . "\n" . $profileUrl . "\n";
 
         $html = '<p style="margin:0 0 16px;">' . self::escape($greeting) . '</p>';
         $html .= self::paragraphs($details);
@@ -82,12 +86,27 @@ class OutgoingMail
             $html .= '<div style="margin-top:14px;">' . self::button($url, $label) . '</div>';
         }
 
-        return [$text, self::document($html)];
+        return [$text, self::document($html, $profileUrl)];
     }
 
-    public static function send(string $to, string $subject, string $text, ?string $html = null): void
+    public static function send(string $to, string $subject, string $text, ?string $html = null, object|array|null $person = null): void
     {
         $mailer = new Mailer('default');
+        $from = $mailer->getFrom();
+        $address = is_array($from) ? (string)array_key_first($from) : '';
+        if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+            $domain = substr((string)strrchr($address, '@'), 1);
+            $mailer->setReturnPath($address);
+            $mailer->setDomain($domain);
+            // A PHP mail() borítéka különben a szerver saját címe, a Gmail ezt spamnek veszi.
+            $mailer->getTransport()->setConfig('additionalParameters', '-f' . $address);
+        }
+        $profileUrl = self::profileUrl($person);
+        if ($profileUrl !== '') {
+            $mailer->addHeaders([
+                'List-Unsubscribe' => '<' . $profileUrl . '>',
+            ]);
+        }
         $mailer->setTo($to)->setSubject($subject);
         if ($html === null) {
             $mailer->deliver($text);
@@ -103,10 +122,31 @@ class OutgoingMail
         $mailer->getTransport()->send($mailer->getMessage());
     }
 
-    private static function document(string $inner): string
+    private const FOOTER = 'Ezt a levelet az Ibafai Pipaklub küldte, mert a tagnyilvántartásban szerepelsz. A levélfajtákat a profilodon kapcsolhatod ki.';
+
+    private static function profileUrl(object|array|null $person): string
     {
-        return '<!DOCTYPE html><html><body style="margin:0;padding:16px;font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#222222;">'
+        $role = '';
+        if (is_array($person)) {
+            $role = (string)($person['role'] ?? '');
+        } elseif (is_object($person) && method_exists($person, 'get')) {
+            $role = (string)$person->get('role');
+        }
+
+        return MailLinks::ownProfile($role !== '' ? $role : null);
+    }
+
+    private static function document(string $inner, string $profileUrl): string
+    {
+        $footer = '<p style="margin:28px 0 0;font-size:13px;line-height:1.4;color:#555555;">'
+            . self::escape(self::FOOTER)
+            . ' <a href="' . self::escape($profileUrl) . '" style="color:#0b57d0;">Profil megnyitása</a>'
+            . '</p>';
+
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"></head>'
+            . '<body style="margin:0;padding:16px;font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#222222;">'
             . $inner
+            . $footer
             . '</body></html>';
     }
 

@@ -38,7 +38,7 @@ class CompetitionNotifier
 
         try {
             $users = TableRegistry::getTableLocator()->get('Users');
-            $select = ['id', 'email', 'first_name', 'last_name', 'username'];
+            $select = ['id', 'email', 'first_name', 'last_name', 'username', 'role'];
             if ($users->getSchema()->hasColumn(User::MAIL_COMPETITION)) {
                 $select[] = User::MAIL_COMPETITION;
             }
@@ -68,7 +68,7 @@ class CompetitionNotifier
                     $url,
                     $competition->descriptionHtml(),
                 );
-                OutgoingMail::send($to, 'Új verseny kiírva', $text, $html);
+                OutgoingMail::send($to, 'Új verseny kiírva', $text, $html, $member);
             } catch (\Throwable $exception) {
                 Log::error('Az új verseny értesítése nem ment ki: ' . $exception->getMessage());
             }

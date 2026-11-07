@@ -42,7 +42,7 @@ class RegistrationSignupNotifier
             ]);
 
             try {
-                OutgoingMail::send($to, $subject, $text, $html);
+                OutgoingMail::send($to, $subject, $text, $html, $user);
             } catch (\Throwable $exception) {
                 Log::error('A jelentkezési értesítés nem ment ki: ' . $exception->getMessage());
             }

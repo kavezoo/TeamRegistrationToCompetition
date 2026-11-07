@@ -107,6 +107,34 @@ class MailLinks
     }
 
     /**
+     * A saját profil, ahol a levélfajták kapcsolhatók.
+     */
+    public static function ownProfile(?string $role): string
+    {
+        return match ($role) {
+            User::ROLE_MEMBER => self::url([
+                'prefix' => 'Member',
+                'plugin' => null,
+                'controller' => 'Dashboard',
+                'action' => 'profile',
+            ]),
+            User::ROLE_PRESIDENT => self::url([
+                'prefix' => 'President',
+                'plugin' => null,
+                'controller' => 'Dashboard',
+                'action' => 'profile',
+            ]),
+            User::ROLE_ADMIN => self::url([
+                'prefix' => 'Admin',
+                'plugin' => null,
+                'controller' => 'Users',
+                'action' => 'profile',
+            ]),
+            default => self::url('/profil'),
+        };
+    }
+
+    /**
      * @param array<string, mixed>|string $url
      */
     private static function url(array|string $url): string

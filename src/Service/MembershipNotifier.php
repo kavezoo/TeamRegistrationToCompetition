@@ -69,7 +69,7 @@ class MembershipNotifier
         ], '');
 
         try {
-            OutgoingMail::send($to, 'A jelentkezésedet elfogadtuk', $text, $html);
+            OutgoingMail::send($to, 'A jelentkezésedet elfogadtuk', $text, $html, $applicant);
         } catch (\Throwable $exception) {
             Log::error('Az elfogadás értesítése nem ment ki: ' . $exception->getMessage());
         }
@@ -97,7 +97,7 @@ class MembershipNotifier
         ], '');
 
         try {
-            OutgoingMail::send($to, 'A klubelnök elutasította a jelentkezésedet', $text, $html);
+            OutgoingMail::send($to, 'A klubelnök elutasította a jelentkezésedet', $text, $html, $applicant);
         } catch (\Throwable $exception) {
             Log::error('Az elutasítás értesítése nem ment ki: ' . $exception->getMessage());
         }

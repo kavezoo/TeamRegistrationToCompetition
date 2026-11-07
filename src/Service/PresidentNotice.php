@@ -24,7 +24,7 @@ class PresidentNotice
     ): void {
         try {
             $users = TableRegistry::getTableLocator()->get('Users');
-            $select = ['id', 'email', 'first_name', 'last_name', 'username'];
+            $select = ['id', 'email', 'first_name', 'last_name', 'username', 'role'];
             if ($mailField !== null && $users->getSchema()->hasColumn($mailField)) {
                 $select[] = $mailField;
             }
@@ -54,7 +54,7 @@ class PresidentNotice
             }
             try {
                 [$text, $html] = OutgoingMail::notice($president, $details, $buttons);
-                OutgoingMail::send($to, $subject, $text, $html);
+                OutgoingMail::send($to, $subject, $text, $html, $president);
             } catch (\Throwable $exception) {
                 Log::error('A klubelnök értesítése nem ment ki: ' . $exception->getMessage());
             }
