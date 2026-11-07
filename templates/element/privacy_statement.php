@@ -10,7 +10,7 @@
 
     <h3>Milyen adatot tartunk nyilván</h3>
     <p>A Google-belépésből a vezetéknevet, a keresztnevet, az e-mail-címet, a profilképet és a fiók technikai azonosítóját. A jelszavadat nem kapjuk meg, és nem tároljuk.</p>
-    <p>A saját adatlapról a mentett nevet, valamint azt, hogy a klubtagsági kérelem folyamatban van, vagy a klubelnök jelezte, hogy az illető nem tag.</p>
+    <p>A saját adatlapról a mentett nevet, valamint azt, hogy a klubtagsági kérelem folyamatban van, vagy a klubelnök jelezte, hogy az illető nem tag. A profil mentésekor azt is rögzítjük, hogy az adatkezelési nyilatkozatot elfogadtad, és ennek az időpontját.</p>
     <p>A versenyre jelentkezésből azt, hogy melyik versenyre szól a nevezés, a kiírásban kért darabszámokat, a megjegyzést, és a csapatbesorolást, amit a klubelnök állít be.</p>
     <p>A működéshez a belépés időpontját, a fiók szerepét, a munkamenetet, valamint a kiküldött emlékeztető levél időpontját és szövegét is megőrizzük. Különleges adatot, például egészségügyi adatot nem kérünk.</p>
 

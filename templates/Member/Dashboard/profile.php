@@ -95,6 +95,7 @@ foreach ($user->social_accounts ?? [] as $account) {
                     </div>
 
                     <div class="card-footer border-top">
+                      <?= $this->element('privacy_accept') ?>
                       <div class="d-flex align-items-center flex-wrap gap-2 offset-md-2">
                         <?= $this->Form->button(
                             $this->Icon->outline('device-floppy') . ' ' . __('Save'),

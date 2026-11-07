@@ -21,6 +21,7 @@ use App\Service\MembershipNotifier;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Response;
+use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\ORM\Table;
 
@@ -212,8 +213,15 @@ class PagesController extends AppController
 
             return false;
         }
+        if (!$this->privacyAccepted()) {
+            $this->Flash->error('A mentéshez el kell fogadni az adatkezelési nyilatkozatot.');
+
+            return false;
+        }
         $user->set('profile_saved', true, ['guard' => false]);
         $user->setDirty('profile_saved', true);
+        $user->set('tos_date', DateTime::now(), ['guard' => false]);
+        $user->setDirty('tos_date', true);
         $notify = (string)$user->get('membership_request') !== 'pending';
         if ($notify) {
             $user->set('membership_request', 'pending', ['guard' => false]);
@@ -252,6 +260,11 @@ class PagesController extends AppController
         if ($reminders->getSchema()->hasColumn('sender_id')) {
             $reminders->updateAll(['sender_id' => null], ['sender_id' => $userId]);
         }
+    }
+
+    private function privacyAccepted(): bool
+    {
+        return filter_var($this->request->getData('accept_privacy'), FILTER_VALIDATE_BOOLEAN);
     }
 
     private function profileSaved(object $user): bool

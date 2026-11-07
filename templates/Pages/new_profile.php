@@ -84,6 +84,7 @@ $confirmSave = $applicationNotice . ' Mented?';
                       <?php if ($explainsApplication) : ?>
                         <p class="alert alert-warning mb-3 offset-md-2"><?= h($applicationNotice) ?></p>
                       <?php endif; ?>
+                      <?= $this->element('privacy_accept') ?>
                       <div class="d-flex align-items-center flex-wrap gap-2 offset-md-2">
                         <?= $this->Form->button(
                             $this->Icon->outline('device-floppy') . ' ' . __('Save'),
