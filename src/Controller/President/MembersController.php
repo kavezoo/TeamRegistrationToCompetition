@@ -266,24 +266,16 @@ class MembersController extends AppController
     }
 
     /**
-     * Aktív tagok, és a bejelentkezett elnök.
+     * Aktív tagok és az összes aktív elnök.
      */
     private function recipients(): \Cake\ORM\Query\SelectQuery
     {
-        $presidentId = $this->senderId();
-
         return $this->fetchTable('Users')->find()
             ->contain(User::socialAvatarContain())
             ->where([
                 'active' => true,
                 'enabled' => true,
-                'OR' => [
-                    ['role' => User::ROLE_MEMBER],
-                    [
-                        'role' => User::ROLE_PRESIDENT,
-                        'id' => $presidentId,
-                    ],
-                ],
+                'role IN' => [User::ROLE_MEMBER, User::ROLE_PRESIDENT],
             ])
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC']);
     }

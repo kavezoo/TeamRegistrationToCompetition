@@ -270,20 +270,12 @@ class MembersController extends AppController
 
     private function recipients(): \Cake\ORM\Query\SelectQuery
     {
-        $presidentId = (string)$this->identityId();
-
         return $this->fetchTable('Users')->find()
             ->contain(User::socialAvatarContain())
             ->where([
                 'active' => true,
                 'enabled' => true,
-                'OR' => [
-                    ['role' => User::ROLE_MEMBER],
-                    [
-                        'role' => User::ROLE_PRESIDENT,
-                        'id' => $presidentId,
-                    ],
-                ],
+                'role IN' => [User::ROLE_MEMBER, User::ROLE_PRESIDENT],
             ])
             ->orderBy(['first_name' => 'ASC', 'last_name' => 'ASC']);
     }
