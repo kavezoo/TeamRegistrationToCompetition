@@ -34,6 +34,7 @@ usort($rosterRows, function ($left, $right): int {
                             'competition' => $competition,
                             'registration' => $mineByCompetition[(int)$competition->id] ?? null,
                             'deleteAction' => 'delete',
+                            'deleteLabel' => 'Nem tudok a versenyen részt venni',
                         ]) ?>
                     <?php endforeach; ?>
                 <?php endif; ?>

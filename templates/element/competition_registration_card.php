@@ -6,10 +6,12 @@
  * @var \App\Model\Entity\Competition $competition
  * @var \App\Model\Entity\Registration|null $registration
  * @var string $deleteAction
+ * @var string|null $deleteLabel
  */
 use App\Model\Entity\Registration;
 
 $registration = $registration ?? null;
+$deleteLabel = $deleteLabel ?? 'Törlés';
 $closed = $competition->registrationClosed();
 $tab = 'competition-' . (int)$competition->id;
 ?>
@@ -61,7 +63,7 @@ $tab = 'competition-' . (int)$competition->id;
             ) ?>
             <?php if (!$closed) : ?>
                 <?= $this->Form->postLink(
-                    $this->Icon->outline('trash') . ' Törlés',
+                    $this->Icon->outline('trash') . ' ' . h($deleteLabel),
                     ['action' => $deleteAction, $registration->id],
                     [
                         'class' => 'btn btn-danger btn-sm',
