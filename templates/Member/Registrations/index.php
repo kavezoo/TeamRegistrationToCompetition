@@ -3,7 +3,8 @@
  * @var \App\View\AppView $this
  * @var iterable<\App\Model\Entity\Competition> $competitions
  * @var array<int, \App\Model\Entity\Registration> $mineByCompetition
- * @var iterable<\App\Model\Entity\Registration> $rows
+ * @var array<int, \App\Model\Entity\Registration> $rosterRows
+ * @var \App\Model\Entity\Competition|null $rosterCompetition
  */
 use App\Model\Entity\User;
 
@@ -16,18 +17,9 @@ if ($focusCompetition > 0) {
     );
 }
 
-$grouped = [];
-foreach ($rows as $row) {
-    $key = (string)$row->competition_id;
-    $grouped[$key]['name'] = (string)($row->competition?->name ?? 'Verseny');
-    $grouped[$key]['rows'][] = $row;
-}
-foreach ($grouped as $key => $group) {
-    usort($group['rows'], function ($left, $right): int {
-        return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
-    });
-    $grouped[$key] = $group;
-}
+usort($rosterRows, function ($left, $right): int {
+    return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
+});
 ?>
 <div class="row" style="margin-top: 16px;">
     <div class="col-12">
@@ -50,38 +42,34 @@ foreach ($grouped as $key => $group) {
     </div>
 </div>
 
-<div class="row" style="margin-top: 16px;">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header"><strong>Jelentkezők</strong></div>
-            <div class="card-body">
-                <?php if ($grouped === []) : ?>
-                    <p>Még nincs jelentkező.</p>
-                <?php else : ?>
-                    <?php foreach ($grouped as $group) : ?>
-                        <h2 class="h5"><?= h($group['name']) ?></h2>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-striped">
-                                <thead>
+<?php if ($rosterCompetition !== null && $rosterRows !== []) : ?>
+    <div class="row" style="margin-top: 16px;">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header"><strong>Jelentkezők</strong></div>
+                <div class="card-body">
+                    <h2 class="h5"><?= h($rosterCompetition->name) ?></h2>
+                    <div class="table-responsive mb-0">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Név</th>
+                                    <th>Alcsapat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($rosterRows as $registration) : ?>
                                     <tr>
-                                        <th>Név</th>
-                                        <th>Alcsapat</th>
+                                        <td><?= h(User::displayName($registration->user)) ?></td>
+                                        <?php $teamName = trim((string)($registration->team?->name ?? '')); ?>
+                                        <td><?= h($teamName !== '' ? $teamName : 'Nincs besorolva') ?></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($group['rows'] as $registration) : ?>
-                                        <tr>
-                                            <td><?= h(User::displayName($registration->user)) ?></td>
-                                            <?php $teamName = trim((string)($registration->team?->name ?? '')); ?>
-                                            <td><?= h($teamName !== '' ? $teamName : 'Nincs besorolva') ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+<?php endif; ?>

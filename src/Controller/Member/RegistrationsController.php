@@ -47,7 +47,65 @@ class RegistrationsController extends AppController
             ->orderBy(['Competitions.date_from' => 'ASC', 'Competitions.name' => 'ASC'])
             ->all();
 
-        $this->set(compact('rows', 'competitions', 'mineByCompetition'));
+        $rosterRows = [];
+        $rosterCompetition = $this->currentRosterCompetition($competitions);
+        if (
+            $rosterCompetition !== null
+            && isset($mineByCompetition[(int)$rosterCompetition->id])
+        ) {
+            foreach ($rows as $row) {
+                if ((int)$row->competition_id === (int)$rosterCompetition->id) {
+                    $rosterRows[] = $row;
+                }
+            }
+        }
+
+        $this->set(compact('rosterRows', 'rosterCompetition', 'competitions', 'mineByCompetition'));
+    }
+
+    /**
+     * A legközelebbi látható verseny, aminek az ideje még nem múlt el.
+     *
+     * @param iterable<\App\Model\Entity\Competition> $competitions
+     */
+    private function currentRosterCompetition(iterable $competitions): ?Competition
+    {
+        $current = null;
+        foreach ($competitions as $competition) {
+            if (!$competition->visible) {
+                continue;
+            }
+            if ($competition->date_competition !== null && $competition->date_competition->isPast()) {
+                continue;
+            }
+            $current = $this->soonerCompetition($current, $competition);
+        }
+
+        return $current;
+    }
+
+    /**
+     * A közelebbi versenyidő az aktuális. Dátum nélkül a frissebben mentett marad.
+     */
+    private function soonerCompetition(?Competition $current, Competition $candidate): Competition
+    {
+        if ($current === null) {
+            return $candidate;
+        }
+        $currentWhen = $current->date_competition;
+        $candidateWhen = $candidate->date_competition;
+        if ($candidateWhen !== null && ($currentWhen === null || $candidateWhen < $currentWhen)) {
+            return $candidate;
+        }
+        if ($candidateWhen === null && $currentWhen === null) {
+            $currentCreated = $current->created;
+            $candidateCreated = $candidate->created;
+            if ($candidateCreated !== null && ($currentCreated === null || $candidateCreated > $currentCreated)) {
+                return $candidate;
+            }
+        }
+
+        return $current;
     }
 
     /**
