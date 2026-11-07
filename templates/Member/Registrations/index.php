@@ -19,8 +19,14 @@ if ($focusCompetition > 0) {
 $grouped = [];
 foreach ($rows as $row) {
     $key = (string)$row->competition_id;
-    $grouped[$key]['name'] = (string)$row->competition->name;
+    $grouped[$key]['name'] = (string)($row->competition?->name ?? 'Verseny');
     $grouped[$key]['rows'][] = $row;
+}
+foreach ($grouped as $key => $group) {
+    usort($group['rows'], function ($left, $right): int {
+        return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
+    });
+    $grouped[$key] = $group;
 }
 ?>
 <div class="row" style="margin-top: 16px;">
@@ -66,7 +72,8 @@ foreach ($rows as $row) {
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
                                             <td><?= h(User::displayName($registration->user)) ?></td>
-                                            <td><?= h($registration->team?->name ?? 'Nincs besorolva') ?></td>
+                                            <?php $teamName = trim((string)($registration->team?->name ?? '')); ?>
+                                            <td><?= h($teamName !== '' ? $teamName : 'Nincs besorolva') ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

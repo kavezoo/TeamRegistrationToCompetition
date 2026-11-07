@@ -58,9 +58,11 @@ class RegistrationsTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'LEFT',
         ]);
+        // A select stratégia nem szűri ki a team_id nélküli nevezést.
         $this->belongsTo('Teams', [
             'foreignKey' => 'team_id',
             'joinType' => 'LEFT',
+            'strategy' => 'select',
         ]);
         $this->belongsTo('Competitions', [
             'foreignKey' => 'competition_id',
