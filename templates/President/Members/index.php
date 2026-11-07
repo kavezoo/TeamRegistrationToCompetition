@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Competition|null $competition
  * @var array<int, \App\Model\Entity\User> $members
+ * @var \Cake\Datasource\Paging\PaginatedInterface $membersPage
  * @var array<string, true> $registered
  * @var array<string, array<int, \App\Model\Entity\RegistrationReminder>> $history
  * @var int $missing
@@ -114,6 +115,7 @@ $pageQuery = $page > 1 ? ['page' => $page] : [];
             </div>
             <?php if ($members !== []) : ?>
                 <div class="card-footer border-top d-flex align-items-center justify-content-between">
+                    <?php $this->Paginator->setPaginated($membersPage); ?>
                     <?= $this->element('JeffAdmin.pagination') ?>
                 </div>
             <?php endif; ?>

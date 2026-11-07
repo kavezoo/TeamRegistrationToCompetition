@@ -17,10 +17,9 @@ class MembersController extends AppController
             'limit' => 100,
             'maxLimit' => 100,
         ]);
-        $members = [];
-        foreach ($membersPage as $member) {
+        $members = $membersPage->items()->toList();
+        foreach ($members as $member) {
             User::publishAvatar($member);
-            $members[] = $member;
         }
 
         $registered = [];
