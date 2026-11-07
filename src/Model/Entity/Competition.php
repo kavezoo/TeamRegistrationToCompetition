@@ -21,6 +21,8 @@ use Cake\ORM\Entity;
  * @property string $comment
  * @property \Cake\I18n\Date $date_from
  * @property \Cake\I18n\Date $date_deadline
+ * @property \Cake\I18n\DateTime|null $date_competition
+ * @property string|null $map_url
  * @property string|null $description
  * @property int|null $registration_count
  * @property bool $visible
@@ -54,6 +56,8 @@ class Competition extends Entity
         'comment' => true,
         'date_from' => true,
         'date_deadline' => true,
+        'date_competition' => true,
+        'map_url' => true,
         'description' => true,
         'registration_count' => true,
         'visible' => true,
@@ -69,6 +73,19 @@ class Competition extends Entity
     public function registrationClosed(): bool
     {
         return $this->date_deadline !== null && $this->date_deadline->isPast();
+    }
+
+    /**
+     * Csak http és https cím nyitható meg új lapon.
+     */
+    public function mapUrl(): ?string
+    {
+        $url = trim((string)$this->map_url);
+        if (preg_match('#\Ahttps?://#i', $url) !== 1) {
+            return null;
+        }
+
+        return $url;
     }
 
     /**

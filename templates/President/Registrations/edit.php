@@ -36,6 +36,7 @@ $this->assign('title', 'Jelentkezés');
                     <div class="card-body form-card-body">
                       <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-basic" role="tabpanel" aria-labelledby="tab-basic-btn" tabindex="0">
+                          <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
                           <?php foreach (Registration::TITLED_COUNTS as $titleField => $countField) : ?>
                             <?php $title = trim((string)$competition->get($titleField)); ?>
                             <?php if ($title === '') {

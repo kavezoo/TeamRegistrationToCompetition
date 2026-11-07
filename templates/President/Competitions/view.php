@@ -18,10 +18,7 @@ $this->assign('title', $competition->name);
                 </span>
             </div>
             <div class="card-body">
-                <p>
-                    Időpont: <?= h((string)$competition->date_from) ?><br>
-                    Nevezési határidő: <?= h((string)$competition->date_deadline) ?>
-                </p>
+                <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
                 <?= $this->element('competition_description', ['competition' => $competition]) ?>
                 <h2 class="h5">Jelentkezők</h2>
                 <?php if ($teams === []) : ?>

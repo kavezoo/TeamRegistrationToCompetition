@@ -152,7 +152,13 @@ msgid "Date Deadline"
 msgstr "Nevezési határidő"
 
 msgid "Date From"
-msgstr "Időpont"
+msgstr "Jelentkezés kezdete"
+
+msgid "Date Competition"
+msgstr "Verseny ideje"
+
+msgid "Map Url"
+msgstr "Helyszín"
 
 msgid "Delete"
 msgstr "Törlés"

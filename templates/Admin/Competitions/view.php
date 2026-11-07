@@ -80,6 +80,7 @@ $relatedLocal = [
                               <?= $this->Input->control('name', ['class' => 'form-control', 'disabled' => true]) ?>
                             </div>
                           </div>
+                          <?= $this->element('competition_schedule_fields', ['competition' => $competition, 'disabled' => true]) ?>
                           <div class="row mb-3">
                             <div class="col-12 col-md-2 text-start text-md-end">
                               <?= $this->Form->label('lunch_title', __('Lunch Title') . ':', ['class' => 'form-control-label fw-bold']) ?>
@@ -150,22 +151,6 @@ $relatedLocal = [
                             </div>
                             <div class="col-12 col-md-9">
                               <?= $this->Input->control('comment', ['class' => 'form-control', 'disabled' => true]) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('date_from', __('Date From') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->date('date_from', ['disabled' => true]) ?>
-                            </div>
-                          </div>
-                          <div class="row mb-3">
-                            <div class="col-12 col-md-2 text-start text-md-end">
-                              <?= $this->Form->label('date_deadline', __('Date Deadline') . ':', ['class' => 'form-control-label fw-bold']) ?>
-                            </div>
-                            <div class="col-12 col-md-9">
-                              <?= $this->Input->date('date_deadline', ['disabled' => true]) ?>
                             </div>
                           </div>
                         </div>

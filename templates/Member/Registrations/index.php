@@ -32,9 +32,7 @@ foreach ($rows as $row) {
                         ?>
                         <div class="border rounded p-3 mb-3">
                             <h2 class="h5 mb-1"><?= h($competition->name) ?></h2>
-                            <p class="text-muted mb-2">
-                                <?= h($competition->date_from) ?> – jelentkezési határidő: <?= h($competition->date_deadline) ?>
-                            </p>
+                            <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
                             <?= $this->element('competition_description', ['competition' => $competition]) ?>
                             <?php if ($registration !== null) : ?>
                                 <ul class="list-unstyled mb-2">

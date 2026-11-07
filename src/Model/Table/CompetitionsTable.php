@@ -114,6 +114,10 @@ class CompetitionsTable extends Table
             ->notEmptyString('comment');
 
         $validator
+            ->dateTime('date_competition')
+            ->allowEmptyDateTime('date_competition');
+
+        $validator
             ->date('date_from')
             ->requirePresence('date_from', 'create')
             ->notEmptyDate('date_from');
@@ -122,6 +126,21 @@ class CompetitionsTable extends Table
             ->date('date_deadline')
             ->requirePresence('date_deadline', 'create')
             ->notEmptyDate('date_deadline');
+
+        $validator
+            ->scalar('map_url')
+            ->maxLength('map_url', 2000)
+            ->allowEmptyString('map_url')
+            ->add('map_url', 'httpUrl', [
+                'rule' => function ($value): bool {
+                    if ($value === null || $value === '') {
+                        return true;
+                    }
+
+                    return preg_match('#\Ahttps?://#i', (string)$value) === 1;
+                },
+                'message' => 'A térkép címe http vagy https legyen.',
+            ]);
 
         $validator
             ->scalar('description')

@@ -12,6 +12,7 @@ $grouped = [];
 foreach ($rows as $row) {
     $key = (string)$row->competition_id;
     $grouped[$key]['name'] = (string)($row->competition->name ?? 'Verseny');
+    $grouped[$key]['competition'] = $row->competition;
     $grouped[$key]['rows'][] = $row;
 }
 foreach ($grouped as $key => $group) {
@@ -34,6 +35,9 @@ foreach ($grouped as $key => $group) {
                     <?php endif; ?>
                     <?php foreach ($grouped as $group) : ?>
                         <h2 class="h5"><?= h($group['name']) ?></h2>
+                        <?php if ($group['competition'] !== null) : ?>
+                            <?= $this->element('competition_schedule', ['competition' => $group['competition']]) ?>
+                        <?php endif; ?>
                         <div class="table-responsive mb-4">
                             <table class="table table-striped align-middle">
                                 <thead>

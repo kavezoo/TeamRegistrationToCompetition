@@ -135,8 +135,10 @@ if ($rowDblClick !== 'none') {
 <?php /*
                               <th class="string"><?= $this->Paginator->sort('comment') ?></th>
 */ ?>
-                              <th class="date"><?= $this->Paginator->sort('date_from') ?></th>
-                              <th class="date"><?= $this->Paginator->sort('date_deadline') ?></th>
+                              <th class="datetime"><?= $this->Paginator->sort('date_competition', 'Verseny ideje') ?></th>
+                              <th class="date"><?= $this->Paginator->sort('date_from', 'Jelentkezés kezdete') ?></th>
+                              <th class="date"><?= $this->Paginator->sort('date_deadline', 'Jelentkezési határidő') ?></th>
+                              <th>Helyszín</th>
 
 <?php if (!empty($show['counts'])) : ?>
 <?php     foreach ($countColumns as $countKey => $countLabel) : ?>
@@ -230,8 +232,13 @@ if ($rowDblClick !== 'none') {
 <?php /*
                               <td class="string"><?= h($competition->comment) ?></td>
 */ ?>
+                              <td class="datetime"><?= $this->Input->formatDatetime($competition->date_competition) ?></td>
                               <td class="date"><?= $this->Input->formatDate($competition->date_from) ?></td>
                               <td class="date"><?= $this->Input->formatDate($competition->date_deadline) ?></td>
+                              <td>
+                                <?php $map = $competition->mapUrl(); ?>
+                                <?= $map === null ? '' : $this->Html->link('Térkép', $map, ['target' => '_blank', 'rel' => 'noopener noreferrer']) ?>
+                              </td>
 <?php if (!empty($show['counts'])) : ?>
 <?php     foreach ($countColumns as $countKey => $countLabel) :
         $countVal = $competition->get($countKey) ?? 0;

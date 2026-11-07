@@ -33,8 +33,10 @@ foreach ($namesByCompetition as $competitionId => $names) {
                             <thead>
                                 <tr>
                                     <th>Név</th>
-                                    <th>Időpont</th>
+                                    <th>Verseny ideje</th>
+                                    <th>Jelentkezés kezdete</th>
                                     <th>Nevezési határidő</th>
+                                    <th>Helyszín</th>
                                     <th>Nevezők</th>
                                     <th></th>
                                 </tr>
@@ -43,8 +45,13 @@ foreach ($namesByCompetition as $competitionId => $names) {
                                 <?php foreach ($competitions as $competition) : ?>
                                     <tr>
                                         <td><?= h($competition->name) ?></td>
-                                        <td><?= h((string)$competition->date_from) ?></td>
-                                        <td><?= h((string)$competition->date_deadline) ?></td>
+                                        <td><?= $this->Input->formatDatetime($competition->date_competition) ?></td>
+                                        <td><?= $this->Input->formatDate($competition->date_from) ?></td>
+                                        <td><?= $this->Input->formatDate($competition->date_deadline) ?></td>
+                                        <td>
+                                            <?php $map = $competition->mapUrl(); ?>
+                                            <?= $map === null ? '' : $this->Html->link('Térkép', $map, ['target' => '_blank', 'rel' => 'noopener noreferrer']) ?>
+                                        </td>
                                         <td>
                                             <?php $names = $namesByCompetition[(int)$competition->id] ?? []; ?>
                                             <?php if ($names === []) : ?>
