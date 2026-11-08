@@ -220,6 +220,13 @@ return [
             'controller' => 'Auth',
             'action' => ['logout', 'logoutAll', 'me'],
         ],
+        [
+            'role' => 'member',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Users',
+            'action' => ['deleteAccount'],
+        ],
         // A klubelnök a webes felületével megegyezően kezeli a versenyeket, alcsapatokat és a nevezéseket.
         [
             'role' => 'president',
@@ -255,7 +262,7 @@ return [
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Users',
-            'action' => 'enabled',
+            'action' => ['enabled', 'role', 'deleteAccount'],
         ],
         [
             'role' => 'president',

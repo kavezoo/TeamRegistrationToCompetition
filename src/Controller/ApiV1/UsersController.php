@@ -49,7 +49,7 @@ class UsersController extends AppController
     }
 
     /**
-     * Az új jelentkező törli a saját adatait. A webes munkamenetet is lezárja, ha van.
+     * A bejelentkezett felhasználó törli a saját fiókját és minden hozzá tartozó adatot.
      */
     public function deleteAccount(): void
     {
@@ -59,11 +59,6 @@ class UsersController extends AppController
             throw new UnauthorizedException('Bejelentkezés szükséges.');
         }
         $user = $this->Users->get($id);
-        if ((string)$user->get('role') !== User::ROLE_NEW) {
-            $this->respondForbidden('Az adatok törlése csak új jelentkezőnek érhető el.');
-
-            return;
-        }
         $deletedName = User::displayName($user);
         $deletedEmail = trim((string)$user->get('email'));
         $connection = $this->Users->getConnection();
@@ -76,7 +71,7 @@ class UsersController extends AppController
             $connection->commit();
         } catch (\Throwable $exception) {
             $connection->rollback();
-            Log::error('Az új jelentkező adatait nem sikerült törölni: ' . $exception->getMessage());
+            Log::error('A felhasználó adatait nem sikerült törölni: ' . $exception->getMessage());
             $this->response = $this->response->withStatus(500);
             $this->set([
                 'success' => false,
@@ -97,6 +92,69 @@ class UsersController extends AppController
         $this->set([
             'success' => true,
             'message' => 'Az adataid törölve lettek.',
+        ]);
+    }
+
+    /**
+     * A klubelnök tagot elnökké nevez, vagy az elnököt visszaállítja taggá.
+     */
+    public function role(string $id): void
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        if (!$this->isManager()) {
+            $this->respondForbidden('Ehhez nincs jogosultságod.');
+
+            return;
+        }
+        $role = (string)$this->request->getData('role');
+        if (!in_array($role, [User::ROLE_MEMBER, User::ROLE_PRESIDENT], true)) {
+            $this->response = $this->response->withStatus(422);
+            $this->set([
+                'success' => false,
+                'message' => 'A szerep tag vagy klubelnök lehet.',
+            ]);
+
+            return;
+        }
+        if ($id === $this->identityId()) {
+            $this->response = $this->response->withStatus(422);
+            $this->set([
+                'success' => false,
+                'message' => 'A saját szereped nem változtatható itt.',
+            ]);
+
+            return;
+        }
+        try {
+            $user = $this->Users->get($id);
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException) {
+            $this->respondNotFound('Nincs ilyen felhasználó.');
+
+            return;
+        }
+        $current = (string)$user->get('role');
+        if (
+            !empty($user->get('is_superuser'))
+            || !in_array($current, [User::ROLE_MEMBER, User::ROLE_PRESIDENT], true)
+        ) {
+            $this->respondForbidden('Ennek a felhasználónak a szerepe nem módosítható.');
+
+            return;
+        }
+        $user->set('role', $role, ['guard' => false]);
+        $user->setDirty('role', true);
+        if (!$this->Users->save($user)) {
+            $this->respondValidationError($user);
+
+            return;
+        }
+        $this->set([
+            'success' => true,
+            'user' => [
+                'id' => $user->get('id'),
+                'name' => User::displayName($user),
+                'role' => $user->get('role'),
+            ],
         ]);
     }
 
@@ -202,6 +260,20 @@ class UsersController extends AppController
 
     private function deleteOwnedRows(Table $users, string $userId): void
     {
+        $reminders = $this->fetchTable('RegistrationReminders');
+        if ($reminders->getSchema()->hasColumn('user_id')) {
+            $reminders->deleteAll(['user_id' => $userId]);
+        }
+        if ($reminders->getSchema()->hasColumn('sender_id')) {
+            $reminders->deleteAll(['sender_id' => $userId]);
+        }
+        try {
+            $sessions = $this->fetchTable('MobileSessions');
+            if ($sessions->getSchema()->hasColumn('user_id')) {
+                $sessions->deleteAll(['user_id' => $userId]);
+            }
+        } catch (\Throwable) {
+        }
         foreach (['SocialAccounts', 'FailedPasswordAttempts', 'Registrations'] as $name) {
             if (!$users->hasAssociation($name)) {
                 continue;
@@ -211,21 +283,6 @@ class UsersController extends AppController
                 continue;
             }
             $table->deleteAll(['user_id' => $userId]);
-        }
-
-        $reminders = $this->fetchTable('RegistrationReminders');
-        if ($reminders->getSchema()->hasColumn('user_id')) {
-            $reminders->deleteAll(['user_id' => $userId]);
-        }
-        if ($reminders->getSchema()->hasColumn('sender_id')) {
-            $reminders->updateAll(['sender_id' => null], ['sender_id' => $userId]);
-        }
-        try {
-            $sessions = $this->fetchTable('MobileSessions');
-            if ($sessions->getSchema()->hasColumn('user_id')) {
-                $sessions->deleteAll(['user_id' => $userId]);
-            }
-        } catch (\Throwable) {
         }
     }
 

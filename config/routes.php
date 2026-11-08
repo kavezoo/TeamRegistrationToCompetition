@@ -142,6 +142,10 @@ return function (RouteBuilder $routes): void {
         $builder->resources('Competitions');
         $builder->resources('Registrations');
         $builder->resources('Teams');
+        $builder->connect('/users/{id}/role', [
+            'controller' => 'Users',
+            'action' => 'role',
+        ])->setPass(['id'])->setMethods(['PATCH', 'PUT', 'POST']);
         $builder->connect('/users/{id}/enabled', [
             'controller' => 'Users',
             'action' => 'enabled',
