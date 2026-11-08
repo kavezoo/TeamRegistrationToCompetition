@@ -75,6 +75,31 @@ class RegistrationSignupNotifier
         ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''), User::MAIL_PRESIDENT_ENTRIES, 'roster');
     }
 
+    /**
+     * Határidő után a nevezés megmarad, de a klubelnök látja, hogy a tag nem tud jönni.
+     */
+    public function notifyPresidentsAbsent(object $registration): void
+    {
+        $user = $registration->user ?? null;
+        $name = User::displayName($user);
+        $competition = trim((string)($registration->competition->name ?? ''));
+        $reason = trim((string)($registration->absent_reason ?? ''));
+        $details = "Valaki jelezte, hogy nem tud eljönni a versenyre.\n";
+        if ($name !== '') {
+            $details .= "\nNév: {$name}";
+        }
+        if ($competition !== '') {
+            $details .= "\nVerseny: {$competition}";
+        }
+        if ($reason !== '') {
+            $details .= "\nIndok: {$reason}";
+        }
+        $subject = $competition !== '' ? 'Nem tud eljönni: ' . $competition : 'Nem tud eljönni a versenyre';
+        PresidentNotice::send($subject, $details, [
+            [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
+        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''), User::MAIL_PRESIDENT_ENTRIES, 'roster');
+    }
+
     private function notifyPresidentsSignedUp(object $registration): void
     {
         $user = $registration->user ?? null;

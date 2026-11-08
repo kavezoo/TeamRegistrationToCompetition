@@ -48,7 +48,7 @@ class CompetitionsController extends AppController
         }
         $query = $this->Competitions->find()->orderBy(['date_from' => 'ASC', 'name' => 'ASC']);
         $this->hideFinished($query);
-        if ($this->role() === User::ROLE_MEMBER) {
+        if ($this->currentRole() === User::ROLE_MEMBER) {
             $this->hideNotYetListed($query);
             $this->limitMemberList($query);
         }
@@ -76,7 +76,7 @@ class CompetitionsController extends AppController
                 'Competitions.date_competition <' => \Cake\I18n\DateTime::now(),
             ])
             ->orderBy(['Competitions.date_competition' => 'DESC', 'Competitions.name' => 'ASC']);
-        if ($this->role() === User::ROLE_MEMBER) {
+        if ($this->currentRole() === User::ROLE_MEMBER) {
             $this->limitMemberList($query);
         }
         $competitions = $this->paginate($query);
@@ -102,7 +102,7 @@ class CompetitionsController extends AppController
                 }
             }
         }
-        if ($this->role() === User::ROLE_MEMBER && !$this->memberCanSee((int)$competition->id, (bool)$competition->visible)) {
+        if ($this->currentRole() === User::ROLE_MEMBER && !$this->memberCanSee((int)$competition->id, (bool)$competition->visible)) {
             $this->respondNotFound('A verseny nem található.');
 
             return;
@@ -140,7 +140,7 @@ class CompetitionsController extends AppController
     public function delete(string|int|null $id = null): void
     {
         $this->request->allowMethod(['delete']);
-        if ($this->role() !== User::ROLE_ADMIN) {
+        if ($this->currentRole() !== User::ROLE_ADMIN) {
             $this->respondForbidden('A versenyt csak admin törölheti.');
 
             return;
@@ -201,7 +201,7 @@ class CompetitionsController extends AppController
 
     private function canRead(): bool
     {
-        return in_array($this->role(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT, User::ROLE_MEMBER], true);
+        return in_array($this->currentRole(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT, User::ROLE_MEMBER], true);
     }
 
     private function limitMemberList(SelectQuery $query): void
@@ -249,7 +249,7 @@ class CompetitionsController extends AppController
      */
     private function viewContain(): array
     {
-        if ($this->role() !== User::ROLE_PRESIDENT && $this->role() !== User::ROLE_ADMIN) {
+        if ($this->currentRole() !== User::ROLE_PRESIDENT && $this->currentRole() !== User::ROLE_ADMIN) {
             return [];
         }
 

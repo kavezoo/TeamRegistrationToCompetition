@@ -74,3 +74,19 @@ $dateField = static function (string $field, string $pattern) use ($dateOptions,
         <?php endif; ?>
     </div>
 </div>
+<div class="row mb-3">
+    <div class="col-12 col-md-2 text-start text-md-end">
+        <?= $this->Form->label('info_url', 'A leírás linkje:', ['class' => 'form-control-label fw-bold']) ?>
+    </div>
+    <div class="col-12 col-md-9">
+        <?= $this->Input->control('info_url', [
+            'type' => 'text',
+            'class' => 'form-control',
+            'maxlength' => 2000,
+            'placeholder' => 'https://pipaclub.hu/...',
+            'autocomplete' => 'off',
+            'disabled' => $disabled,
+        ]) ?>
+        <div class="form-text">Ezt nyitja meg „A verseny leírása”.</div>
+    </div>
+</div>

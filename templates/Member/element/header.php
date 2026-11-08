@@ -16,6 +16,7 @@ if ($identity) {
 }
 $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboard', 'action' => 'profile']);
 $messagesUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Messages', 'action' => 'index']);
+$broadcastsUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Broadcasts', 'action' => 'index']);
 ?>
 		<header class="header-desktop header-desktop--solo">
           <div class="section__content section__content--p30">
@@ -24,6 +25,7 @@ $messagesUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Message
                 <p class="header-brand mb-0">Lassúsági Pipaszívó Verseny</p>
                 <div class="header-button">
                   <a class="btn btn-outline-secondary btn-sm" href="<?= h($messagesUrl) ?>">Üzenetek</a>
+                  <a class="btn btn-outline-secondary btn-sm" href="<?= h($broadcastsUrl) ?>">Mindenkinek</a>
                   <button type="button" class="btn btn-outline-secondary btn-sm privacy-notice-btn" data-bs-toggle="modal" data-bs-target="#privacy-notice-modal">Adatkezelési nyilatkozat</button>
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
@@ -42,6 +44,7 @@ $messagesUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Message
                         </div>
                         <div class="account-dropdown__body">
                           <div class="account-dropdown__item"><a href="<?= h($messagesUrl) ?>"><i class="fa-solid fa-comment-dots"></i>Üzenetek</a></div>
+                          <div class="account-dropdown__item"><a href="<?= h($broadcastsUrl) ?>"><i class="fa-solid fa-bullhorn"></i>Mindenkinek</a></div>
                           <div class="account-dropdown__item"><a href="<?= h($profileUrl) ?>"><i class="fa-solid fa-user"></i>Profil</a></div>
                         </div>
                         <div class="account-dropdown__footer"><a href="<?= $this->Url->build('/logout') ?>"><i class="fa-solid fa-power-off"></i>Kijelentkezés</a></div>

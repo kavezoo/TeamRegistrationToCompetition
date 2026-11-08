@@ -32,6 +32,9 @@ $closed = $competition->registrationClosed();
                         <li>Megjegyzés: <strong><?= h($registration->comment) ?></strong></li>
                     <?php endif; ?>
                     <li>Alcsapat: <strong><?= h($registration->team?->name ?? 'Nincs besorolva') ?></strong></li>
+                    <?php if ($registration->isAbsent()) : ?>
+                        <li><?= $this->element('registration_absence_note', ['registration' => $registration]) ?></li>
+                    <?php endif; ?>
                 </ul>
             <?php elseif ($closed || !(bool)$competition->visible) : ?>
                 <p class="mb-0">A jelentkezés lezárult.</p>
@@ -60,6 +63,12 @@ $closed = $competition->registrationClosed();
                 ) ?>
             <?php endif; ?>
         </div>
+        <?php if ($closed) : ?>
+            <?= $this->element('registration_absence_form', [
+                'registration' => $registration,
+                'action' => 'absent',
+            ]) ?>
+        <?php endif; ?>
     <?php elseif (!$closed && (bool)$competition->visible) : ?>
         <div class="mt-3">
             <?= $this->Form->create(null, [

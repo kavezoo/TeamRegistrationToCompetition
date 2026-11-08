@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use ArrayObject;
+use Cake\Event\EventInterface;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -51,6 +53,47 @@ class CompetitionsTable extends Table
             'foreignKey' => 'competition_id',
             // 'dependent' => true, // Kaszkád törlés: a kapcsolt rekordok is törlődnek (kapcsold be, ha kell)
         ]);
+    }
+
+    /**
+     * A naptár magyar szövege (2026. 11. 07.) ne essen szét mentéskor.
+     *
+     * @param \Cake\Event\EventInterface $event
+     * @param \ArrayObject<string, mixed> $data
+     * @param \ArrayObject<string, mixed> $options
+     */
+    public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options): void
+    {
+        foreach (['date_from', 'date_deadline', 'date_competition'] as $field) {
+            if (!isset($data[$field]) || !is_string($data[$field])) {
+                continue;
+            }
+            $iso = $this->hungarianDate($data[$field]);
+            if ($iso !== null) {
+                $data[$field] = $iso;
+            }
+        }
+    }
+
+    /**
+     * 2026. 11. 07. vagy 2026. 11. 15. 02:00 → 2026-11-07 / 2026-11-15 02:00:00.
+     */
+    private function hungarianDate(string $value): ?string
+    {
+        $value = trim($value);
+        if (preg_match(
+            '/\A(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?\z/',
+            $value,
+            $match,
+        ) !== 1) {
+            return null;
+        }
+        $date = sprintf('%04d-%02d-%02d', (int)$match[1], (int)$match[2], (int)$match[3]);
+        if (!isset($match[4]) || $match[4] === '') {
+            return $date;
+        }
+
+        return $date . sprintf(' %02d:%02d:%02d', (int)$match[4], (int)$match[5], (int)($match[6] ?? 0));
     }
 
     /**

@@ -63,7 +63,10 @@ if ($focusCompetition > 0) {
                                 <tbody>
                                     <?php foreach ($rosterRows as $registration) : ?>
                                         <tr>
-                                            <td><?= h(User::displayName($registration->user)) ?></td>
+                                            <td>
+                                                <?= h(User::displayName($registration->user)) ?>
+                                                <?= $this->element('registration_absence_note', ['registration' => $registration]) ?>
+                                            </td>
                                             <?php $teamName = trim((string)($registration->team?->name ?? '')); ?>
                                             <td><?= h($teamName !== '' ? $teamName : 'Nincs besorolva') ?></td>
                                         </tr>

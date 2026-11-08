@@ -88,7 +88,7 @@ class AppController extends BaseController
         ]);
     }
 
-    protected function role(): string
+    protected function currentRole(): string
     {
         $identity = $this->request->getAttribute('identity');
         if ($identity === null) {
@@ -117,7 +117,7 @@ class AppController extends BaseController
 
     protected function isManager(): bool
     {
-        return in_array($this->role(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT], true);
+        return in_array($this->currentRole(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT], true);
     }
 
     /**

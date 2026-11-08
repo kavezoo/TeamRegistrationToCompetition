@@ -21,6 +21,8 @@ use Cake\ORM\Entity;
  * @property int $extra_count_2
  * @property int $extra_count_3
  * @property string|null $comment
+ * @property bool $absent
+ * @property string|null $absent_reason
  * @property bool $visible
  * @property int $pos
  * @property \Cake\I18n\DateTime $created
@@ -70,6 +72,8 @@ class Registration extends Entity
         'extra_count_2' => true,
         'extra_count_3' => true,
         'comment' => true,
+        'absent' => true,
+        'absent_reason' => true,
         'visible' => true,
         'pos' => true,
         'created' => true,
@@ -78,6 +82,16 @@ class Registration extends Entity
         'team' => true,
         'competition' => true,
     ];
+
+    public function isAbsent(): bool
+    {
+        return filter_var($this->get('absent'), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function absenceReason(): string
+    {
+        return trim((string)$this->get('absent_reason'));
+    }
 
     /**
      * Besoroltak a csoport sorrendjében, azon belül név szerint.

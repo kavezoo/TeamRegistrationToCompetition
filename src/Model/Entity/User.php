@@ -308,7 +308,7 @@ class User extends Entity
         $reminder = 'Telefonos emlékeztető, ha még nem jelentkeztem egy versenyre';
         $applicants = 'Telefonos üzenet az új és a törölt klubjelentkezőkről';
         $entries = 'Telefonos üzenet, ha valaki jelentkezik egy versenyre vagy lemondja';
-        $message = 'Egyedi üzenet a telefonra a klubelnöktől';
+        // A klubüzenet (flash_message) mindig kimegy; nincs kapcsoló hozzá.
 
         return match ($role) {
             self::ROLE_NEW => [
@@ -319,14 +319,12 @@ class User extends Entity
                 self::FLASH_ASSIGNMENT => $assignment,
                 self::FLASH_COMPETITION => $competition,
                 self::FLASH_REMINDER => $reminder,
-                self::FLASH_MESSAGE => $message,
             ],
             self::ROLE_PRESIDENT => [
                 self::FLASH_APPLICANTS => $applicants,
                 self::FLASH_PRESIDENT_ENTRIES => $entries,
                 self::FLASH_SIGNUP => $signup,
                 self::FLASH_ASSIGNMENT => $assignment,
-                self::FLASH_MESSAGE => $message,
             ],
             self::ROLE_ADMIN => [
                 self::FLASH_MEMBERSHIP => $membership,
@@ -367,7 +365,7 @@ class User extends Entity
             return false;
         }
         $value = is_array($user) ? ($user[$field] ?? null) : $user->get($field);
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return true;
         }
 

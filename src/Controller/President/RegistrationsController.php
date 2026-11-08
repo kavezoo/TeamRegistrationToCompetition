@@ -176,6 +176,48 @@ class RegistrationsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    /**
+     * Határidő előtt töröl, utána az indokkal jelöli, hogy nem tud jönni.
+     */
+    public function absent(string|int|null $id = null): Response
+    {
+        $this->request->allowMethod(['post']);
+        $registrations = $this->fetchTable('Registrations');
+        try {
+            $registration = $registrations->get($id, contain: ['Competitions', 'Users']);
+        } catch (RecordNotFoundException) {
+            $this->Flash->error('A jelentkezés nem található.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        if ((string)$registration->user_id !== $this->userId()) {
+            $this->Flash->error('Csak a saját jelentkezésedet jelölheted meg.');
+
+            return $this->redirect(['action' => 'index']);
+        }
+        $competition = $registration->competition;
+        if (!$competition instanceof Competition || !$competition->registrationClosed()) {
+            if ($registrations->delete($registration)) {
+                (new RegistrationSignupNotifier())->notifyPresidentsWithdrawn($registration);
+                $this->Flash->success('A jelentkezésedet töröltük.');
+            } else {
+                $this->Flash->error('A jelentkezést nem sikerült törölni.');
+            }
+
+            return $this->redirect(['action' => 'index']);
+        }
+        $reason = trim((string)$this->request->getData('reason'));
+        if (!$registrations->storeAbsence($registration, $reason)) {
+            $this->Flash->error('Írd meg, miért nem tudsz jönni.');
+
+            return $this->redirect(['action' => 'edit', $registration->id]);
+        }
+        (new RegistrationSignupNotifier())->notifyPresidentsAbsent($registration);
+        $this->Flash->success('Mentettük, hogy nem tudsz jönni.');
+
+        return $this->redirect(['action' => 'index']);
+    }
+
     public function assign(string|int|null $id = null): Response
     {
         $this->request->allowMethod(['post', 'put', 'patch']);

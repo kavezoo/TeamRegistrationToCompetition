@@ -14,6 +14,7 @@ use Cake\ORM\Entity;
  * @property string $subject
  * @property string $body
  * @property int $thread_id
+ * @property string $kind
  * @property \Cake\I18n\DateTime $created
  * @property \Cake\I18n\DateTime|null $modified
  */
@@ -25,6 +26,7 @@ class ClubMessage extends Entity
         'subject' => true,
         'body' => true,
         'thread_id' => true,
+        'kind' => true,
         'created' => true,
         'modified' => true,
     ];

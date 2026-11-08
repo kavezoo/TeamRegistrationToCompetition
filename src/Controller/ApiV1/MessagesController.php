@@ -22,43 +22,25 @@ class MessagesController extends AppController
         }
         try {
             if ($this->request->is('post')) {
-                $recipientId = trim((string)$this->request->getData('recipient_id'));
-                if ($recipientId === '') {
-                    $this->response = $this->response->withStatus(422);
-                    $this->set([
-                        'success' => false,
-                        'message' => 'A címzett kell.',
-                    ]);
-
-                    return;
-                }
-                $result = Conversation::send(
-                    $userId,
-                    $recipientId === '' ? [] : [$recipientId],
-                    (string)$this->request->getData('subject'),
-                    (string)$this->request->getData('body'),
-                );
-                if ($result['error'] !== null) {
-                    $this->response = $this->response->withStatus(422);
-                    $this->set([
-                        'success' => false,
-                        'message' => $result['error'],
-                    ]);
-
-                    return;
-                }
-                $this->set([
-                    'success' => true,
-                    'saved' => $result['saved'],
-                    'flashed' => $result['flashed'],
-                ]);
+                $this->sendNew($userId);
 
                 return;
             }
+            $threads = [];
+            $notice = null;
+            try {
+                $threads = Conversation::threads($userId);
+            } catch (\Throwable $exception) {
+                Log::error('Mobil beszélgetések: ' . $exception->getMessage());
+                $notice = Conversation::missingTable($exception)
+                    ? Conversation::UNAVAILABLE
+                    : 'A korábbi üzeneteket nem sikerült betölteni.';
+            }
             $this->set([
                 'success' => true,
-                'threads' => Conversation::threads($userId),
+                'threads' => $threads,
                 'recipients' => Conversation::recipientPayload($userId),
+                'notice' => $notice,
             ]);
         } catch (\Throwable $exception) {
             Log::error('Mobil üzenetek: ' . $exception->getMessage());
@@ -125,6 +107,63 @@ class MessagesController extends AppController
             'success' => true,
             'thread_id' => $result['thread_id'],
             'flashed' => $result['flashed'],
+        ]);
+    }
+
+    /**
+     * Mindenkinek egy közös üzenet, vagy a kijelölt tagoknak külön.
+     * A régi alkalmazás egyetlen recipient_id mezőt küld.
+     */
+    private function sendNew(string $userId): void
+    {
+        $subject = (string)$this->request->getData('subject');
+        $body = (string)$this->request->getData('body');
+        $audience = trim((string)$this->request->getData('audience'));
+        if ($audience === Conversation::KIND_ALL) {
+            $result = Conversation::sendChannel($userId, Conversation::KIND_ALL, $subject, $body);
+            if ($result['error'] === Conversation::UNAVAILABLE) {
+                $result = Conversation::send($userId, [], $subject, $body);
+            }
+        } else {
+            $recipientIds = [];
+            $posted = $this->request->getData('recipient_ids');
+            if (is_array($posted)) {
+                foreach ($posted as $id) {
+                    $id = trim((string)$id);
+                    if ($id !== '') {
+                        $recipientIds[$id] = $id;
+                    }
+                }
+            }
+            $single = trim((string)$this->request->getData('recipient_id'));
+            if ($single !== '') {
+                $recipientIds[$single] = $single;
+            }
+            if ($recipientIds === []) {
+                $this->response = $this->response->withStatus(422);
+                $this->set([
+                    'success' => false,
+                    'message' => 'Válassz legalább egy tagot, vagy küldd mindenkinek.',
+                ]);
+
+                return;
+            }
+            $result = Conversation::send($userId, array_values($recipientIds), $subject, $body);
+        }
+        if ($result['error'] !== null && $result['saved'] === 0) {
+            $this->response = $this->response->withStatus(422);
+            $this->set([
+                'success' => false,
+                'message' => $result['error'],
+            ]);
+
+            return;
+        }
+        $this->set([
+            'success' => true,
+            'saved' => $result['saved'],
+            'flashed' => $result['flashed'],
+            'message' => $result['error'],
         ]);
     }
 

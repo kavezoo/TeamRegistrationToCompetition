@@ -76,7 +76,7 @@ class TeamsController extends AppController
     public function delete(string|int|null $id = null): void
     {
         $this->request->allowMethod(['delete']);
-        if ($this->role() !== User::ROLE_ADMIN) {
+        if ($this->currentRole() !== User::ROLE_ADMIN) {
             $this->respondForbidden('Alcsapatot csak admin törölhet.');
 
             return;

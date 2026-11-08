@@ -123,6 +123,10 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Registrations',
             'action' => 'roster',
         ])->setMethods(['GET']);
+        $builder->connect('/registrations/{id}/absent', [
+            'controller' => 'Registrations',
+            'action' => 'absent',
+        ])->setPass(['id'])->setMethods(['POST']);
         $builder->connect('/registrations/mine', [
             'controller' => 'Registrations',
             'action' => 'mine',

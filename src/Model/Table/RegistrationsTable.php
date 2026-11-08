@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Model\Entity\Registration;
 use App\Model\Entity\User;
 use Cake\Log\Log;
 use Cake\ORM\Query\SelectQuery;
@@ -151,6 +152,15 @@ class RegistrationsTable extends Table
             ->allowEmptyString('comment');
 
         $validator
+            ->boolean('absent')
+            ->allowEmptyString('absent');
+
+        $validator
+            ->scalar('absent_reason')
+            ->maxLength('absent_reason', 1000)
+            ->allowEmptyString('absent_reason');
+
+        $validator
             ->boolean('visible')
             ->notEmptyString('visible');
 
@@ -160,6 +170,23 @@ class RegistrationsTable extends Table
             ->notEmptyString('pos');
 
         return $validator;
+    }
+
+    /**
+     * Határidő után a nevezés megmarad, és az indokkal jelöljük, hogy nem tud jönni.
+     */
+    public function storeAbsence(Registration $registration, string $reason): bool
+    {
+        $reason = trim($reason);
+        if ($reason === '') {
+            $registration->setError('absent_reason', 'Az indok kell.');
+
+            return false;
+        }
+        $registration->set('absent', true);
+        $registration->set('absent_reason', mb_substr($reason, 0, 1000));
+
+        return $this->save($registration) !== false;
     }
 
     /**

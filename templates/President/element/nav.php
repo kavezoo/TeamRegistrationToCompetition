@@ -19,6 +19,8 @@ $items = [
     'Members' => ['Tagok', 'fa-users'],
     'Teams' => ['Alcsapatok', 'fa-user-group'],
     'Messages' => ['Üzenetek', 'fa-comment-dots'],
+    'Broadcasts' => ['Mindenkinek', 'fa-bullhorn'],
+    'Boards' => ['Elnököknek', 'fa-user-tie'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">

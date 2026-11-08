@@ -209,6 +209,7 @@ if ($rowDblClick !== 'none') {
                                         ]
                                     )
                                     : '' ?>
+                                <?= $this->element('registration_absence_note', ['registration' => $registration]) ?>
                               </td>
 
                               <td class="string">

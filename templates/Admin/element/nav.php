@@ -19,6 +19,8 @@ $items = [
     'FailedPasswordAttempts' => ['Sikertelen belépések', 'fa-lock'],
     'Teams' => ['Csapatok', 'fa-people-group'],
     'Messages' => ['Üzenetek', 'fa-comment-dots'],
+    'Broadcasts' => ['Mindenkinek', 'fa-bullhorn'],
+    'Boards' => ['Elnököknek', 'fa-user-tie'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">

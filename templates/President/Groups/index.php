@@ -45,7 +45,10 @@ foreach ($grouped as $key => $group) {
                                 <tbody>
                                     <?php foreach ($group['rows'] as $registration) : ?>
                                         <tr>
-                                            <td><?= $this->element('user_name', ['user' => $registration->user]) ?></td>
+                                            <td>
+                                                <?= $this->element('user_name', ['user' => $registration->user]) ?>
+                                                <?= $this->element('registration_absence_note', ['registration' => $registration]) ?>
+                                            </td>
                                             <td><?= $this->element('registration_team_form', ['registration' => $registration, 'teams' => $teams]) ?></td>
                                         </tr>
                                     <?php endforeach; ?>

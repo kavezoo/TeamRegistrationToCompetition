@@ -218,7 +218,7 @@ return [
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Registrations',
-            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete', 'absent', 'roster', 'mine'],
         ],
         [
             'role' => 'member',
@@ -268,7 +268,7 @@ return [
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Registrations',
-            'action' => ['index', 'view', 'add', 'edit', 'delete', 'roster', 'mine'],
+            'action' => ['index', 'view', 'add', 'edit', 'delete', 'absent', 'roster', 'mine'],
         ],
         [
             'role' => 'president',

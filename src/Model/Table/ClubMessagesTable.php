@@ -19,6 +19,7 @@ class ClubMessagesTable extends Table
         $this->belongsTo('Senders', [
             'className' => 'Users',
             'foreignKey' => 'sender_id',
+            'propertyName' => 'sender',
         ]);
         $this->belongsTo('Recipients', [
             'className' => 'Users',
@@ -55,6 +56,12 @@ class ClubMessagesTable extends Table
         $validator
             ->integer('thread_id')
             ->requirePresence('thread_id', 'create');
+
+        $validator
+            ->scalar('kind')
+            ->maxLength('kind', 20)
+            ->inList('kind', ['direct', 'all', 'presidents'])
+            ->allowEmptyString('kind');
 
         return $validator;
     }

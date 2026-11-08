@@ -26,6 +26,7 @@ if ($focusCompetition > 0) {
                             'competition' => $competition,
                             'registration' => $mineByCompetition[(int)$competition->id] ?? null,
                             'deleteAction' => 'deleteOwn',
+                            'deleteLabel' => 'Nem tudok a versenyen részt venni',
                         ]) ?>
                     <?php endforeach; ?>
                 <?php endif; ?>

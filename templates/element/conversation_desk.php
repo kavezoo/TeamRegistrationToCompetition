@@ -26,6 +26,7 @@ $canBroadcast = in_array($prefix, ['President', 'Admin'], true);
                     <select class="form-select" id="user-id" name="user_id"<?= $canBroadcast ? '' : ' required' ?>>
                         <?php if ($canBroadcast) : ?>
                             <option value="">Minden tag és elnök</option>
+                            <option value="presidents"<?= $selected === 'presidents' ? ' selected' : '' ?>>Csak a klubelnökök</option>
                         <?php else : ?>
                             <option value=""<?= $selected === '' ? ' selected' : '' ?>>Válassz címzettet</option>
                         <?php endif; ?>
@@ -77,12 +78,12 @@ $canBroadcast = in_array($prefix, ['President', 'Admin'], true);
                     <div class="list-group">
                         <?php foreach ($threads as $row) : ?>
                             <a class="list-group-item list-group-item-action" href="<?= $this->Url->build(['prefix' => $prefix, 'controller' => 'Messages', 'action' => 'view', $row['id']]) ?>">
-                                <div class="d-flex justify-content-between">
-                                    <strong><?= h((string)$row['subject']) ?></strong>
-                                    <small><?= h((string)$row['last_at']) ?></small>
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div class="fw-bold fs-5"><?= h((string)$row['peer_name']) ?></div>
+                                    <small class="text-nowrap"><?= h((string)$row['last_at']) ?></small>
                                 </div>
-                                <div><?= h((string)$row['peer_name']) ?></div>
-                                <small class="text-muted"><?= h((string)$row['last_body']) ?></small>
+                                <div class="fw-bold"><?= h((string)$row['subject']) ?></div>
+                                <div class="fw-normal mt-1" style="white-space: pre-wrap;"><?= h((string)$row['last_body']) ?></div>
                             </a>
                         <?php endforeach; ?>
                     </div>

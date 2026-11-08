@@ -46,7 +46,10 @@ $this->assign('title', $competition->name);
                             <tbody>
                                 <?php foreach ($registrations as $registration) : ?>
                                     <tr>
-                                        <td><?= $this->element('user_name', ['user' => $registration->user ?? null]) ?></td>
+                                        <td>
+                                            <?= $this->element('user_name', ['user' => $registration->user ?? null]) ?>
+                                            <?= $this->element('registration_absence_note', ['registration' => $registration]) ?>
+                                        </td>
                                         <td><?= $this->element('registration_team_form', ['registration' => $registration, 'teams' => $teams]) ?></td>
                                     </tr>
                                 <?php endforeach; ?>

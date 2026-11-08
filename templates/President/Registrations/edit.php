@@ -92,9 +92,12 @@ $this->assign('title', 'Jelentkezés');
                             ['type' => 'submit', 'class' => 'btn btn-success', 'escapeTitle' => false]
                         ) ?>
                         <?= $this->Html->link('Mégse', $returnUrl, ['class' => 'btn btn-outline-secondary']) ?>
+                        <?php if ($registration->isAbsent()) : ?>
+                          <?= $this->element('registration_absence_note', ['registration' => $registration]) ?>
+                        <?php endif; ?>
                         <?php if (!$competition->registrationClosed()) : ?>
                         <div class="ms-auto">
-                          <button type="submit" class="btn btn-danger" form="registration-delete" data-confirm-message="Biztosan törlöd a jelentkezést?" data-swal-title="<?= h(__('Are you sure?')) ?>" data-swal-text="<?= h('Biztosan törlöd a jelentkezést? ' . __('This action cannot be undone.')) ?>" data-swal-confirm="<?= h(__('Yes, delete it!')) ?>" data-swal-cancel="<?= h(__('Cancel')) ?>" onclick="document.registrationDelete.requestSubmit(); return false;"><?= $this->Icon->outline('trash') ?> <?= __('Delete') ?></button>
+                          <button type="submit" class="btn btn-danger" form="registration-delete" data-confirm-message="Biztosan törlöd a jelentkezést?" data-swal-title="<?= h(__('Are you sure?')) ?>" data-swal-text="<?= h('Biztosan törlöd a jelentkezést? ' . __('This action cannot be undone.')) ?>" data-swal-confirm="<?= h(__('Yes, delete it!')) ?>" data-swal-cancel="<?= h(__('Cancel')) ?>" onclick="document.registrationDelete.requestSubmit(); return false;"><?= $this->Icon->outline('trash') ?> Nem tudok a versenyen részt venni</button>
                         </div>
                         <?php endif; ?>
                       </div>
@@ -108,6 +111,8 @@ $this->assign('title', 'Jelentkezés');
                       'url' => ['action' => 'deleteOwn', $registration->id],
                   ]) ?>
                   <?= $this->Form->end() ?>
+                  <?php else : ?>
+                  <?= $this->element('registration_absence_form', ['registration' => $registration]) ?>
                   <?php endif; ?>
                 </div>
               </div>

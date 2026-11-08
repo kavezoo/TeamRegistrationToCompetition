@@ -45,7 +45,7 @@ class RegistrationsController extends AppController
             return;
         }
         $query = $this->Registrations->find()->contain($this->contain());
-        if ($this->role() === User::ROLE_MEMBER) {
+        if ($this->currentRole() === User::ROLE_MEMBER) {
             $query->where(['Registrations.user_id' => $this->identityId()]);
         }
         $registrations = $this->paginate($query);
@@ -64,7 +64,7 @@ class RegistrationsController extends AppController
             return;
         }
         $registration = $this->Registrations->get($id, contain: $this->contain());
-        if ($this->role() === User::ROLE_MEMBER && (string)$registration->user_id !== $this->identityId()) {
+        if ($this->currentRole() === User::ROLE_MEMBER && (string)$registration->user_id !== $this->identityId()) {
             $this->respondNotFound('A jelentkezés nem található.');
 
             return;
@@ -83,7 +83,7 @@ class RegistrationsController extends AppController
         $this->request->allowMethod(['get']);
         $registrations = $this->publicRows(
             $this->Registrations->find('roster')->all(),
-            $this->isManager()
+            true
         );
         $this->set([
             'success' => true,
@@ -115,13 +115,13 @@ class RegistrationsController extends AppController
     public function add(): void
     {
         $this->request->allowMethod(['post']);
-        if ($this->role() === User::ROLE_ADMIN) {
+        if ($this->currentRole() === User::ROLE_ADMIN) {
             $registration = $this->Registrations->newEmptyEntity();
             $this->saveRegistration($registration, true);
 
             return;
         }
-        if ($this->role() !== User::ROLE_MEMBER && $this->role() !== User::ROLE_PRESIDENT) {
+        if ($this->currentRole() !== User::ROLE_MEMBER && $this->currentRole() !== User::ROLE_PRESIDENT) {
             $this->respondForbidden('Ehhez nincs jogosultságod.');
 
             return;
@@ -133,7 +133,7 @@ class RegistrationsController extends AppController
     {
         $this->request->allowMethod(['put', 'patch']);
         $registration = $this->Registrations->get($id, contain: ['Competitions']);
-        if ($this->role() === User::ROLE_ADMIN) {
+        if ($this->currentRole() === User::ROLE_ADMIN) {
             $this->saveRegistration($registration, false);
 
             return;
@@ -150,18 +150,18 @@ class RegistrationsController extends AppController
     {
         $this->request->allowMethod(['delete']);
         $registration = $this->Registrations->get($id, contain: ['Competitions', 'Users']);
-        if ($this->role() !== User::ROLE_ADMIN && (string)$registration->user_id !== $this->identityId()) {
+        if ($this->currentRole() !== User::ROLE_ADMIN && (string)$registration->user_id !== $this->identityId()) {
             $this->respondForbidden('Csak a saját jelentkezésedet törölheted.');
 
             return;
         }
-        if (!$this->canUse() && $this->role() !== User::ROLE_ADMIN) {
+        if (!$this->canUse() && $this->currentRole() !== User::ROLE_ADMIN) {
             $this->respondForbidden('Ehhez nincs jogosultságod.');
 
             return;
         }
         if (
-            $this->role() !== User::ROLE_ADMIN
+            $this->currentRole() !== User::ROLE_ADMIN
             && $registration->competition instanceof Competition
             && $registration->competition->registrationClosed()
         ) {
@@ -176,6 +176,50 @@ class RegistrationsController extends AppController
         }
         (new RegistrationSignupNotifier())->notifyPresidentsWithdrawn($registration);
         $this->respondDeleted();
+    }
+
+    /**
+     * Határidő előtt töröl, utána az indokkal jelöli, hogy nem tud jönni.
+     */
+    public function absent(string|int|null $id = null): void
+    {
+        $this->request->allowMethod(['post']);
+        $registration = $this->Registrations->get($id, contain: ['Competitions', 'Users']);
+        if ($this->currentRole() !== User::ROLE_ADMIN && (string)$registration->user_id !== $this->identityId()) {
+            $this->respondForbidden('Csak a saját jelentkezésedet jelölheted meg.');
+
+            return;
+        }
+        if (!$this->canUse() && $this->currentRole() !== User::ROLE_ADMIN) {
+            $this->respondForbidden('Ehhez nincs jogosultságod.');
+
+            return;
+        }
+        $competition = $registration->competition;
+        if (!$competition instanceof Competition || !$competition->registrationClosed()) {
+            if (!$this->Registrations->delete($registration)) {
+                $this->respondValidationError($registration);
+
+                return;
+            }
+            (new RegistrationSignupNotifier())->notifyPresidentsWithdrawn($registration);
+            $this->respondDeleted();
+
+            return;
+        }
+        $reason = trim((string)$this->request->getData('reason'));
+        if (!$this->Registrations->storeAbsence($registration, $reason)) {
+            $this->response = $this->response->withStatus(422);
+            $this->set([
+                'success' => false,
+                'message' => 'Írd meg, miért nem tudsz jönni.',
+            ]);
+
+            return;
+        }
+        (new RegistrationSignupNotifier())->notifyPresidentsAbsent($registration);
+        $registration = $this->Registrations->get($registration->id, contain: $this->contain());
+        $this->respondSaved('registration', $registration, false);
     }
 
     private function saveRegistration(\App\Model\Entity\Registration $registration, bool $created): void
@@ -252,7 +296,7 @@ class RegistrationsController extends AppController
             $data = $this->countData($registration->competition, $posted);
             $fields = array_merge(array_values(Registration::TITLED_COUNTS), ['comment']);
         }
-        if ($this->role() === User::ROLE_PRESIDENT && array_key_exists('team_id', $posted)) {
+        if ($this->currentRole() === User::ROLE_PRESIDENT && array_key_exists('team_id', $posted)) {
             $teamId = $posted['team_id'];
             $data['team_id'] = ($teamId === null || $teamId === '') ? null : (int)$teamId;
             $fields[] = 'team_id';
@@ -272,7 +316,7 @@ class RegistrationsController extends AppController
         }
         $teamId = $registration->get('team_id');
         $teamChanged = (string)($previousTeamId ?? '') !== (string)($teamId ?? '');
-        if ($this->role() === User::ROLE_PRESIDENT && $teamChanged && $teamId !== null && $teamId !== '') {
+        if ($this->currentRole() === User::ROLE_PRESIDENT && $teamChanged && $teamId !== null && $teamId !== '') {
             (new AssignmentNotifier())->notify($registration->id);
         }
         $registration = $this->Registrations->get($registration->id, contain: $this->contain());
@@ -281,7 +325,7 @@ class RegistrationsController extends AppController
 
     private function canUse(): bool
     {
-        return in_array($this->role(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT, User::ROLE_MEMBER], true);
+        return in_array($this->currentRole(), [User::ROLE_ADMIN, User::ROLE_PRESIDENT, User::ROLE_MEMBER], true);
     }
 
     private function openCompetition(mixed $id): ?Competition
@@ -349,6 +393,8 @@ class RegistrationsController extends AppController
                 'competition_id' => $row->competition_id,
                 'description' => (string)($row->competition->description ?? ''),
                 'comment' => $row->comment,
+                'absent' => $row->isAbsent(),
+                'absent_reason' => $row->absenceReason() === '' ? null : $row->absenceReason(),
                 'date_from' => $row->competition->date_from ?? null,
                 'date_deadline' => $row->competition->date_deadline ?? null,
             ];
@@ -374,10 +420,13 @@ class RegistrationsController extends AppController
         foreach ($rows as $row) {
             $teamName = trim((string)($row->team?->name ?? ''));
             $item = [
+                'user_id' => (string)$row->user_id,
                 'name' => User::displayName($row->user),
                 'team' => $teamName,
                 'team_pos' => $teamName === '' ? null : (int)($row->team?->pos ?? 0),
                 'competition' => (string)($row->competition->name ?? ''),
+                'absent' => $row->isAbsent(),
+                'absent_reason' => $row->absenceReason() === '' ? null : $row->absenceReason(),
             ];
             if ($withAvatar) {
                 $item['avatar'] = User::avatarUrl($row->user);

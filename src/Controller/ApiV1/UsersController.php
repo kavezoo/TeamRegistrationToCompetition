@@ -93,7 +93,7 @@ class UsersController extends AppController
     public function remove(string $id): void
     {
         $this->request->allowMethod(['delete']);
-        if ($this->role() !== User::ROLE_ADMIN) {
+        if ($this->currentRole() !== User::ROLE_ADMIN) {
             $this->respondForbidden('Tagot csak admin törölhet.');
 
             return;

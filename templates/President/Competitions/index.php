@@ -10,10 +10,21 @@ $this->assign('title', 'Versenyek');
 
 $namesByCompetition = [];
 foreach ($registrations as $registration) {
-    $namesByCompetition[(int)$registration->competition_id][] = User::displayName($registration->user);
+    $namesByCompetition[(int)$registration->competition_id][] = $registration;
 }
-foreach ($namesByCompetition as $competitionId => $names) {
-    usort($names, 'strnatcasecmp');
+foreach ($namesByCompetition as $competitionId => $rows) {
+    usort($rows, function ($left, $right) {
+        return strnatcasecmp(User::displayName($left->user), User::displayName($right->user));
+    });
+    $names = [];
+    foreach ($rows as $registration) {
+        $label = User::displayName($registration->user);
+        if ($registration->isAbsent()) {
+            $reason = $registration->absenceReason();
+            $label .= $reason !== '' ? ' (nem tud jönni: ' . $reason . ')' : ' (nem tud jönni)';
+        }
+        $names[] = $label;
+    }
     $namesByCompetition[$competitionId] = $names;
 }
 ?>
