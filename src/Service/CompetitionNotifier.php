@@ -67,6 +67,7 @@ class CompetitionNotifier
                 trim($details),
                 'competition',
                 $competition->id,
+                User::FLASH_COMPETITION,
             );
             $to = trim((string)($member->email ?? ''));
             if ($to === '' || !User::wantsMail($member, User::MAIL_COMPETITION)) {

@@ -37,6 +37,7 @@ class RegistrationReminderNotifier
             'Még nem jelentkeztél a versenyre: ' . trim((string)$competition->name),
             'competition',
             $competition->id,
+            User::FLASH_REMINDER,
         );
 
         $reminders = TableRegistry::getTableLocator()->get('RegistrationReminders');

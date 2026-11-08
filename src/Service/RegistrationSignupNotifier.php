@@ -35,7 +35,7 @@ class RegistrationSignupNotifier
                 $details .= "\nVerseny: {$name}";
             }
             $subject = $name !== '' ? 'Jelentkeztél a versenyre: ' . $name : 'Jelentkeztél a versenyre';
-            FlashNotice::deliver($user, $subject, $details, 'registration', $registration->id);
+            FlashNotice::deliver($user, $subject, $details, 'registration', $registration->id, User::FLASH_SIGNUP);
             $to = trim((string)($user->email ?? ''));
             if ($to !== '' && User::wantsMail($user, User::MAIL_SIGNUP)) {
                 [$text, $html] = OutgoingMail::notice($user, $details, [

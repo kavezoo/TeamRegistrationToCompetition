@@ -5,9 +5,9 @@ namespace App\Controller\ApiV1;
 
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
+use App\Service\ProfileSaver;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\UnauthorizedException;
-use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\ORM\Table;
 
@@ -18,14 +18,6 @@ use Cake\ORM\Table;
  */
 class UsersController extends AppController
 {
-    /**
-     * @var array<string>
-     */
-    private const WRITE_FIELDS = [
-        'first_name',
-        'last_name',
-    ];
-
     public function profile(): void
     {
         $this->request->allowMethod(['get', 'post', 'put', 'patch']);
@@ -253,61 +245,20 @@ class UsersController extends AppController
 
     private function storeProfile(EntityInterface $user): void
     {
-        $role = (string)$user->get('role');
-        if (!in_array($role, [User::ROLE_MEMBER, User::ROLE_PRESIDENT, User::ROLE_ADMIN, User::ROLE_NEW], true)) {
-            $role = User::ROLE_NEW;
-            $user->set('role', User::ROLE_NEW, ['guard' => false]);
-            $user->setDirty('role', true);
-        }
-        if ($role === User::ROLE_NEW && (string)$user->get('membership_request') === 'denied') {
-            $this->respondForbidden(User::DENIED_NOTICE);
-
-            return;
-        }
-        $user = $this->patchFromRequest($this->Users, $user, self::WRITE_FIELDS);
-        $needsPrivacy = $role === User::ROLE_NEW || $role === User::ROLE_MEMBER;
-        $alreadyAccepted = $user->get('tos_date') !== null;
-        $acceptsPrivacy = filter_var($this->request->getData('accept_privacy'), FILTER_VALIDATE_BOOLEAN);
-        if ($needsPrivacy && !$alreadyAccepted && !$acceptsPrivacy) {
-            $this->response = $this->response->withStatus(422);
-            $this->set([
-                'success' => false,
-                'message' => 'A mentéshez el kell fogadni az adatkezelési nyilatkozatot.',
-            ]);
-
-            return;
-        }
-        if ($role === User::ROLE_NEW) {
-            $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
-            if (!$hasName) {
-                $this->response = $this->response->withStatus(422);
-                $this->set([
-                    'success' => false,
-                    'message' => 'A vezetéknév és a keresztnév is kell.',
-                ]);
+        $error = (new ProfileSaver())->save($this->Users, $user, $this->request->getData());
+        if ($error !== null) {
+            if ($error === User::DENIED_NOTICE) {
+                $this->respondForbidden($error);
 
                 return;
             }
-            $user->set('profile_saved', true, ['guard' => false]);
-            $user->setDirty('profile_saved', true);
-        }
-        if ($needsPrivacy && $acceptsPrivacy) {
-            $user->set('tos_date', DateTime::now(), ['guard' => false]);
-            $user->setDirty('tos_date', true);
-        }
-        User::applyMailRequest($user, $this->request->getData(), $this->Users->getSchema());
-        $notify = $role === User::ROLE_NEW && (string)$user->get('membership_request') !== 'pending';
-        if ($notify) {
-            $user->set('membership_request', 'pending', ['guard' => false]);
-            $user->setDirty('membership_request', true);
-        }
-        if (!$this->Users->save($user)) {
-            $this->respondValidationError($user);
+            $this->response = $this->response->withStatus(422);
+            $this->set([
+                'success' => false,
+                'message' => $error,
+            ]);
 
             return;
-        }
-        if ($notify) {
-            (new MembershipNotifier())->notifyPresidents($user);
         }
         $this->set([
             'success' => true,
@@ -335,6 +286,18 @@ class UsersController extends AppController
             $flashes = $this->fetchTable('Flashes');
             if ($flashes->getSchema()->hasColumn('user_id')) {
                 $flashes->deleteAll(['user_id' => $userId]);
+            }
+        } catch (\Throwable) {
+        }
+        try {
+            $messages = $this->fetchTable('ClubMessages');
+            if ($messages->getSchema()->hasColumn('sender_id')) {
+                $messages->deleteAll([
+                    'OR' => [
+                        ['sender_id' => $userId],
+                        ['recipient_id' => $userId],
+                    ],
+                ]);
             }
         } catch (\Throwable) {
         }

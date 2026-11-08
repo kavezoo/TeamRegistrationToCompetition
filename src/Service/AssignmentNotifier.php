@@ -43,6 +43,7 @@ class AssignmentNotifier
             $details,
             'registration',
             $registration->id,
+            User::FLASH_ASSIGNMENT,
         );
         $to = trim((string)($registration->user->email ?? ''));
         if ($to === '' || !User::wantsMail($registration->user, User::MAIL_ASSIGNMENT)) {

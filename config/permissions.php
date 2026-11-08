@@ -241,6 +241,13 @@ return [
             'controller' => 'Flashes',
             'action' => ['index', 'seen'],
         ],
+        [
+            'role' => 'member',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Messages',
+            'action' => ['index', 'view', 'reply'],
+        ],
         // A klubelnök a webes felületével megegyezően kezeli a versenyeket, alcsapatokat és a nevezéseket.
         [
             'role' => 'president',
@@ -284,6 +291,13 @@ return [
             'plugin' => false,
             'controller' => 'Flashes',
             'action' => ['index', 'seen'],
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Messages',
+            'action' => ['index', 'view', 'reply'],
         ],
         [
             'role' => 'president',

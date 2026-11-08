@@ -34,6 +34,14 @@ use Cake\ORM\Table;
  * @property bool $mail_reminder
  * @property bool $mail_applicants
  * @property bool $mail_president_entries
+ * @property bool $flash_membership
+ * @property bool $flash_signup
+ * @property bool $flash_assignment
+ * @property bool $flash_competition
+ * @property bool $flash_reminder
+ * @property bool $flash_applicants
+ * @property bool $flash_president_entries
+ * @property bool $flash_message
  * @property string|null $membership_request
  * @property \Cake\I18n\DateTime $created
  * @property \Cake\I18n\DateTime $modified
@@ -71,6 +79,22 @@ class User extends Entity
     public const MAIL_APPLICANTS = 'mail_applicants';
 
     public const MAIL_PRESIDENT_ENTRIES = 'mail_president_entries';
+
+    public const FLASH_MEMBERSHIP = 'flash_membership';
+
+    public const FLASH_SIGNUP = 'flash_signup';
+
+    public const FLASH_ASSIGNMENT = 'flash_assignment';
+
+    public const FLASH_COMPETITION = 'flash_competition';
+
+    public const FLASH_REMINDER = 'flash_reminder';
+
+    public const FLASH_APPLICANTS = 'flash_applicants';
+
+    public const FLASH_PRESIDENT_ENTRIES = 'flash_president_entries';
+
+    public const FLASH_MESSAGE = 'flash_message';
 
     /**
      * Szerepkörök az admin űrlaphoz.
@@ -271,6 +295,70 @@ class User extends Entity
     }
 
     /**
+     * A telefonos üzenet fajtái, szerepenként. Az egyedi üzenetet tag és elnök kapja.
+     *
+     * @return array<string, string>
+     */
+    public static function flashChoices(string $role): array
+    {
+        $membership = 'Telefonos üzenet a klubtagság elfogadásáról és elutasításáról';
+        $signup = 'Telefonos üzenet, ha jelentkezem egy versenyre';
+        $assignment = 'Telefonos üzenet, ha alcsoportba sorolnak';
+        $competition = 'Telefonos üzenet, ha új versenyt írnak ki';
+        $reminder = 'Telefonos emlékeztető, ha még nem jelentkeztem egy versenyre';
+        $applicants = 'Telefonos üzenet az új és a törölt klubjelentkezőkről';
+        $entries = 'Telefonos üzenet, ha valaki jelentkezik egy versenyre vagy lemondja';
+        $message = 'Egyedi üzenet a telefonra a klubelnöktől';
+
+        return match ($role) {
+            self::ROLE_NEW => [
+                self::FLASH_MEMBERSHIP => $membership,
+            ],
+            self::ROLE_MEMBER => [
+                self::FLASH_SIGNUP => $signup,
+                self::FLASH_ASSIGNMENT => $assignment,
+                self::FLASH_COMPETITION => $competition,
+                self::FLASH_REMINDER => $reminder,
+                self::FLASH_MESSAGE => $message,
+            ],
+            self::ROLE_PRESIDENT => [
+                self::FLASH_APPLICANTS => $applicants,
+                self::FLASH_PRESIDENT_ENTRIES => $entries,
+                self::FLASH_SIGNUP => $signup,
+                self::FLASH_ASSIGNMENT => $assignment,
+                self::FLASH_MESSAGE => $message,
+            ],
+            self::ROLE_ADMIN => [
+                self::FLASH_MEMBERSHIP => $membership,
+                self::FLASH_SIGNUP => $signup,
+                self::FLASH_ASSIGNMENT => $assignment,
+                self::FLASH_COMPETITION => $competition,
+                self::FLASH_REMINDER => $reminder,
+                self::FLASH_APPLICANTS => $applicants,
+                self::FLASH_PRESIDENT_ENTRIES => $entries,
+            ],
+            default => [],
+        };
+    }
+
+    /**
+     * A levélfajta párja a telefonos üzeneteknél. Ismeretlen mezőnél nincs szűrés.
+     */
+    public static function flashKind(?string $mailField): ?string
+    {
+        return match ($mailField) {
+            self::MAIL_MEMBERSHIP => self::FLASH_MEMBERSHIP,
+            self::MAIL_SIGNUP => self::FLASH_SIGNUP,
+            self::MAIL_ASSIGNMENT => self::FLASH_ASSIGNMENT,
+            self::MAIL_COMPETITION => self::FLASH_COMPETITION,
+            self::MAIL_REMINDER => self::FLASH_REMINDER,
+            self::MAIL_APPLICANTS => self::FLASH_APPLICANTS,
+            self::MAIL_PRESIDENT_ENTRIES => self::FLASH_PRESIDENT_ENTRIES,
+            default => null,
+        };
+    }
+
+    /**
      * Üres vagy hiányzó jelölés bekapcsolt levelet jelent, amíg az oszlop nincs betöltve.
      */
     public static function wantsMail(object|array|null $user, string $field): bool
@@ -287,16 +375,33 @@ class User extends Entity
     }
 
     /**
+     * Üres vagy hiányzó jelölés bekapcsolt telefonos üzenetet jelent.
+     */
+    public static function wantsFlash(object|array|null $user, string $field): bool
+    {
+        return self::wantsMail($user, $field);
+    }
+
+    /**
      * A profil mentése a szerephez tartozó levélkapcsolókat is eltárolja.
      * A még nem létező oszlopot kihagyja, hogy a mentés a tábla bővítése előtt is sikerüljön.
+     * A telefonos kapcsolót csak akkor írja, ha a kérésben szerepel, hogy a régi alkalmazás ne kapcsolja ki.
      */
     public static function applyMailRequest(object $user, array $data, object $schema): void
     {
         if (!method_exists($user, 'set') || !method_exists($schema, 'hasColumn')) {
             return;
         }
-        foreach (array_keys(self::mailChoices((string)$user->get('role'))) as $field) {
+        $role = (string)$user->get('role');
+        foreach (array_keys(self::mailChoices($role)) as $field) {
             if (!$schema->hasColumn($field)) {
+                continue;
+            }
+            $user->set($field, filter_var($data[$field] ?? false, FILTER_VALIDATE_BOOLEAN), ['guard' => false]);
+            $user->setDirty($field, true);
+        }
+        foreach (array_keys(self::flashChoices($role)) as $field) {
+            if (!$schema->hasColumn($field) || !array_key_exists($field, $data)) {
                 continue;
             }
             $user->set($field, filter_var($data[$field] ?? false, FILTER_VALIDATE_BOOLEAN), ['guard' => false]);
@@ -316,6 +421,10 @@ class User extends Entity
         foreach (array_keys(self::mailChoices($role)) as $field) {
             $mail[$field] = self::wantsMail($user, $field);
         }
+        $flash = [];
+        foreach (array_keys(self::flashChoices($role)) as $field) {
+            $flash[$field] = self::wantsFlash($user, $field);
+        }
 
         return [
             'id' => (string)$user->get('id'),
@@ -331,6 +440,8 @@ class User extends Entity
             'tos_date' => $user->get('tos_date'),
             'mail' => $mail,
             'mail_choices' => self::mailChoices($role),
+            'flash' => $flash,
+            'flash_choices' => self::flashChoices($role),
         ];
     }
 
@@ -436,6 +547,14 @@ class User extends Entity
         'mail_reminder' => true,
         'mail_applicants' => true,
         'mail_president_entries' => true,
+        'flash_membership' => true,
+        'flash_signup' => true,
+        'flash_assignment' => true,
+        'flash_competition' => true,
+        'flash_reminder' => true,
+        'flash_applicants' => true,
+        'flash_president_entries' => true,
+        'flash_message' => true,
         'created' => true,
         'modified' => true,
         'additional_data' => true,

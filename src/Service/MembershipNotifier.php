@@ -25,9 +25,14 @@ class MembershipNotifier
             $details .= "E-mail: {$email}\n";
         }
         $details .= "\nA profilját elmentette. A jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
-        PresidentNotice::send('Új klubjelentkező', $details, [
-            [MailLinks::applicants(), 'Az új jelentkezők megtekintése'],
-        ], null, User::MAIL_APPLICANTS, 'applicants');
+        // A flash akkor is kimegy, ha a levél linkje nem állítható össze.
+        $buttons = [];
+        try {
+            $buttons = [[MailLinks::applicants(), 'Az új jelentkezők megtekintése']];
+        } catch (\Throwable $exception) {
+            Log::error('A jelentkezők linkje nem készült el: ' . $exception->getMessage());
+        }
+        PresidentNotice::send('Új klubjelentkező', $details, $buttons, null, User::MAIL_APPLICANTS, 'applicants');
     }
 
     /**
@@ -44,9 +49,13 @@ class MembershipNotifier
             $details .= "E-mail: {$email}\n";
         }
         $details .= "\nVéletlenül járt az oldalon, és a saját adatait törölte. A jelentkezők listáján már nem szerepel.";
-        PresidentNotice::send('Törölt klubjelentkezés', $details, [
-            [MailLinks::applicants(), 'A jelentkezők listája'],
-        ], null, User::MAIL_APPLICANTS, 'applicants');
+        $buttons = [];
+        try {
+            $buttons = [[MailLinks::applicants(), 'A jelentkezők listája']];
+        } catch (\Throwable $exception) {
+            Log::error('A jelentkezők linkje nem készült el: ' . $exception->getMessage());
+        }
+        PresidentNotice::send('Törölt klubjelentkezés', $details, $buttons, null, User::MAIL_APPLICANTS, 'applicants');
     }
 
     /**
@@ -59,6 +68,8 @@ class MembershipNotifier
             'A jelentkezésedet elfogadtuk',
             'A klubelnök elfogadta a jelentkezésedet. Koppints az üzenetre, és megnyílik a tagi képernyő.',
             'member',
+            null,
+            User::FLASH_MEMBERSHIP,
         );
         $to = trim((string)($applicant->email ?? ''));
         if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {
@@ -91,6 +102,8 @@ class MembershipNotifier
             'A klubelnök elutasította a jelentkezésedet',
             'A klubelnök elutasította a jelentkezésedet. Nem tag, csak kipróbáltad az oldalt.',
             'home',
+            null,
+            User::FLASH_MEMBERSHIP,
         );
         $to = trim((string)($applicant->email ?? ''));
         if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {

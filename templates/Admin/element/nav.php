@@ -18,6 +18,7 @@ $items = [
     'SocialAccounts' => ['Közösségi fiókok', 'fa-share-nodes'],
     'FailedPasswordAttempts' => ['Sikertelen belépések', 'fa-lock'],
     'Teams' => ['Csapatok', 'fa-people-group'],
+    'Messages' => ['Üzenetek', 'fa-comment-dots'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">

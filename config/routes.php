@@ -166,6 +166,18 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Users',
             'action' => 'remove',
         ])->setPass(['id'])->setMethods(['DELETE']);
+        $builder->connect('/messages', [
+            'controller' => 'Messages',
+            'action' => 'index',
+        ])->setMethods(['GET', 'POST']);
+        $builder->connect('/messages/{id}/reply', [
+            'controller' => 'Messages',
+            'action' => 'reply',
+        ])->setPass(['id'])->setMethods(['POST']);
+        $builder->connect('/messages/{id}', [
+            'controller' => 'Messages',
+            'action' => 'view',
+        ])->setPass(['id'])->setMethods(['GET']);
         $builder->connect('/flashes', [
             'controller' => 'Flashes',
             'action' => 'index',

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\Admin\AppController;
 use App\Model\Entity\User;
+use App\Service\ProfileSaver;
 use Cake\Datasource\EntityInterface;
 
 /**
@@ -191,16 +192,13 @@ class UsersController extends AppController
 
         $user = $this->Users->get($id, contain: ['SocialAccounts']);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                'fields' => ['first_name', 'last_name'],
-            ]);
-            User::applyMailRequest($user, $this->request->getData(), $this->Users->getSchema());
-            if ($this->Users->save($user)) {
+            $error = (new ProfileSaver())->save($this->Users, $user, $this->request->getData());
+            if ($error === null) {
                 $this->Flash->success('A profil mentve.');
 
                 return $this->redirectAfterSave($this->homeAfterForm());
             }
-            $this->Flash->error('A profilt nem sikerült menteni.');
+            $this->Flash->error($error);
         }
 
         $this->set(compact('user'));

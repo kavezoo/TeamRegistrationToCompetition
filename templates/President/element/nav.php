@@ -12,13 +12,13 @@ $prefixName = (string)($prefix ?? $this->request->getParam('prefix') ?? 'Preside
 $pending = (int)($pendingCount ?? 0);
 
 $items = [
+    'Groups' => ['Nevezők', 'fa-people-group'],
     'Applicants' => ['Jelentkezők', 'fa-user-check'],
     'Competitions' => ['Versenyek', 'fa-trophy'],
     'Registrations' => ['Nevezésem', 'fa-clipboard-list'],
-    'Groups' => ['Nevezők', 'fa-people-group'],
     'Members' => ['Tagok', 'fa-users'],
     'Teams' => ['Alcsapatok', 'fa-user-group'],
-    'Messages' => ['Üzenet', 'fa-comment-dots'],
+    'Messages' => ['Üzenetek', 'fa-comment-dots'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">

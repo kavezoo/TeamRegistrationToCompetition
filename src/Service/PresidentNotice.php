@@ -30,10 +30,11 @@ class PresidentNotice
             if ($mailField !== null && $users->getSchema()->hasColumn($mailField)) {
                 $select[] = $mailField;
             }
+            // Az admin a klubelnök felületét használja, ezért ő is megkapja a flash üzenetet.
             $presidents = $users->find()
                 ->select($select)
                 ->where([
-                    'role' => User::ROLE_PRESIDENT,
+                    'role IN' => [User::ROLE_PRESIDENT, User::ROLE_ADMIN],
                     'active' => true,
                 ])
                 ->all();
@@ -47,7 +48,7 @@ class PresidentNotice
             if ($exceptUserId !== null && (string)$president->id === $exceptUserId) {
                 continue;
             }
-            FlashNotice::deliver($president, $subject, $details, $target, $targetId);
+            FlashNotice::deliver($president, $subject, $details, $target, $targetId, User::flashKind($mailField));
             if ($mailField !== null && !User::wantsMail($president, $mailField)) {
                 continue;
             }

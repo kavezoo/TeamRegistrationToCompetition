@@ -15,6 +15,7 @@ if ($identity) {
     $accountEmail = (string)($identity['email'] ?? '');
 }
 $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboard', 'action' => 'profile']);
+$messagesUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Messages', 'action' => 'index']);
 ?>
 		<header class="header-desktop header-desktop--solo">
           <div class="section__content section__content--p30">
@@ -22,6 +23,7 @@ $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboar
               <div class="header-wrap">
                 <p class="header-brand mb-0">Lassúsági Pipaszívó Verseny</p>
                 <div class="header-button">
+                  <a class="btn btn-outline-secondary btn-sm" href="<?= h($messagesUrl) ?>">Üzenetek</a>
                   <button type="button" class="btn btn-outline-secondary btn-sm privacy-notice-btn" data-bs-toggle="modal" data-bs-target="#privacy-notice-modal">Adatkezelési nyilatkozat</button>
                   <div class="account-wrap">
                     <div class="account-item clearfix js-item-menu" role="button" tabindex="0" aria-haspopup="true" aria-label="<?= h($accountName) ?>">
@@ -39,6 +41,7 @@ $profileUrl = $this->Url->build(['prefix' => 'Member', 'controller' => 'Dashboar
                           </div>
                         </div>
                         <div class="account-dropdown__body">
+                          <div class="account-dropdown__item"><a href="<?= h($messagesUrl) ?>"><i class="fa-solid fa-comment-dots"></i>Üzenetek</a></div>
                           <div class="account-dropdown__item"><a href="<?= h($profileUrl) ?>"><i class="fa-solid fa-user"></i>Profil</a></div>
                         </div>
                         <div class="account-dropdown__footer"><a href="<?= $this->Url->build('/logout') ?>"><i class="fa-solid fa-power-off"></i>Kijelentkezés</a></div>

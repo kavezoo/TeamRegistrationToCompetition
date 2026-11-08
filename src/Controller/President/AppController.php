@@ -15,8 +15,10 @@ class AppController extends JeffAdminAppController
 
         try {
             $users = $this->fetchTable('Users');
+            // Ugyanaz a kör, mint a Jelentkezők lista: új szerep, mentett profil, még nincs elutasítva.
             $pendingCount = $users->find()
                 ->where(User::openApplicantConditions($users))
+                ->where([$users->aliasField('profile_saved') => true])
                 ->count();
         } catch (\Throwable) {
             $pendingCount = 0;

@@ -18,10 +18,10 @@ namespace App\Controller;
 
 use App\Model\Entity\User;
 use App\Service\MembershipNotifier;
+use App\Service\ProfileSaver;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Response;
-use Cake\I18n\DateTime;
 use Cake\Log\Log;
 use Cake\ORM\Table;
 
@@ -217,42 +217,11 @@ class PagesController extends AppController
      */
     private function storeProfile(Table $users, EntityInterface $user): bool
     {
-        if ((string)$user->get('membership_request') === 'denied') {
-            $this->Flash->error(User::DENIED_NOTICE);
+        $error = (new ProfileSaver())->save($users, $user, $this->request->getData());
+        if ($error !== null) {
+            $this->Flash->error($error);
 
             return false;
-        }
-        $user = $users->patchEntity($user, $this->request->getData(), [
-            'fields' => ['first_name', 'last_name'],
-        ]);
-        $hasName = trim((string)$user->get('first_name')) !== '' && trim((string)$user->get('last_name')) !== '';
-        if (!$hasName) {
-            $this->Flash->error('A vezetéknév és a keresztnév is kell.');
-
-            return false;
-        }
-        if (!$this->privacyAccepted()) {
-            $this->Flash->error('A mentéshez el kell fogadni az adatkezelési nyilatkozatot.');
-
-            return false;
-        }
-        $user->set('profile_saved', true, ['guard' => false]);
-        $user->setDirty('profile_saved', true);
-        $user->set('tos_date', DateTime::now(), ['guard' => false]);
-        $user->setDirty('tos_date', true);
-        User::applyMailRequest($user, $this->request->getData(), $users->getSchema());
-        $notify = (string)$user->get('membership_request') !== 'pending';
-        if ($notify) {
-            $user->set('membership_request', 'pending', ['guard' => false]);
-            $user->setDirty('membership_request', true);
-        }
-        if (!$users->save($user)) {
-            $this->Flash->error('A profilt nem sikerült menteni.');
-
-            return false;
-        }
-        if ($notify) {
-            (new MembershipNotifier())->notifyPresidents($user);
         }
         $this->Flash->success('A profil mentve. A kérelem a klubelnöknél van. Ha elfogadja, e-mailt küldünk róla. Utána ki kell jelentkezned innen. A következő bejelentkezéskor minden elérhető lesz az új tagoknak.');
 
@@ -286,11 +255,6 @@ class PagesController extends AppController
             }
         } catch (\Throwable) {
         }
-    }
-
-    private function privacyAccepted(): bool
-    {
-        return filter_var($this->request->getData('accept_privacy'), FILTER_VALIDATE_BOOLEAN);
     }
 
     private function profileSaved(object $user): bool
