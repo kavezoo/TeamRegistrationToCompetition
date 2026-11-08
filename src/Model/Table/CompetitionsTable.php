@@ -143,6 +143,21 @@ class CompetitionsTable extends Table
             ]);
 
         $validator
+            ->scalar('info_url')
+            ->maxLength('info_url', 2000)
+            ->allowEmptyString('info_url')
+            ->add('info_url', 'httpUrl', [
+                'rule' => function ($value): bool {
+                    if ($value === null || $value === '') {
+                        return true;
+                    }
+
+                    return preg_match('#\Ahttps?://#i', (string)$value) === 1;
+                },
+                'message' => 'A leírás linkje http vagy https legyen.',
+            ]);
+
+        $validator
             ->scalar('description')
             ->allowEmptyString('description');
 

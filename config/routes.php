@@ -111,7 +111,7 @@ return function (RouteBuilder $routes): void {
 
 	$routes->prefix('President', function (RouteBuilder $builder) {
 		$builder->setRouteClass(DashedRoute::class);
-		$builder->connect('/', ['controller' => 'Applicants', 'action' => 'index']);
+		$builder->connect('/', ['controller' => 'Dashboard', 'action' => 'home']);
 		$builder->connect('/profile', ['controller' => 'Dashboard', 'action' => 'profile']);
 		$builder->fallbacks();
 	});
@@ -139,6 +139,10 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Applicants',
             'action' => 'deny',
         ])->setPass(['id'])->setMethods(['POST']);
+        $builder->connect('/competitions/past', [
+            'controller' => 'Competitions',
+            'action' => 'past',
+        ])->setMethods(['GET']);
         $builder->resources('Competitions');
         $builder->resources('Registrations');
         $builder->resources('Teams');
@@ -158,6 +162,18 @@ return function (RouteBuilder $routes): void {
             'controller' => 'Users',
             'action' => 'deleteAccount',
         ])->setMethods(['POST', 'DELETE']);
+        $builder->connect('/users/{id}', [
+            'controller' => 'Users',
+            'action' => 'remove',
+        ])->setPass(['id'])->setMethods(['DELETE']);
+        $builder->connect('/flashes', [
+            'controller' => 'Flashes',
+            'action' => 'index',
+        ])->setMethods(['GET']);
+        $builder->connect('/flashes/{id}/seen', [
+            'controller' => 'Flashes',
+            'action' => 'seen',
+        ])->setPass(['id'])->setMethods(['POST']);
         $builder->connect('/auth/google', [
             'controller' => 'Auth',
             'action' => 'google',

@@ -27,7 +27,7 @@ class MembershipNotifier
         $details .= "\nA profilját elmentette. A jelentkezők listáján tagként fogadhatod el, vagy jelezheted, hogy nem tag, csak kipróbálta az oldalt.";
         PresidentNotice::send('Új klubjelentkező', $details, [
             [MailLinks::applicants(), 'Az új jelentkezők megtekintése'],
-        ], null, User::MAIL_APPLICANTS);
+        ], null, User::MAIL_APPLICANTS, 'applicants');
     }
 
     /**
@@ -46,7 +46,7 @@ class MembershipNotifier
         $details .= "\nVéletlenül járt az oldalon, és a saját adatait törölte. A jelentkezők listáján már nem szerepel.";
         PresidentNotice::send('Törölt klubjelentkezés', $details, [
             [MailLinks::applicants(), 'A jelentkezők listája'],
-        ], null, User::MAIL_APPLICANTS);
+        ], null, User::MAIL_APPLICANTS, 'applicants');
     }
 
     /**
@@ -54,6 +54,12 @@ class MembershipNotifier
      */
     public function notifyAccepted(object $applicant): void
     {
+        FlashNotice::deliver(
+            $applicant,
+            'A jelentkezésedet elfogadtuk',
+            'A klubelnök elfogadta a jelentkezésedet. Koppints az üzenetre, és megnyílik a tagi képernyő.',
+            'member',
+        );
         $to = trim((string)($applicant->email ?? ''));
         if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {
             return;
@@ -80,6 +86,12 @@ class MembershipNotifier
      */
     public function notifyDenied(object $applicant): void
     {
+        FlashNotice::deliver(
+            $applicant,
+            'A klubelnök elutasította a jelentkezésedet',
+            'A klubelnök elutasította a jelentkezésedet. Nem tag, csak kipróbáltad az oldalt.',
+            'home',
+        );
         $to = trim((string)($applicant->email ?? ''));
         if ($to === '' || !User::wantsMail($applicant, User::MAIL_MEMBERSHIP)) {
             return;

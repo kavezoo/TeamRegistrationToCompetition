@@ -28,17 +28,26 @@ class AssignmentNotifier
         }
 
         $team = trim((string)($registration->team->name ?? ''));
-        $to = trim((string)($registration->user->email ?? ''));
-        if ($team === '' || $to === '' || !User::wantsMail($registration->user, User::MAIL_ASSIGNMENT)) {
+        if ($team === '') {
             return;
         }
-
         $competition = trim((string)($registration->competition->name ?? ''));
         $details = "A klubelnök besorolt egy alcsoportba.\n";
         if ($competition !== '') {
             $details .= "\nVerseny: {$competition}";
         }
         $details .= "\nAlcsoport: {$team}";
+        FlashNotice::deliver(
+            $registration->user,
+            'Besoroltak egy alcsoportba',
+            $details,
+            'registration',
+            $registration->id,
+        );
+        $to = trim((string)($registration->user->email ?? ''));
+        if ($to === '' || !User::wantsMail($registration->user, User::MAIL_ASSIGNMENT)) {
+            return;
+        }
         $role = (string)($registration->user->get('role') ?? '');
         [$text, $html] = OutgoingMail::notice($registration->user, $details, [
             [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],

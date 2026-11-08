@@ -21,6 +21,8 @@ class PresidentNotice
         array $buttons,
         ?string $exceptUserId = null,
         ?string $mailField = null,
+        string $target = 'home',
+        int|string|null $targetId = null,
     ): void {
         try {
             $users = TableRegistry::getTableLocator()->get('Users');
@@ -45,6 +47,7 @@ class PresidentNotice
             if ($exceptUserId !== null && (string)$president->id === $exceptUserId) {
                 continue;
             }
+            FlashNotice::deliver($president, $subject, $details, $target, $targetId);
             if ($mailField !== null && !User::wantsMail($president, $mailField)) {
                 continue;
             }

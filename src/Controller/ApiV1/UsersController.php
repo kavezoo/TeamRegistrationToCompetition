@@ -96,6 +96,63 @@ class UsersController extends AppController
     }
 
     /**
+     * Admin törli egy tag vagy klubelnök fiókját és minden hozzá tartozó adatot.
+     */
+    public function remove(string $id): void
+    {
+        $this->request->allowMethod(['delete']);
+        if ($this->role() !== User::ROLE_ADMIN) {
+            $this->respondForbidden('Tagot csak admin törölhet.');
+
+            return;
+        }
+        if ($id === $this->identityId()) {
+            $this->respondForbidden('A saját fiókodat a Saját adatok lapon törölheted.');
+
+            return;
+        }
+        try {
+            $user = $this->Users->get($id);
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException) {
+            $this->respondNotFound('Nincs ilyen felhasználó.');
+
+            return;
+        }
+        $role = (string)$user->get('role');
+        if ($role === User::ROLE_ADMIN || !empty($user->get('is_superuser'))) {
+            $this->respondForbidden('Adminisztrátort nem lehet itt törölni.');
+
+            return;
+        }
+        $deletedName = User::displayName($user);
+        $deletedEmail = trim((string)$user->get('email'));
+        $connection = $this->Users->getConnection();
+        $connection->begin();
+        try {
+            $this->deleteOwnedRows($this->Users, $id);
+            if (!$this->Users->delete($user)) {
+                throw new \RuntimeException('A felhasználó törlése nem sikerült.');
+            }
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            $connection->rollback();
+            Log::error('A tag törlése nem sikerült: ' . $exception->getMessage());
+            $this->response = $this->response->withStatus(500);
+            $this->set([
+                'success' => false,
+                'message' => 'A tagot nem sikerült törölni.',
+            ]);
+
+            return;
+        }
+        (new MembershipNotifier())->notifyDeleted($deletedName, $deletedEmail);
+        $this->set([
+            'success' => true,
+            'message' => 'A tag és minden adata törölve lett.',
+        ]);
+    }
+
+    /**
      * A klubelnök tagot elnökké nevez, vagy az elnököt visszaállítja taggá.
      */
     public function role(string $id): void
@@ -271,6 +328,13 @@ class UsersController extends AppController
             $sessions = $this->fetchTable('MobileSessions');
             if ($sessions->getSchema()->hasColumn('user_id')) {
                 $sessions->deleteAll(['user_id' => $userId]);
+            }
+        } catch (\Throwable) {
+        }
+        try {
+            $flashes = $this->fetchTable('Flashes');
+            if ($flashes->getSchema()->hasColumn('user_id')) {
+                $flashes->deleteAll(['user_id' => $userId]);
             }
         } catch (\Throwable) {
         }

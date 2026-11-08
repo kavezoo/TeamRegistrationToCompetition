@@ -165,6 +165,13 @@ return [
         ],
         [
             'role' => 'new',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Flashes',
+            'action' => ['index', 'seen'],
+        ],
+        [
+            'role' => 'new',
             'plugin' => '*',
             'controller' => '*',
             'action' => '*',
@@ -204,7 +211,7 @@ return [
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Competitions',
-            'action' => ['index', 'view'],
+            'action' => ['index', 'view', 'past'],
         ],
         [
             'role' => 'member',
@@ -227,13 +234,20 @@ return [
             'controller' => 'Users',
             'action' => ['deleteAccount'],
         ],
+        [
+            'role' => 'member',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Flashes',
+            'action' => ['index', 'seen'],
+        ],
         // A klubelnök a webes felületével megegyezően kezeli a versenyeket, alcsapatokat és a nevezéseket.
         [
             'role' => 'president',
             'prefix' => 'ApiV1',
             'plugin' => false,
             'controller' => 'Competitions',
-            'action' => ['index', 'view', 'add', 'edit'],
+            'action' => ['index', 'view', 'add', 'edit', 'past'],
         ],
         [
             'role' => 'president',
@@ -263,6 +277,13 @@ return [
             'plugin' => false,
             'controller' => 'Users',
             'action' => ['enabled', 'role', 'deleteAccount'],
+        ],
+        [
+            'role' => 'president',
+            'prefix' => 'ApiV1',
+            'plugin' => false,
+            'controller' => 'Flashes',
+            'action' => ['index', 'seen'],
         ],
         [
             'role' => 'president',

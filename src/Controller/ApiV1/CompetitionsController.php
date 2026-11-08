@@ -32,6 +32,7 @@ class CompetitionsController extends AppController
         'date_from',
         'date_deadline',
         'map_url',
+        'info_url',
         'description',
         'visible',
         'pos',
@@ -46,6 +47,35 @@ class CompetitionsController extends AppController
             return;
         }
         $query = $this->Competitions->find()->orderBy(['date_from' => 'ASC', 'name' => 'ASC']);
+        $this->hideFinished($query);
+        if ($this->role() === User::ROLE_MEMBER) {
+            $this->hideNotYetListed($query);
+            $this->limitMemberList($query);
+        }
+        $competitions = $this->paginate($query);
+        $paging = $this->pagingFor($competitions);
+        $this->set(compact('competitions', 'paging'));
+        $this->viewBuilder()->setOption('serialize', ['success', 'competitions', 'paging']);
+        $this->set('success', true);
+    }
+
+    /**
+     * Lejárt versenyek, a legutóbbi elöl.
+     */
+    public function past(): void
+    {
+        $this->request->allowMethod(['get']);
+        if (!$this->canRead()) {
+            $this->respondForbidden('Ehhez nincs jogosultságod.');
+
+            return;
+        }
+        $query = $this->Competitions->find()
+            ->where([
+                'Competitions.date_competition IS NOT' => null,
+                'Competitions.date_competition <' => \Cake\I18n\DateTime::now(),
+            ])
+            ->orderBy(['Competitions.date_competition' => 'DESC', 'Competitions.name' => 'ASC']);
         if ($this->role() === User::ROLE_MEMBER) {
             $this->limitMemberList($query);
         }
@@ -141,6 +171,32 @@ class CompetitionsController extends AppController
             (new CompetitionNotifier())->notifyMembers($competition);
         }
         $this->respondSaved('competition', $competition, $created);
+    }
+
+    /**
+     * A versenyidő elmúltával a kiírás kikerül az aktuális listából.
+     */
+    private function hideFinished(SelectQuery $query): void
+    {
+        $query->where([
+            'OR' => [
+                'Competitions.date_competition IS' => null,
+                'Competitions.date_competition >=' => \Cake\I18n\DateTime::now(),
+            ],
+        ]);
+    }
+
+    /**
+     * A tag a date_from napjától látja a kiírást. Előtte csak az elnök szerkeszti.
+     */
+    private function hideNotYetListed(SelectQuery $query): void
+    {
+        $query->where([
+            'OR' => [
+                'Competitions.date_from IS' => null,
+                'Competitions.date_from <=' => \Cake\I18n\Date::today(),
+            ],
+        ]);
     }
 
     private function canRead(): bool

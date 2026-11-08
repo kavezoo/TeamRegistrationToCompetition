@@ -35,6 +35,10 @@ class CompetitionNotifier
         if ($deadline !== '') {
             $details .= "Jelentkezési határidő: {$deadline}\n";
         }
+        $info = $competition->infoUrl();
+        if ($info !== null) {
+            $details .= "A verseny leírása: {$info}\n";
+        }
 
         try {
             $users = TableRegistry::getTableLocator()->get('Users');
@@ -57,6 +61,13 @@ class CompetitionNotifier
         }
 
         foreach ($members as $member) {
+            FlashNotice::deliver(
+                $member,
+                'Új verseny kiírva',
+                trim($details),
+                'competition',
+                $competition->id,
+            );
             $to = trim((string)($member->email ?? ''));
             if ($to === '' || !User::wantsMail($member, User::MAIL_COMPETITION)) {
                 continue;
@@ -66,7 +77,7 @@ class CompetitionNotifier
                     $member,
                     $details,
                     $url,
-                    $competition->descriptionHtml(),
+                    null,
                 );
                 OutgoingMail::send($to, 'Új verseny kiírva', $text, $html, $member);
             } catch (\Throwable $exception) {

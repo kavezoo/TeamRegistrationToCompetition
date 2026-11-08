@@ -25,7 +25,7 @@ $this->assign('title', 'Jelentkezés');
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
                         <li class="nav-item" role="presentation">
-                          <a class="nav-link" id="tab-description-btn" data-bs-toggle="tab" href="#tab-description" role="tab" aria-controls="tab-description" aria-selected="false"><?= __('Description') ?></a>
+                          <a class="nav-link" id="tab-description-btn" data-bs-toggle="tab" href="#tab-description" role="tab" aria-controls="tab-description" aria-selected="false">Leírás linkje</a>
                         </li>
                       </ul>
                       <?= $this->Action->close(null, ['action' => 'index']) ?>
@@ -77,11 +77,7 @@ $this->assign('title', 'Jelentkezés');
                         </div>
                         <div class="tab-pane fade" id="tab-description" role="tabpanel" aria-labelledby="tab-description-btn" tabindex="0">
                           <div class="p-3">
-                            <?php if ($competition->descriptionHtml() === null) : ?>
-                              <p class="mb-0">Nincs leírás.</p>
-                            <?php else : ?>
-                              <?= $this->element('competition_description', ['competition' => $competition]) ?>
-                            <?php endif; ?>
+                            <?= $this->element('competition_info_link', ['competition' => $competition, 'empty' => true]) ?>
                           </div>
                         </div>
                       </div>

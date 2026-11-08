@@ -27,6 +27,7 @@ class CompetitionsController extends AppController
         'date_from',
         'date_deadline',
         'map_url',
+        'info_url',
         'description',
         'visible',
         'pos',

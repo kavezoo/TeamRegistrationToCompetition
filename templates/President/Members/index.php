@@ -25,6 +25,13 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
         <div class="card shadow">
             <div class="card-header">
                 <strong class="d-block">Aktív tagok</strong>
+                <div class="mt-2">
+                    <?= $this->Html->link(
+                        'Üzenet minden tagnak',
+                        ['controller' => 'Messages', 'action' => 'index'],
+                        ['class' => 'btn btn-sm btn-primary'],
+                    ) ?>
+                </div>
                 <?php if ($canRemind && $missing > 0) : ?>
                     <div class="mt-2">
                         <?= $this->Form->postLink(
@@ -96,6 +103,13 @@ $csrf = (string)$this->request->getAttribute('csrfToken');
                                             <?php elseif ($canRemind) : ?>
                                                 Nincs e-mail címe
                                             <?php endif; ?>
+                                            <div class="mt-2">
+                                                <?= $this->Html->link(
+                                                    'Üzenet a telefonra',
+                                                    ['controller' => 'Messages', 'action' => 'index', '?' => ['user' => $memberId]],
+                                                    ['class' => 'btn btn-sm btn-outline-secondary'],
+                                                ) ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

@@ -35,7 +35,7 @@ $show = array_merge($show['add'] ?? [], $showLocal['add']);
                           <a class="nav-link active" id="tab-basic-btn" data-bs-toggle="tab" href="#tab-basic" role="tab" aria-controls="tab-basic" aria-current="page" aria-selected="true"><?= __('Basic data') ?></a>
                         </li>
                         <li class="nav-item" role="presentation">
-                          <a class="nav-link" id="tab-megjegyzes-btn" data-bs-toggle="tab" href="#tab-megjegyzes" role="tab" aria-controls="tab-megjegyzes" aria-selected="false"><?= __('Description') ?></a>
+                          <a class="nav-link" id="tab-megjegyzes-btn" data-bs-toggle="tab" href="#tab-megjegyzes" role="tab" aria-controls="tab-megjegyzes" aria-selected="false">Leírás linkje</a>
                         </li>
 <?php if (!empty($show['relatedTables'])) : ?>
                         <li class="nav-item dropdown ms-auto" role="presentation">
@@ -141,11 +141,16 @@ $show = array_merge($show['add'] ?? [], $showLocal['add']);
                         </div>
 
                         <div class="tab-pane fade" id="tab-megjegyzes" role="tabpanel" aria-labelledby="tab-megjegyzes-btn" tabindex="0">
-                          <div class="form-wysiwyg">
-                            <?= $this->Form->textarea('description', [
-                                'id' => 'megjegyzes',
-                                'class' => 'form-wysiwyg__editor',
-                            ]) ?>
+                          <div class="row mb-3">
+                            <div class="col-12 col-md-2 text-start text-md-end">
+                              <?= $this->Form->label('info_url', 'A leírás linkje:', ['class' => 'form-control-label fw-bold']) ?>
+                            </div>
+                            <div class="col-12 col-md-9">
+                              <?= $this->Input->control('info_url', [
+                                  'class' => 'form-control',
+                                  'placeholder' => 'https://pipaclub.hu/...',
+                              ]) ?>
+                            </div>
                           </div>
                         </div>
 

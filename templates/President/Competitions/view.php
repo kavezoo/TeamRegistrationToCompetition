@@ -19,7 +19,7 @@ $this->assign('title', $competition->name);
             </div>
             <div class="card-body">
                 <?= $this->element('competition_schedule', ['competition' => $competition]) ?>
-                <?= $this->element('competition_description', ['competition' => $competition]) ?>
+                <?= $this->element('competition_info_link', ['competition' => $competition, 'empty' => true]) ?>
                 <h2 class="h5">Jelentkezők</h2>
                 <?php if ($teams === []) : ?>
                     <p>Előbb hozz létre alcsapatot, utána lehet besorolni a jelentkezőket.</p>

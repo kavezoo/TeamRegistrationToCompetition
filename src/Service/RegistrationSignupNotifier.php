@@ -27,8 +27,7 @@ class RegistrationSignupNotifier
         }
 
         $user = $registration->user ?? null;
-        $to = trim((string)($user->email ?? ''));
-        if ($user !== null && $to !== '' && User::wantsMail($user, User::MAIL_SIGNUP)) {
+        if ($user !== null) {
             $role = (string)($user->get('role') ?? '');
             $name = trim((string)($registration->competition->name ?? ''));
             $details = "Jelentkeztél a versenyre.\n";
@@ -36,15 +35,19 @@ class RegistrationSignupNotifier
                 $details .= "\nVerseny: {$name}";
             }
             $subject = $name !== '' ? 'Jelentkeztél a versenyre: ' . $name : 'Jelentkeztél a versenyre';
-            [$text, $html] = OutgoingMail::notice($user, $details, [
-                [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],
-                [MailLinks::registrantList($role), 'A jelentkezett tagok listája'],
-            ]);
+            FlashNotice::deliver($user, $subject, $details, 'registration', $registration->id);
+            $to = trim((string)($user->email ?? ''));
+            if ($to !== '' && User::wantsMail($user, User::MAIL_SIGNUP)) {
+                [$text, $html] = OutgoingMail::notice($user, $details, [
+                    [MailLinks::registrationSheet($role, $registration->id), 'A jelentkezésem megtekintése'],
+                    [MailLinks::registrantList($role), 'A jelentkezett tagok listája'],
+                ]);
 
-            try {
-                OutgoingMail::send($to, $subject, $text, $html, $user);
-            } catch (\Throwable $exception) {
-                Log::error('A jelentkezési értesítés nem ment ki: ' . $exception->getMessage());
+                try {
+                    OutgoingMail::send($to, $subject, $text, $html, $user);
+                } catch (\Throwable $exception) {
+                    Log::error('A jelentkezési értesítés nem ment ki: ' . $exception->getMessage());
+                }
             }
         }
 
@@ -69,7 +72,7 @@ class RegistrationSignupNotifier
         $subject = $competition !== '' ? 'Lemondott versenyjelentkezés: ' . $competition : 'Lemondott versenyjelentkezés';
         PresidentNotice::send($subject, $details, [
             [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
-        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''), User::MAIL_PRESIDENT_ENTRIES);
+        ], $user !== null ? (string)($user->id ?? $registration->user_id ?? '') : (string)($registration->user_id ?? ''), User::MAIL_PRESIDENT_ENTRIES, 'roster');
     }
 
     private function notifyPresidentsSignedUp(object $registration): void
@@ -91,6 +94,6 @@ class RegistrationSignupNotifier
         $subject = $competition !== '' ? 'Új versenyjelentkezés: ' . $competition : 'Új versenyjelentkezés';
         PresidentNotice::send($subject, $details, [
             [MailLinks::registrantList(User::ROLE_PRESIDENT), 'A jelentkezett tagok listája'],
-        ], $user !== null ? (string)($user->id ?? '') : null, User::MAIL_PRESIDENT_ENTRIES);
+        ], $user !== null ? (string)($user->id ?? '') : null, User::MAIL_PRESIDENT_ENTRIES, 'roster');
     }
 }

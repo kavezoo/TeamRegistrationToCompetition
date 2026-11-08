@@ -23,7 +23,6 @@ class RegistrationReminderNotifier
         if ($to === '' || !User::wantsMail($member, User::MAIL_REMINDER)) {
             return null;
         }
-
         [$subject, $message, $html] = $this->compose($competition, $member);
         try {
             OutgoingMail::send($to, $subject, $message, $html, $member);
@@ -32,6 +31,13 @@ class RegistrationReminderNotifier
 
             return null;
         }
+        FlashNotice::deliver(
+            $member,
+            $subject,
+            'Még nem jelentkeztél a versenyre: ' . trim((string)$competition->name),
+            'competition',
+            $competition->id,
+        );
 
         $reminders = TableRegistry::getTableLocator()->get('RegistrationReminders');
         $row = $reminders->newEntity([
@@ -76,11 +82,15 @@ class RegistrationReminderNotifier
         if ($deadline !== '') {
             $details .= "Jelentkezési határidő: {$deadline}\n";
         }
+        $info = $competition->infoUrl();
+        if ($info !== null) {
+            $details .= "A verseny leírása: {$info}\n";
+        }
         [$message, $html] = OutgoingMail::competitionRegistration(
             $member,
             $details,
             $url,
-            $competition->descriptionHtml(),
+            null,
         );
 
         return [$subject, $message, $html];

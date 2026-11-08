@@ -18,11 +18,12 @@ $items = [
     'Groups' => ['Nevezők', 'fa-people-group'],
     'Members' => ['Tagok', 'fa-users'],
     'Teams' => ['Alcsapatok', 'fa-user-group'],
+    'Messages' => ['Üzenet', 'fa-comment-dots'],
 ];
 ?>
 <aside class="menu-sidebar" id="main-sidebar">
     <div class="logo">
-        <a class="logo-link" href="<?= $this->Url->build(['prefix' => $prefixName, 'controller' => 'Applicants', 'action' => 'index']) ?>" aria-label="Klubelnök">
+        <a class="logo-link" href="<?= $this->Url->build(['prefix' => $prefixName, 'controller' => 'Dashboard', 'action' => 'home']) ?>" aria-label="Klubelnök">
             <span class="logo-mark" aria-hidden="true">T</span>
             <span class="logo-text">TeamReg</span>
         </a>
